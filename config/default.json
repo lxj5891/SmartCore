@@ -1,0 +1,72 @@
+{  
+  "db": {
+       // "host": "127.0.0.1"
+     "host": "10.2.8.235"
+    , "port": 27017
+    , "dbname": "smart"
+    , "pool": 5
+  },
+
+  "testdb": {
+      "host": "127.0.0.1"
+     // "host": "10.2.8.237"
+    , "port": 27017
+    , "dbname": "developer"
+    , "pool": 5
+  },
+
+  "solr": {
+      "host": "10.2.3.27"
+    , "port": 10080
+  },
+
+  "mail": {
+      "service": "Gmail"
+    , "auth": {
+        "user": "r2space@gmail.com"
+      , "pass": "bgSxYsl7"
+    }
+    // "host": "mail.securemx.jp"
+    // "port": 465
+    // "secure": true
+  },
+
+  "session": {
+      "timeout": 720 // 24 * 30 一个月
+    , "secret": "jp.co.dreamarts.smart"
+    , "key": "smart.sid"
+  },
+
+  "cookie": {
+      "key": "smart.cookie"
+    , "secret": "jp.co.dreamarts.smart"
+    , "timeout": 12
+  },
+  
+  "app": {
+      "tmp": "/tmp"
+    , "hmackey": "smart"
+    , "workpath": "/Users/lilin/developer/nodejs/smart/tmp"
+    , "analyzer": "java -jar /Users/lilin/Desktop/analyzer.jar"
+    , "scissors": ""
+    , "queue": "true"
+    , "port": 3000
+    , "timeout": 1
+  },
+  
+  "mq": {
+      "host": "10.2.8.232"
+    , "port": 5672
+    , "user": "guest"
+    , "password": "guest"
+    , "queue": "smartAnalyzer"
+    , "notification_queue": "SmartNotification"
+  },
+  "mq_photo": {
+      "host": "10.2.8.232"
+    , "port": 5672
+    , "user": "guest"
+    , "password": "guest"
+    , "queue": "smartPhoto"
+  }
+}
