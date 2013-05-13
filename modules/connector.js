@@ -3,7 +3,7 @@ var Mongodb = require('mongodb')
   , Db = Mongodb.Db
   , Server = Mongodb.Server
   , ObjectID = Mongodb.ObjectID
-  , conf = process.env['TEST'] ? require('config').testdb : require('config').db;
+  , conf = process.env.TEST ? require('config').testdb : require('config').db;
 
 /**
  *
@@ -16,7 +16,7 @@ var ServerOptions = {
       , noDelay: true
       , keepAlive: 0
       }
-  };
+    };
 
 /**
  *
@@ -50,6 +50,7 @@ Connector.prototype.id = function(id) {
   }
   
   return new Object(id);
-}
+};
 
 module.exports = new Connector(conf, ServerOptions, DbOptions);
+

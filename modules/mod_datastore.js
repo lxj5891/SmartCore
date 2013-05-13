@@ -11,7 +11,6 @@ var connector = require('./connector');
  *
  */
 
-
 exports.create = function(storeid, document, callback) {
 
   var collection = connector.db.collection(storeid);
@@ -36,7 +35,7 @@ exports.updateById = function(storeid, docid, document, callback) {
   var condition = {_id: connector.id(docid)};
   exports.update(storeid, condition, document, callback);
 
-}
+};
 
 exports.find = function(storeid, condition, start_, limit_, callback) {
 
