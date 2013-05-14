@@ -5,7 +5,7 @@ exports.stringFormat = function(src,key,newStr) {
     var reg=new RegExp ("({{"+key+"}})","g"); 
     src = src.replace(reg, newStr); 
     return src; 
-} 
+  };
 
 exports.checkString = function(value){	
 	if("string" === typeof(value)){
@@ -30,7 +30,8 @@ exports.checkObject = function(obj){
 };
 
 exports.getTelRegex = function(){
-	return /((\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$)/;
+  return new RegExp("((\\d{11})|^((\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})-(\\d{4}|\\d{3}|\\d{2}|\\d{1})|(\\d{7,8})-(\\d{4}|\\d{3}|\\d{2}|\\d{1}))$)");
+	//return /((\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$)/;
 };
 
 exports.toObjectIdArray = function(str) {
@@ -52,7 +53,7 @@ exports.toObjectIdArray = function(str) {
   if(arr.length === 0){
     return null;
   }else{
-  	return arr;
+    return arr;
   }
 };
 
@@ -67,7 +68,7 @@ exports.isAllNull = function(obj){
 	}else{
 		return (obj ? false : true);
 	}
-}
+};
 
 /**
  * unit test ok
@@ -92,7 +93,7 @@ exports.unindentJson = function (prefix, origin, result, without) {
       result[newkey] = val;
     }
   }
-}
+};
 
 /**
  * unit test ok
@@ -110,17 +111,17 @@ exports.isHash = function(obj) {
   }
 
   return false;
-}
+};
 
 exports.isArray = function(value) {
 	// return value instanceof Array;
 	return Object.prototype.toString.call( value ) === "[object Array]";
-}
+};
 
 exports.isDate = function(value) {
 	// return value instanceof Date;
 	return Object.prototype.toString.call( value ) === "[object Date]";
-}
+};
 
 /**
  * 如果是浏览器访问，负责画面的迁移
@@ -139,4 +140,4 @@ exports.isBrowser = function(req) {
   isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^TurnoverIPad.*$/i);
  
   return !isSmartPhone;
-}
+};
