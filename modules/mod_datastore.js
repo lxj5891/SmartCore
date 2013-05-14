@@ -40,7 +40,6 @@ exports.updateById = function(storeid, docid, document, callback) {
 exports.find = function(storeid, condition, start_, limit_, callback) {
 
   var collection = connector.db.collection(storeid);
-
   collection.find(condition, {skip: start_, limit: limit_}).toArray(function(err, result){
     callback(err, result);
   });

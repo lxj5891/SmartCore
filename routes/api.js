@@ -1,11 +1,11 @@
 
-var log           = require('../core/log')
-  , search        = require('../api/search')
+var search        = require('../api/search')
   , dbfile        = require('../controllers/ctrl_dbfile')
   , notification  = require('../api/notification')
   , groupapi      = require('./api_group')  
   , fileapi       = require('./api_file')  
-  , userapi       = require('./api_user');
+  , userapi       = require('./api_user')
+  , datastore     = require('./api_datastore');
 
 /**
  * GuidingApi:
@@ -17,6 +17,7 @@ exports.guiding = function(app){
   userapi.guiding(app);
   groupapi.guiding(app);
   fileapi.guiding(app);
+  datastore.guiding(app);
 
   // 获取图片  
   app.get('/picture/:id', function(req, res){
