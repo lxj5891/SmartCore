@@ -1,6 +1,4 @@
-var util = require('util')
-  , log = require('../core/log')
-  , json = require("../core/json")
+var json = require("../core/json")
   , dbfile = require('../controllers/ctrl_dbfile');
 
 exports.ioshistory = function(req_,res_){
@@ -8,7 +6,7 @@ exports.ioshistory = function(req_,res_){
   dbfile.detail(fid, function(err, result){
     return res_.send(json.dataSchema({items:result.history}));
   });
-}
+};
 
 exports.list = function(req_, res_) {
 
@@ -30,13 +28,14 @@ exports.detailNew = function(req_,res_) {
   dbfile.detail(fid, function(err, result){
     return res_.send(json.dataSchema({file:result.file,user:result.owner}));
   });
-}
+};
+
 exports.detail = function(req_, res_) {
   var fid = req_.query.fid;
   dbfile.detail(fid, function(err, result){
     return res_.send(json.dataSchema({items: result}));
   });
-}
+};
 
 exports.history = function(req_, res_) {
   var fid = req_.query.fid;
@@ -74,7 +73,7 @@ exports.download = function(req_, res_) {
       return res_.send(doc);
     }    
   });
-}
+};
 
 exports.upload = function(req_, res_) {
 
@@ -86,7 +85,7 @@ exports.upload = function(req_, res_) {
   if (req_.files.files instanceof Array) {
     filearray = req_.files.files;
   } else {
-    filearray = new Array();
+    filearray = [];
     filearray.push(req_.files.files);
   }
 
@@ -97,7 +96,7 @@ exports.upload = function(req_, res_) {
       return res_.send(json.dataSchema({items: result}));
     }    
   });
-}
+};
 
 exports.save = function(req_, res_){
 
@@ -108,7 +107,7 @@ exports.save = function(req_, res_){
   if (req_.files.files instanceof Array) {
     filearray = req_.files.files;
   } else {
-    filearray = new Array();
+    filearray = [];
     filearray.push(req_.files.files);
   }
 
