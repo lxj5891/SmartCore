@@ -70,7 +70,7 @@ exports.download = function(req_, res_) {
     } else {
       res_.header('Content-Length', info.length);
       res_.attachment(info.filename);
-      res_.contentType(info.filename);
+      res_.contentType("application/zip");
       return res_.send(doc);
     }    
   });
