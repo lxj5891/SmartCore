@@ -132,9 +132,9 @@ exports.isBrowser = function(req) {
   // 单元测试
   isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^otest.*$/i);
   // iPhone
-  isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^SmartMessageIPhone.*$/i);
+  isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^TribeIPhone.*$/i);
   // iPad
-  isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^SmartMessageIPad.*$/i);
+  isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^TribeIPad.*$/i);
 
   // 
   isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^TurnoverIPad.*$/i);
