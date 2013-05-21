@@ -2,6 +2,7 @@
 var search        = require('../api/search')
   , dbfile        = require('../controllers/ctrl_dbfile')
   , notification  = require('../api/notification')
+  , category      = require('../api/category')
   , groupapi      = require('./api_group')  
   , fileapi       = require('./api_file')  
   , userapi       = require('./api_user')
@@ -79,6 +80,24 @@ exports.guiding = function(app){
   // 更新已读状态
   app.put("/notification/read.json", function(req, res){
     notification.read(req, res);
+  });
+
+
+  // ---- 分类 ----
+  app.put("/category/add.json", function(req, res){
+    category.addItem(req, res);
+  });
+
+  app.post("/category/create.json", function(req, res){
+    category.create(req, res);
+  });
+
+  app.get("/category/get.json", function(req, res){
+    category.findById(req, res);
+  });
+
+  app.get("/category/list.json", function(req, res){
+    category.find(req, res);
   });
   
 };

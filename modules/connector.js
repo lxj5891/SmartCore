@@ -49,7 +49,7 @@ Connector.prototype.id = function(id) {
     return id;
   }
   
-  return new Object(id);
+  return new ObjectID(id);
 };
 
 module.exports = new Connector(conf, ServerOptions, DbOptions);
