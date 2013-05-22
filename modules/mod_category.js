@@ -84,3 +84,28 @@ exports.findById = function(categoryid, callback) {
 
 };
 
+exports.update = function(id_, newcategory, callback_) {
+
+  var collection = connector.db.collection(table)
+    , condition = {_id: connector.id(id_)};
+
+
+  collection.update(condition, newcategory, function(err, result){
+    callback_(err, result);
+  });
+};
+exports.del = function(id_ , callback_) {
+
+  var collection = connector.db.collection(table)
+    , condition = {_id: connector.id(id_)};
+
+    
+  collection.remove(condition, function(err, result){
+    callback_(err, result);
+  });
+};
+
+
+
+
+

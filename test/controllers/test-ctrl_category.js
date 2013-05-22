@@ -13,17 +13,17 @@ describe("Category Controllers", function() {
   //     }
   //   ];
 
-  //   category.create("lilin", "aaa", "bbb", null, "description", items, function(err, result) {
+  //   category.create("lihao", "CCC", "DDD", null, "ggooodo", items, function(err, result) {
       
   //     var items = [{
-  //         name: "uuuuuu"
+  //         name: "dfdfd"
   //       , value: "3"
   //       }, {
-  //         name: "nnnnnn"
+  //         name: "asasa"
   //       , value: "4"
   //       }
   //     ];
-  //     category.addItem("lilin", result[0]._id, items, function(err, result) {
+  //     category.addItem("wew", result[0]._id, items, function(err, result) {
 
   //       console.log(result);
   //       done();
@@ -33,14 +33,14 @@ describe("Category Controllers", function() {
   // });
 
 
-  // it("findById category", function(done) {
+  it("findById category", function(done) {
     
-  //   category.findById("519b12d591374e0829000001", function(err, result) {
+    category.findById("519b12d591374e0829000001", function(err, result) {
 
-  //     console.log(result);
-  //     done();
-  //   });
-  // });
+      console.log(result);
+      done();
+    });
+  });
 
   it("find category", function(done) {
     
@@ -52,3 +52,6 @@ describe("Category Controllers", function() {
   });
 
 });
+
+
+

@@ -4,6 +4,47 @@ var error = require("../core/errors")
   , default_project = "all"
   , default_group = "all";
 
+
+exports.detail = function(args,callback_){
+
+  category.findById(args, function(err, result){
+    err = err ? new error.InternalServer(err) : null;
+    callback_(err, result);
+  });
+
+};
+
+exports.add = function(obj, callback_){
+  var current = new Date();
+  var category_ =obj.category;
+  category_.createat = current;
+  category_.editat = current;
+  category_.editby = category_.createby;
+  category.create(category_, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+    callback_(err, result);
+  });
+};
+exports.edit = function(obj, callback_){
+  category.update(obj._id,obj.category, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+    callback_(err, result);
+  }); 
+}
+
+exports.del = function(obj, callback_){
+  category.del(obj._id, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+    callback_(err, result);
+  }); 
+}
+
 exports.create = function(uid, project, group, parent, description, items, callback) {
 
   var current = new Date();
@@ -48,6 +89,13 @@ exports.addItem = function(uid, categoryid, items, callback) {
     callback(err, result);
   });
 
+};
+
+exports.list = function(start,limit,callback) {
+  category.find({}, start, limit, function(err, result){
+    err = err ? new error.InternalServer(err) : null;
+    callback(err, result);
+  });
 };
 
 exports.find = function(project, group, start, limit, callback) {

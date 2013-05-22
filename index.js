@@ -18,6 +18,7 @@ module.exports = {
     , notification: require("./controllers/ctrl_notification")
     , search: require("./controllers/ctrl_search")
     , user: require("./controllers/ctrl_user")
+    , category: require("./controllers/ctrl_category")
   },
   mod: {
       user: require("./modules/mod_user")
