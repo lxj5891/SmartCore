@@ -5,7 +5,6 @@
 
 var connector = require('./connector')
   , table = "category";
-
 /**
  * Schema description
  * {
@@ -16,6 +15,7 @@ var connector = require('./connector')
  *   items: [{
  *     name: 
  *     value:
+ *     image:
  *     description:
  *   }]
  *   createat:
