@@ -6,9 +6,9 @@ var async = require('async')
 /**
  *
  */
-exports.create = function(uid, appname, document, callback) {
+exports.create = function(uid, appid, document, callback) {
 
-  var self = this, application = require(injections + appname)
+  var self = this, application = require(injections + appid)
     , current = new Date();
 
   document.createat = current;
@@ -53,9 +53,9 @@ exports.create = function(uid, appname, document, callback) {
 /**
  *
  */
-exports.update = function(uid, appname, condition, document, callback) {
+exports.update = function(uid, appid, condition, document, callback) {
 
-  var self = this, application = require(injections + appname);
+  var self = this, application = require(injections + appid);
 
   document.editat = new Date();
   document.editby = uid;
@@ -99,9 +99,9 @@ exports.update = function(uid, appname, condition, document, callback) {
 /**
  *
  */
-exports.updateById = function(uid, appname, docid, document, callback) {
+exports.updateById = function(uid, appid, dataid, document, callback) {
 
-  var self = this, application = require(injections + appname);
+  var self = this, application = require(injections + appid);
 
   document.editat = new Date();
   document.editby = uid;
@@ -110,7 +110,7 @@ exports.updateById = function(uid, appname, docid, document, callback) {
   var befor = function(next) {
 
     var args = [];
-    args.push(docid);
+    args.push(dataid);
     args.push(document);
     args.push(next);
     application.befor.apply(self, args);
@@ -118,7 +118,7 @@ exports.updateById = function(uid, appname, docid, document, callback) {
 
   // 生成数据
   var update = function(condition, document, next) {
-    datastore.updateById(application.collection, docid, document, function(err, result){
+    datastore.updateById(application.collection, dataid, document, function(err, result){
       next(err, result);
     });
   };
@@ -145,9 +145,9 @@ exports.updateById = function(uid, appname, docid, document, callback) {
 /**
  *
  */
-exports.find = function(uid, appname, params, start, limit, callback) {
+exports.find = function(uid, appid, params, start, limit, callback) {
 
-  var self = this, application = require(injections + appname);
+  var self = this, application = require(injections + appid);
 
   // 前处理
   var befor = function(next) {
@@ -189,9 +189,9 @@ exports.find = function(uid, appname, params, start, limit, callback) {
 /**
  *
  */
-exports.findById = function(uid, appname, dataid, callback) {
+exports.findById = function(uid, appid, dataid, callback) {
 
-  var self = this, application = require(injections + appname);
+  var self = this, application = require(injections + appid);
 
   // 前处理
   var befor = function(next) {

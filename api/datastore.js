@@ -24,14 +24,13 @@ exports.create = function(req_, res_) {
 /**
  * 
  */
-exports.update = function(req_, res_) {
+exports.updateById = function(req_, res_) {
 
   var uid = req_.session.user._id
     , appid = req_.appid
     , dataid = req_.query.id
     , document = req_.body;
 
-  //uid, appname, condition, document, callback
   datastore.updateById(uid, appid, dataid, document, function(err, result){
     if (err) {
       return res_.send(json.errorSchema(err.code, err.message));

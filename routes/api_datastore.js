@@ -10,6 +10,13 @@ exports.guiding = function(app){
 
   });
 
+  app.post('/app/turnover/update.json', function(req, res){
+
+    req.appid = "turnover_update";
+    datastore.updateById(req, res);
+
+  });
+
   app.get('/app/turnover/list.json', function(req, res){
 
     req.appid = "turnover_list";
