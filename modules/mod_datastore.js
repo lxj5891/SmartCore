@@ -24,7 +24,12 @@ exports.update = function(storeid, condition, document, callback) {
 
   var collection = connector.db.collection(storeid);
 
+  console.log(condition);
+  console.log(document);
   collection.update(condition, {$set: document}, {upsert:true, w: 1}, function(err, result){
+  console.log(storeid);
+  console.log(err);
+  console.log(result);
     callback(err, result);
   });
 

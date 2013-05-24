@@ -1,23 +1,28 @@
 
-var hello = exports;
+var turnover_update = exports;
 
-hello.version = "0.0.1";
-hello.collection = "abcdefg";
+turnover_update.version = "0.0.1";
+turnover_update.collection = "turnover";
 
-hello.befor = function(condition, document, callback) {
+turnover_update.befor = function(condition, document, callback) {
 
-  console.log("befor");
+  console.log("turnover_update_befor");
 
-  console.log(document);
-  console.log(callback);
+  var data = {
+      category: document.category
+    , amount: document.amount
+    , editby: document.editby
+    , editat: document.editat
+    };
+
 
   var err = null;
-  callback(err, condition, document);
+  callback(err, condition, data);
 
 };
 
-hello.after = function(document, callback) {
-  console.log("after");
+turnover_update.after = function(document, callback) {
+  console.log("turnover_update_after");
 
   var err = null;
   callback(err, document);

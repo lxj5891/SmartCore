@@ -1,26 +1,32 @@
 
-var hello = exports;
+var user = require("../controllers/ctrl_user")
+  , turnover_list = exports;
 
-hello.version = "0.0.1";
-hello.collection = "turnover";
+turnover_list.version = "0.0.1";
+turnover_list.collection = "turnover";
 
-hello.befor = function(param, start, limit, callback) {
+turnover_list.befor = function(param, start, limit, callback) {
 
-  console.log("list befor");
+  console.log("turnover_list_befor");
 
   var month = param.month;
   var condition = {date: new RegExp("^" + month + ".*$", "i")};
-  // var condition = {date: "2013/05/12"};
 
   var err = null;
   callback(err, condition, start, limit);
 
 };
 
-hello.after = function(document, callback) {
-  console.log("list after");
+turnover_list.after = function(document, callback) {
 
-  var err = null;
-  callback(err, document);
+  console.log("turnover_list_after");
+
+  console.log(document);
+  // 添加用户信息
+  user.appendUser(document, "editby", function(err, result){
+    console.log(result);
+    callback(err, result);
+  });
+
 };
 

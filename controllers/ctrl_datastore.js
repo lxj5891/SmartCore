@@ -118,7 +118,7 @@ exports.updateById = function(uid, appid, dataid, document, callback) {
 
   // 生成数据
   var update = function(condition, document, next) {
-    datastore.updateById(application.collection, dataid, document, function(err, result){
+    datastore.updateById(application.collection, condition, document, function(err, result){
       next(err, result);
     });
   };

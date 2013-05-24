@@ -6,7 +6,7 @@ hello.collection = "abcdefg";
 
 hello.befor = function(condition, start, limit, callback) {
 
-  console.log("befor");
+  console.log("turnover_find_befor");
 
   console.log(callback);
 
@@ -16,8 +16,10 @@ hello.befor = function(condition, start, limit, callback) {
 };
 
 hello.after = function(document, callback) {
-  console.log("after");
+  console.log("turnover_find_after");
 
+
+  console.log(document);
 
   document[0].aaa = "asdfasdfasdfa";
 
