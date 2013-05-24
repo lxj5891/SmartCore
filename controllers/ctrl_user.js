@@ -1,7 +1,6 @@
 var _         = require("underscore")
   , check     = require("validator").check
   , sanitize  = require("validator").sanitize
-  , dbfile    = require("./ctrl_dbfile")
   , ctrl_notification = require("../controllers/ctrl_notification")
   , user      = require('../modules/mod_user')
   , regi      = require('../modules/mod_register')
@@ -10,7 +9,6 @@ var _         = require("underscore")
   , log       = require('../core/log')
   , error     = require('../core/errors')
   , auth      = require('../core/auth')
-  , json      = require("../core/json")
   , mail      = require("../core/mail");
 
 
@@ -91,7 +89,7 @@ exports.listByUids = function(uids_, start_, limit_, callback_){
 
     callback_(err, result);
   });
-}
+};
 
 /**
  * 获取用户一览
@@ -207,7 +205,7 @@ exports.createUser = function(userid_, userinfo_, callback_) {
   var pass2 = util.checkString(userinfo_.password2);
   var username = util.checkObject(userinfo_.uname);
   var useremail = util.checkObject(userinfo_.email);
-  var usertel = util.checkObject(userinfo_.tel);
+  // var usertel = util.checkObject(userinfo_.tel);
   var date = Date.now();
 
   var info = {"uid": username
@@ -300,7 +298,7 @@ exports.updateUser = function(currentuser, obj, callback_){
     return callback_(new error.BadRequest(retObj.msg));
   }
 
-  var newval = {}
+  var newval = {};
   var password_new = u.password_new;
   if(password_new) {
     var pwd = password_new.pwd;
@@ -310,7 +308,7 @@ exports.updateUser = function(currentuser, obj, callback_){
       return callback_(new error.BadRequest(__("user.error.wrongPwd")));
     }
 
-    newval["password"] = auth.sha256(pwd1);
+    newval.password = auth.sha256(pwd1);
   }
 
   var photo = u.photo;
@@ -322,43 +320,43 @@ exports.updateUser = function(currentuser, obj, callback_){
       , "y": photo.y
       , "width": photo.width
       , "collection": "users"
-    });
+      });
   }
   
   if (u.tel) {
-    newval["tel"] = u.tel;
+    newval.tel = u.tel;
   }
 
   if (u.name) {
-    newval["name"] = u.name;
+    newval.name = u.name;
   }
 
   if (u.email) {
-    newval["email"] = u.email;
+    newval.email = u.email;
   }
 
   if(u.custom) {
-    newval["custom"] = u.custom;
+    newval.custom = u.custom;
   }
 
   if(u.title) {
-    newval["title"] = u.title;
+    newval.title = u.title;
   }
 
   if(u.address) {
-    newval["address"] = u.address;
+    newval.address = u.address;
   }
 
   if(u.birthday) {
-    newval["birthday"] = u.birthday;
+    newval.birthday = u.birthday;
   }
 
   if(u.lang) {
-    newval["lang"] = u.lang;
+    newval.lang = u.lang;
   }
 
   if(u.timezone) {
-    newval["timezone"] = u.timezone;
+    newval.timezone = u.timezone;
   }
 
   user.update(uid, newval, function(err, result){
@@ -410,7 +408,7 @@ exports.uploadPhoto = function(uid_, fid_, callback_){
   });
 };
 
-exports.setPhoto = function(req, res){
+exports.setPhoto = function(req/*, res*/){
   var id = req.body.id;
   var fid = req.body.fid;
   var x = req.body.x;
@@ -424,7 +422,7 @@ exports.setPhoto = function(req, res){
     , "y": y
     , "width": width
     , "collection": "users"
-  });
+    });
 };
 
 /**
@@ -466,7 +464,7 @@ exports.follow = function(currentuid_, followeruid_, callback_){
       ctrl_notification.createForFollow(follow);
       return callback_(err, result.friends);
     });
-  })
+  });
 };
 
 /**
@@ -490,7 +488,7 @@ exports.unfollow = function(currentuid_, followeruid_, callback_){
 
       return callback_(err, result.friends);
     });
-  })
+  });
 
 };
 
@@ -503,13 +501,13 @@ exports.register = function(email_, host_, callback_){
   // 生成uuid
   var emailtoken = auth.uuid()
     , data = {
-        "email": email_
-      , "uuid": emailtoken
-      , "createat": Date.now()
+      "email": email_
+    , "uuid": emailtoken
+    , "createat": Date.now()
     };
 
   // uuid和邮件配对保存到数据库中
-  regi.create(data, function(err, result){
+  regi.create(data, function(err/*, result*/){
     if (err) {
       return callback_(new error.InternalServer(err));
     }
@@ -551,7 +549,7 @@ exports.registerConfirm = function(email_, emailtoken_, callback_){
       , password2: email_
       , uname: email_
       , email: email_
-    };
+      };
 
     // TODO: 设定正确的系统管理员的ID
     exports.createUser("0", userinfo, function(err, result){
@@ -566,8 +564,6 @@ exports.registerConfirm = function(email_, emailtoken_, callback_){
 
 
 //***************************private function and variable*********************
-var notJump = ['/accountEditing', '/logout'];
-
 function isEmail(email){
   try{
     check(email).isEmail();
@@ -634,10 +630,10 @@ function checkTel(tel){
   return ret;
 }
 
-function hideUserProperties(u){
-  u.password = undefined;
-  u.expire = undefined;
-}
+// function hideUserProperties(u){
+//   u.password = undefined;
+//   u.expire = undefined;
+// }
 
 
 /**
