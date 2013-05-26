@@ -9,22 +9,29 @@ turnover_list.befor = function(param, start, limit, callback) {
 
   console.log("turnover_list_befor");
 
-  var month = param.month;
-  var condition = {date: new RegExp("^" + month + ".*$", "i")};
+  var condition = {};
+
+  // 如果指定了月份
+  if (param.month) {
+    condition = {date: new RegExp("^" + param.month + ".*$", "i")};
+  }
+
+  // 如果指定了起始日
+  if (param.from) {
+    condition = {date: {$lte: param.from}};
+  }
+
 
   var err = null;
   callback(err, condition, start, limit);
-
 };
 
 turnover_list.after = function(document, callback) {
 
   console.log("turnover_list_after");
 
-  console.log(document);
   // 添加用户信息
   user.appendUser(document, "editby", function(err, result){
-    console.log(result);
     callback(err, result);
   });
 
