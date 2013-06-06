@@ -15,7 +15,6 @@ purchase.befor = function(params, start, limit, callback) {
   start = 0;
   limit = 1;
 
-console.log(condition);
   callback(err, condition, start, limit);
 
 };
@@ -23,8 +22,6 @@ console.log(condition);
 purchase.after = function(document, callback) {
 
   console.log("purchase_find_after");
-
-console.log(document);
 
   // 添加用户信息
   user.appendUser(document, "editby", function(err, result){
