@@ -2,7 +2,7 @@
 var hello = exports;
 
 hello.version = "0.0.1";
-hello.collection = "abcdefg";
+hello.collection = "turnover";
 
 hello.befor = function(condition, start, limit, callback) {
 

@@ -128,6 +128,7 @@ exports.isDate = function(value) {
  */
 exports.isBrowser = function(req) {
   var isSmartPhone = false;
+  console.log(req.headers["user-agent"]);
 
   // 单元测试
   isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^otest.*$/i);
@@ -138,6 +139,7 @@ exports.isBrowser = function(req) {
 
   // 
   isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^TurnoverIPad.*$/i);
+  isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^ShoppingListIPad.*$/i);
  
   return !isSmartPhone;
 };

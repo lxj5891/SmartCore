@@ -24,4 +24,33 @@ exports.guiding = function(app){
 
   });
 
+
+  app.post('/app/purchase/add.json', function(req, res){
+
+    req.appid = "purchase_create";
+    datastore.create(req, res);
+
+  });
+
+  app.post('/app/purchase/update.json', function(req, res){
+
+    req.appid = "purchase_update";
+    datastore.updateById(req, res);
+
+  });
+
+  app.get('/app/purchase/list.json', function(req, res){
+
+    req.appid = "purchase_list";
+    datastore.find(req, res);
+
+  });
+
+  app.get('/app/purchase/get.json', function(req, res){
+
+    req.appid = "purchase_find";
+    datastore.find(req, res);
+
+  });
+
 };
