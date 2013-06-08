@@ -96,12 +96,12 @@ exports.listByUids = function(uids_, start_, limit_, callback_){
  * 获取用户一览
  */
 exports.getUserList = function(condition_, callback_){
-  var kind_ = condition_["kind"];
-  var firstLetter_ = condition_["firstLetter"];
-  var uid_ = condition_["uid"];
-  var start_ = condition_["start"];
-  var limit_ = condition_["limit"];
-  var keywords_ = condition_["keywords"];
+  var kind_ = condition_.kind;
+  var firstLetter_ = condition_.firstLetter;
+  var uid_ = condition_.uid;
+  var start_ = condition_.start;
+  var limit_ = condition_.limit;
+  var keywords_ = condition_.keywords;
 
 
   // 开始
@@ -202,7 +202,7 @@ exports.getUserList = function(condition_, callback_){
   }
 
   if(kind_ == "group") {
-    var gid = condition_["gid"];
+    var gid = condition_.gid;
     group.at(gid, function(err, result){
       if (err) {
         return callback_(new error.InternalServer(err));

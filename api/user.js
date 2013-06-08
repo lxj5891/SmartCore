@@ -37,10 +37,10 @@ var util = require("../core/util")
 
 exports.basic = function(req, res) {
   res.send({
-     name: 'name'
+      name: 'name'
     , email: 'email@a.jp'
     , photo: 'photo'
-  });
+    });
 };
 
 /**
@@ -66,9 +66,9 @@ exports.basic = function(req, res) {
 
 exports.detail = function(req, res) {
   res.send({
-  	info: [{bio: 'bio'}, {jobtitle: 'jobtitle'}, {department: 'department'}, {birthday: 'birthday'}],
-  	contact: [{address: 'address'}, {telephone: 'telephone'}, {skypename: 'skypename'}],
-  	career: [{school: 'school'}, {company: 'company'}]
+    info: [{bio: 'bio'}, {jobtitle: 'jobtitle'}, {department: 'department'}, {birthday: 'birthday'}],
+    contact: [{address: 'address'}, {telephone: 'telephone'}, {skypename: 'skypename'}],
+    career: [{school: 'school'}, {company: 'company'}]
   });
 };
 
@@ -151,7 +151,7 @@ exports.delete = function (req, res) {
 
 exports.contact = function(req, res) {
   res.send({
-  	contact: [{address: 'address'}, {telephone: 'telephone'}, {skypename: 'skypename'}]
+    contact: [{address: 'address'}, {telephone: 'telephone'}, {skypename: 'skypename'}]
   });
 };
 
@@ -191,7 +191,7 @@ exports.notify = function(req, res) {
 
 exports.career = function(req, res) {
   res.send({
-  	career: [{school: 'school'}, {company: 'company'}]
+    career: [{school: 'school'}, {company: 'company'}]
   });
 };
 
@@ -212,10 +212,10 @@ exports.career = function(req, res) {
 
 exports.atgroup = function(req, res) {
   res.send({
-  	groupid1: 'gname1',
-  	groupid2: 'gname2',
-  	groupid3: 'gname3'
- });
+    groupid1: 'gname1',
+    groupid2: 'gname2',
+    groupid3: 'gname3'
+  });
 };
 
 exports.structure = function(req, res) {
@@ -518,7 +518,7 @@ exports.updateUser = function(req_, res_){
 exports.login = function(req_, res_){
 
   var userid = req_.query.name
-    , passwd = req_.query.pass
+    , passwd = req_.query.pass;
 
   user.approved(userid, passwd, function(err, result){
     if (err) {
@@ -587,7 +587,7 @@ exports.uploadPhoto = function(req_, res_){
   if (req_.files.files instanceof Array) {
     filearray = req_.files.files;
   } else {
-    filearray = new Array();
+    filearray = [];
     filearray.push(req_.files.files);
   }
 
@@ -649,13 +649,13 @@ exports.getUserList = function(req_, res_){
     , kind = req_.query.kind;
 
   var condition_ = {};
-  condition_["kind"] = kind;
-  condition_["firstLetter"] = firstLetter;
-  condition_["uid"] = uid;
-  condition_["start"] = start;
-  condition_["limit"] = limit;
-  condition_["gid"] = req_.query.gid;
-  condition_["keywords"] = req_.query.keywords;
+  condition_.kind = kind;
+  condition_.firstLetter = firstLetter;
+  condition_.uid = uid;
+  condition_.start = start;
+  condition_.limit = limit;
+  condition_.gid = req_.query.gid;
+  condition_.keywords = req_.query.keywords;
 
   user.getUserList(condition_, function(err, result){
     if (err) {
@@ -685,7 +685,6 @@ exports.getUserList = function(req_, res_){
 exports.follow = function(req_, res_){
 
   var currentuid = req_.session.user._id;
-console.log(req_.body);
   user.follow(currentuid, req_.body.uid, function(err, result){
     json.send(res_, err, {"items": result});
   });

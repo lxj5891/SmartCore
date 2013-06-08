@@ -4,8 +4,8 @@
  */
 
 var mongo = require('mongoose')
-  , util = require('util')
-  , log = require('../core/log')
+  // , util = require('util')
+  // , log = require('../core/log')
   , solr = require('../core/solr')
   , conn = require('./connection')
   , schema = mongo.Schema;
@@ -19,11 +19,11 @@ var User = new schema({
   , email: {
       email1: {type: String}
     , email2: {type: String}
-  }
+    }
   , name: {
-    name_zh : {type: String}
-  , letter_zh :{type: String} //租名称的拼音
-  }
+      name_zh : {type: String}
+    , letter_zh :{type: String} //租名称的拼音
+    }
   , title: {type: String}
   , birthday: {type: String}
   , address: {
@@ -38,18 +38,18 @@ var User = new schema({
     , street: {type: String}    // 街
     , road: {type: String}      // 路
     , zip: {type: String}
-  }
+    }
   , tel: {
       telephone: {type: String}
     , mobile: {type: String}
-  }
+    }
   , lang: {type: String}
   , timezone: {type: String}
   , status: {type: Number}
   , custom: {
       url: {type: String}
     , memo: {type: String}
-  }
+    }
   , following: [String]           // 我关注的人
   , expire: {type: Date}
   , createby: {type: String}
@@ -61,8 +61,8 @@ var User = new schema({
       big: {type: String}
     , middle: {type: String}
     , small: {type: String}
-  }
-});
+    }
+  });
 
 
 /**
@@ -105,7 +105,7 @@ exports.many = function(userids_, start_, limit_, callback_) {
     .exec(function(err, result){
       callback_(err, result);
     });
-}
+};
 
 
 /**
@@ -200,7 +200,7 @@ exports.followerIds = function(uid_, callback_){
         ids.push(result[i]._id);
       }
       callback_(err, ids);
-  });
+    });
 };
 
 /**
@@ -221,7 +221,7 @@ exports.search = function(keywords_, callback_) {
     .exec(function(err, users){
       callback_(err, users);
     });
-}
+};
 
 
 /**
@@ -255,7 +255,7 @@ exports.headMatch = function(head_, keywords_, start_, limit_, callback_) {
     .exec(function(err, users){
       callback_(err, users);
     });
-}
+};
 
 
 /**
@@ -286,7 +286,7 @@ exports.headMatchByUids = function(head_, keywords_, uids_, start_, limit_, call
   }
 
   if (uids_) {
-    condition["_id"] = {$in: uids_};
+    condition._id = {$in: uids_};
   }
 
   user.find(condition)//.skip(start_ || 0).limit(limit_ || 20)
@@ -294,7 +294,7 @@ exports.headMatchByUids = function(head_, keywords_, uids_, start_, limit_, call
     .exec(function(err, groups){
       callback_(err, groups);
     });
-}
+};
 
 /**
  * 检索关注我的人
@@ -308,7 +308,7 @@ exports.follower = function(head_, keywords_, uid_, start_, limit_, callback_) {
   var user = model()
     , condition = {};
 
-  condition["following"] = uid_;
+  condition.following = uid_;
 
   if (keywords_) {
     condition.$or = [
@@ -329,7 +329,7 @@ exports.follower = function(head_, keywords_, uid_, start_, limit_, callback_) {
     .exec(function(err, groups){
       callback_(err, groups);
     });
-}
+};
 
 
 /**
@@ -360,7 +360,7 @@ exports.following = function(head_, keywords_, uids_, start_, limit_, callback_)
   }
 
   if (uids_) {
-    condition["_id"] = {$in: uids_};
+    condition._id = {$in: uids_};
   }
 
   user.find(condition)//.skip(start_ || 0).limit(limit_ || 20)
@@ -368,7 +368,7 @@ exports.following = function(head_, keywords_, uids_, start_, limit_, callback_)
     .exec(function(err, groups){
       callback_(err, groups);
     });
-}
+};
 
 
 /**
@@ -391,7 +391,7 @@ exports.structure = function() {
   });
   
   return result;
-}
+};
 
 
 function model() {
