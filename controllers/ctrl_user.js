@@ -3,6 +3,7 @@ var _         = require("underscore")
   , sanitize  = require("validator").sanitize
   , ctrl_notification = require("../controllers/ctrl_notification")
   , user      = require('../modules/mod_user')
+  , group     = require("../modules/mod_group")
   , regi      = require('../modules/mod_register')
   , util      = require("../core/util")
   , amqp      = require('../core/amqp')
@@ -94,7 +95,14 @@ exports.listByUids = function(uids_, start_, limit_, callback_){
 /**
  * 获取用户一览
  */
-exports.getUserList = function(kind_, firstLetter_, uid_, start_, limit_, callback_){
+exports.getUserList = function(condition_, callback_){
+  var kind_ = condition_["kind"];
+  var firstLetter_ = condition_["firstLetter"];
+  var uid_ = condition_["uid"];
+  var start_ = condition_["start"];
+  var limit_ = condition_["limit"];
+  var keywords_ = condition_["keywords"];
+
 
   // 开始
   if (start_) {
@@ -131,7 +139,7 @@ exports.getUserList = function(kind_, firstLetter_, uid_, start_, limit_, callba
         return callback_(new error.InternalServer(err));
       }
 
-      user.headMatch(firstLetter_, start_, limit_, function(err, result){
+      user.headMatch(firstLetter_, keywords_, start_, limit_, function(err, result){
         if (err) {
           return callback_(new error.InternalServer(err));
         }
@@ -151,7 +159,7 @@ exports.getUserList = function(kind_, firstLetter_, uid_, start_, limit_, callba
 
   // 获取关注我的人
   if (kind_ == "follower") {
-    user.follower(firstLetter_, uid_, start_, limit_, function(err, result){
+    user.follower(firstLetter_, keywords_, uid_, start_, limit_, function(err, result){
       if (err) {
         return callback_(new error.InternalServer(err));
       }
@@ -177,7 +185,7 @@ exports.getUserList = function(kind_, firstLetter_, uid_, start_, limit_, callba
       }
 
       var uids = result.following;
-      user.following(firstLetter_, uids, start_, limit_, function(err, result){
+      user.following(firstLetter_, keywords_, uids, start_, limit_, function(err, result){
         if (err) {
           return callback_(new error.InternalServer(err));
         }
@@ -190,6 +198,24 @@ exports.getUserList = function(kind_, firstLetter_, uid_, start_, limit_, callba
         callback_(err, result);
       });
 
+    });
+  }
+
+  if(kind_ == "group") {
+    var gid = condition_["gid"];
+    group.at(gid, function(err, result){
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+
+      var uids = result.member;
+
+      user.headMatchByUids(firstLetter_, keywords_, uids, start_, limit_, function(err, result){
+        if (err) {
+          return callback_(new error.InternalServer(err));
+        }
+        callback_(err, result);
+      });
     });
   }
 

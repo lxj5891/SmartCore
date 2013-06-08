@@ -279,7 +279,7 @@ exports.getMember = function(gid_, firstLetter, start_, limit_, callback_){
     var user = require("../modules/mod_user")
       , uids = result.member;
 
-    user.headMatchByUids(firstLetter, uids, start_, limit_, function(err, result){
+    user.headMatchByUids(firstLetter, "", uids, start_, limit_, function(err, result){
       if (err) {
         return callback_(new error.InternalServer(err));
       }

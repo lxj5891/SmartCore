@@ -231,12 +231,19 @@ exports.search = function(keywords_, callback_) {
  * @param {String} start_       开始位置
  * @param {String} limit_       返回个数
  */
-exports.headMatch = function(head_, start_, limit_, callback_) {
+exports.headMatch = function(head_, keywords_, start_, limit_, callback_) {
 
   var user = model()
     , condition = {};
 
-  if (head_) {
+  if (keywords_) {
+    condition.$or = [
+      {"name.name_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"name.letter_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"email.email1": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"email.email2": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    ];
+  } else if (head_) {
     condition.$or = [
       {"name.name_zh": new RegExp("^" + head_.toLowerCase() + ".*$", "i")}
     , {"name.letter_zh": new RegExp("^" + head_.toLowerCase() + ".*$", "i")}
@@ -259,12 +266,19 @@ exports.headMatch = function(head_, start_, limit_, callback_) {
  * @param {String} start_       开始位置
  * @param {String} limit_       返回个数
  */
-exports.headMatchByUids = function(head_, uids_, start_, limit_, callback_) {
+exports.headMatchByUids = function(head_, keywords_, uids_, start_, limit_, callback_) {
 
   var user = model()
     , condition = {};
 
-  if (head_) {
+  if (keywords_) {
+    condition.$or = [
+      {"name.name_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"name.letter_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"email.email1": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"email.email2": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    ];
+  } else if (head_) {
     condition.$or = [
       {"name.name_zh": new RegExp("^" + head_.toLowerCase() + ".*$", "i")}
     , {"name.letter_zh": new RegExp("^" + head_.toLowerCase() + ".*$", "i")}
@@ -290,13 +304,20 @@ exports.headMatchByUids = function(head_, uids_, start_, limit_, callback_) {
  * @param {String} start_       开始位置
  * @param {String} limit_       返回个数
  */
-exports.follower = function(head_, uid_, start_, limit_, callback_) {
+exports.follower = function(head_, keywords_, uid_, start_, limit_, callback_) {
   var user = model()
     , condition = {};
 
   condition["following"] = uid_;
 
-  if (head_) {
+  if (keywords_) {
+    condition.$or = [
+      {"name.name_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"name.letter_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"email.email1": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"email.email2": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    ];
+  } else if (head_) {
     condition.$or = [
       {"name.name_zh": new RegExp("^" + head_.toLowerCase() + ".*$", "i")}
     , {"name.letter_zh": new RegExp("^" + head_.toLowerCase() + ".*$", "i")}
@@ -319,12 +340,19 @@ exports.follower = function(head_, uid_, start_, limit_, callback_) {
  * @param {String} start_       开始位置
  * @param {String} limit_       返回个数
  */
-exports.following = function(head_, uids_, start_, limit_, callback_) {
+exports.following = function(head_, keywords_, uids_, start_, limit_, callback_) {
 
   var user = model()
     , condition = {};
 
-  if (head_) {
+  if (keywords_) {
+    condition.$or = [
+      {"name.name_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"name.letter_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"email.email1": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    , {"email.email2": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    ];
+  } else if (head_) {
     condition.$or = [
       {"name.name_zh": new RegExp("^" + head_.toLowerCase() + ".*$", "i")}
     , {"name.letter_zh": new RegExp("^" + head_.toLowerCase() + ".*$", "i")}

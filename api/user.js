@@ -648,7 +648,16 @@ exports.getUserList = function(req_, res_){
     , limit = req_.query.count
     , kind = req_.query.kind;
 
-  user.getUserList(kind, firstLetter, uid, start, limit, function(err, result){
+  var condition_ = {};
+  condition_["kind"] = kind;
+  condition_["firstLetter"] = firstLetter;
+  condition_["uid"] = uid;
+  condition_["start"] = start;
+  condition_["limit"] = limit;
+  condition_["gid"] = req_.query.gid;
+  condition_["keywords"] = req_.query.keywords;
+
+  user.getUserList(condition_, function(err, result){
     if (err) {
       return res_.send(err.code, json.errorSchema(err.code, err.message));
     } else {
