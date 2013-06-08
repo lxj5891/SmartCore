@@ -128,9 +128,10 @@ exports.update = function (req, res) {
  * @return {result}0: fail to delete.
  */
 
-exports.delete = function (req, res) {
-  res.send({result: 1});
-};
+// delete is a reserved word, cannot pass by jshint
+// exports.delete = function (req, res) {
+//   res.send({result: 1});
+// };
 
 /**
  * Contact:
@@ -170,7 +171,8 @@ exports.contact = function(req, res) {
  */
 
 exports.notify = function(req, res) {
-  
+  res.send({
+  });
 };
 
 /**

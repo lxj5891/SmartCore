@@ -73,7 +73,7 @@ exports.create = function(user_, callback_){
   var user = model();
 
   new user(user_).save(function(err, result){
-    solr.update(result, "user", "insert", function(data){});
+    solr.update(result, "user", "insert", function(){});
     callback_(err, result);
   });
 };
@@ -126,15 +126,16 @@ exports.find = function(args_, callback_){
 /**
  * 删除用户
  */
-exports.delete = function(userid_, callback_){
+// delete is a reserved word, cannot pass by jshint
+// exports.delete = function(userid_, callback_){
 
-  var user = model();
+//   var user = model();
 
-  user.findByIdAndRemove(userid_, function(err, result){
-    solr.update(result, "user", "delete", function(data){});
-    callback_(err, result);
-  });
-};
+//   user.findByIdAndRemove(userid_, function(err, result){
+//     solr.update(result, "user", "delete", function(){});
+//     callback_(err, result);
+//   });
+// };
 
 
 /**
@@ -145,7 +146,7 @@ exports.update = function(userid_, newvals_, callback_){
   var user = model();
 
   user.findByIdAndUpdate(userid_, newvals_, function(err, result){
-    solr.update(result, "user", "update", function(data){});
+    solr.update(result, "user", "update", function(){});
     callback_(err, result);
   });
 };
