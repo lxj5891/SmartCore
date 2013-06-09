@@ -5,8 +5,8 @@
 
 var _       = require("underscore")
   , mongo   = require('mongoose')
-  , util    = require('util')
-  , log     = require('../core/log')
+  // , util    = require('util')
+  // , log     = require('../core/log')
   , solr = require('../core/solr')
   , conn    = require('./connection')
   , async = require("async")
@@ -41,12 +41,12 @@ var Group = new schema({
       big: {type: String}
     , middle: {type: String}
     , small: {type: String}
-  }
+    }
   , createby: {type: String}
   , createat: {type: Date}
   , editby: {type: String}
   , editat: {type: Date}
-});
+  });
 
 
 /**
@@ -57,7 +57,7 @@ exports.create = function(group_, callback_) {
   var group = model();
 
   new group(group_).save(function(err, ret){
-    solr.update(ret, "group", "insert", function(data){});
+    solr.update(ret, "group", "insert", function(){});
     callback_(err, ret);
   });
 };
@@ -84,7 +84,7 @@ exports.delete = function(gid_, callback_){
   var group = model();
 
   group.findByIdAndRemove(gid_, function(err, result){
-    solr.update(result, "group", "delete", function(data){});
+    solr.update(result, "group", "delete", function(){});
     callback_(err, result);
   });
 };
@@ -112,7 +112,7 @@ exports.update = function(gid_, newvals_, callback_) {
 
   var group = model();
   group.findByIdAndUpdate(gid_, newvals_, function(err, result){
-    solr.update(result, "group", "update", function(data){});
+    solr.update(result, "group", "update", function(){});
     callback_(err, result);
   });
 };
@@ -122,14 +122,14 @@ exports.addMember = function(gid_, uid_, callback_) {
   group.findByIdAndUpdate(gid_, {$push : {"member" : uid_}}, function(err, result){
     callback_(err, result);
   });
-}
+};
 
 exports.removeMember = function(gid_, uid_, callback_) {
   var group = model();
   group.findByIdAndUpdate(gid_, {$pull : {"member" : uid_}}, function(err, result){
     callback_(err, result);
   });
-}
+};
 
 /**
  * 组名的模糊检索。前方一致检索，不区分大小写
@@ -169,9 +169,10 @@ exports.headMatch = function(condition_, callback_) {
     , uid = condition_.uid
     , login = condition_.login
     , firstLetter = condition_.firstLetter
-    , start = condition_.start || 0
-    , limit = condition_.limit || 20
+    // , start = condition_.start || 0
+    // , limit = condition_.limit || 20
     , type = condition_.type
+    , keywords = condition_.keywords
     , joined = condition_.joined;
 
 
@@ -179,7 +180,7 @@ exports.headMatch = function(condition_, callback_) {
 
   // 1.uid参加的group
   var task_getGroupByUid = function(cb){
-     mod_group.getAllGroupByUid(uid, function(err, groups){
+    mod_group.getAllGroupByUid(uid, function(err, groups){
       err = err ? new error.InternalServer(err) : null;
       //var ids = []; _.each(groups, function(g){ ids.push(g._id); });
       cb(err,groups);
@@ -192,7 +193,8 @@ exports.headMatch = function(condition_, callback_) {
     var task_getGroupByLogin = function(groups,cb){
       mod_group.getAllGroupByUid(login, function(err, result){
         err = err ? new error.InternalServer(err) : null;
-        var ids = []; _.each(result, function(g){ ids.push(g._id); });
+        var ids = [];
+        _.each(result, function(g){ ids.push(g._id); });
 
         var viewable = [];
         _.each(groups, function(g){
@@ -214,7 +216,8 @@ exports.headMatch = function(condition_, callback_) {
   
   // 3.
   var task_getGroups = function(viewable, cb){
-    var ids = []; _.each(viewable, function(g){ ids.push(g._id); });
+    var ids = [];
+    _.each(viewable, function(g){ ids.push(g._id); });
 
     if (type) {
       condition.type = type;
@@ -227,10 +230,19 @@ exports.headMatch = function(condition_, callback_) {
       condition.$or = [
           {"secure": 2 }        // 公开的
         , {"_id": {$in: ids}}  // 
-      ];
+        ];
     }
 
-    if (firstLetter) {
+    if(keywords) {
+      condition2 = JSON.parse(JSON.stringify(condition));
+      condition2["name.name_zh"] = new RegExp("^" + keywords.toLowerCase() + ".*$", "i");
+      
+      condition3 = JSON.parse(JSON.stringify(condition));
+      condition3["name.letter_zh"] = new RegExp("^" + keywords.toLowerCase() + ".*$", "i");
+
+      condition = {};
+      condition.$or = [condition2,condition3];
+    } else if (firstLetter) {
       condition2 = JSON.parse(JSON.stringify(condition));
       condition2["name.name_zh"] = new RegExp("^" + firstLetter.toLowerCase() + ".*$", "i");
       
@@ -400,7 +412,7 @@ exports.getAllGroupByUid = function(uid, callback_) {
   // 2.所属上位group
   var task_getParentDepartment = function(groups, cb){
     var child = [];
-    var parents = [];
+    // var parents = [];
     _.each(groups, function(g){ child.push(g._id); });
     mod_group.parentDepartments(child, function(err, result){
       err = err ? new error.InternalServer(err) : null;

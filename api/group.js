@@ -110,6 +110,7 @@ exports.getGroupList = function(req_, res_) {
     , "limit": util.checkString(req_.query.limit)
     , "type": util.checkString(req_.query.type)
     , "joined":util.checkString(req_.query.joined)
+    , "keywords":util.checkString(req_.query.keywords)
     };
 
   group.getGroupList(condition, function(err, result){
