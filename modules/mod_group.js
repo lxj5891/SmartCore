@@ -79,7 +79,7 @@ exports.at = function(gid_, callback_){
 /**
  * 删除组
  */
-exports.delete = function(gid_, callback_){
+exports.remove = function(gid_, callback_){
 
   var group = model();
 

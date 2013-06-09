@@ -10,6 +10,7 @@ var _         = require("underscore")
   , log       = require('../core/log')
   , error     = require('../core/errors')
   , auth      = require('../core/auth')
+  , async     = require("async")
   , mail      = require("../core/mail");
 
 
@@ -152,7 +153,7 @@ exports.getUserList = function(condition_, callback_){
           item._doc.password = undefined;
         });
 
-        callback_(err, result);
+        exports._setUserDepartment(result, callback_);
       });
     });
   }
@@ -169,7 +170,7 @@ exports.getUserList = function(condition_, callback_){
         item.password = undefined;
       });
 
-      callback_(err, result);
+      exports._setUserDepartment(result, callback_);
     });
   }
 
@@ -195,7 +196,7 @@ exports.getUserList = function(condition_, callback_){
           item.password = undefined;
         });
 
-        callback_(err, result);
+        exports._setUserDepartment(result, callback_);
       });
 
     });
@@ -214,13 +215,31 @@ exports.getUserList = function(condition_, callback_){
         if (err) {
           return callback_(new error.InternalServer(err));
         }
-        callback_(err, result);
+        // callback_(err, result);
+        exports._setUserDepartment(result, callback_);
       });
     });
   }
 
 };
 
+
+exports._setUserDepartment = function(users, callback){
+  async.forEach(users, function(user, cb){
+    var condition = {};
+    condition.type = 2;
+    condition.uid = user._id;
+    condition.joined = true;
+    group.headMatch(condition, function(err,groups){
+      if(groups && groups.length > 0){
+        user._doc.department = groups[0];
+      }
+      cb(err);
+    });
+  }, function(err){
+    callback(err, users);
+  });
+};
 
 /**
  * 创建用户
