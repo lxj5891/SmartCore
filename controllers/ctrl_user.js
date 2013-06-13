@@ -702,7 +702,9 @@ exports.appendUser = function(data, uidcolumn, callback_) {
       var u = _.find(users, function(item){return one[uidcolumn] == item._id;})
         , target = one._doc || one;
 
-      target.user = {"_id": u._id, "name": u.name, "photo": u.photo, "title": u.title};
+      if (u) {
+        target.user = {"_id": u._id, "name": u.name, "photo": u.photo, "title": u.title};
+      }
     });
 
     callback_(err, data);
