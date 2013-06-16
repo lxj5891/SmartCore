@@ -9,8 +9,9 @@ module.exports = {
     , template: require("./api/template")
     , user: require("./api/user")
     , dbfile: require("./api/dbfile")
-  },
-  ctrl: {
+    , apn: require("./api/apn")
+    },
+    ctrl: {
       dbfile: require("./controllers/ctrl_dbfile")
     , document: require("./controllers/ctrl_document")
     , fulltextsearch: require("./controllers/ctrl_fulltextsearch")
@@ -19,13 +20,13 @@ module.exports = {
     , search: require("./controllers/ctrl_search")
     , user: require("./controllers/ctrl_user")
     , category: require("./controllers/ctrl_category")
-  },
-  mod: {
+    },
+    mod: {
       user: require("./modules/mod_user")
     , group: require("./modules/mod_group")
     , notification: require("./modules/mod_notification")
-  },
-  core: {
+    },
+    core: {
       amqp: require("./core/amqp")
     , auth: require("./core/auth")
     , authorityChecker: require("./core/authorityChecker")
@@ -37,5 +38,5 @@ module.exports = {
     , process: require("./core/process")
     , solr: require("./core/solr")
     , util: require("./core/util")
-  }
-};
+    }
+  };

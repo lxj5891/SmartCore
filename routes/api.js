@@ -2,6 +2,7 @@
 var search        = require('../api/search')
   , dbfile        = require('../controllers/ctrl_dbfile')
   , notification  = require('../api/notification')
+  , apn           = require('../api/apn')
   , category      = require('../api/category')
   , groupapi      = require('./api_group')  
   , fileapi       = require('./api_file')  
@@ -22,7 +23,7 @@ exports.guiding = function(app){
 
   // 获取图片  
   app.get('/picture/:id', function(req, res){
-    dbfile.image(req, res, function(err, doc, info){
+    dbfile.image(req, res, function(err, doc){
       res.send(doc);
     });
   });
@@ -82,6 +83,18 @@ exports.guiding = function(app){
     notification.read(req, res);
   });
 
+  // 更新APNs的设备号
+  app.put("/notification/addtoken.json", function(req, res){
+    apn.update(req, res);
+  });
+
+  app.get("/notification/gettoken.json", function(req, res){
+    apn.find(req, res);
+  });
+
+  app.put("/notification/cleartoken.json", function(req, res){
+    apn.clear(req, res);
+  });
 
   // ---- 分类 ----
   app.put("/category/add.json", function(req, res){
