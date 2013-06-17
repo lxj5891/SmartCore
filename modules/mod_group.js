@@ -235,10 +235,10 @@ exports.headMatch = function(condition_, callback_) {
 
     if(keywords) {
       condition2 = JSON.parse(JSON.stringify(condition));
-      condition2["name.name_zh"] = new RegExp("^" + keywords.toLowerCase() + ".*$", "i");
+      condition2["name.name_zh"] = new RegExp("^.*" + keywords.toLowerCase() + ".*$", "i");
       
       condition3 = JSON.parse(JSON.stringify(condition));
-      condition3["name.letter_zh"] = new RegExp("^" + keywords.toLowerCase() + ".*$", "i");
+      condition3["name.letter_zh"] = new RegExp("^.*" + keywords.toLowerCase() + ".*$", "i");
 
       condition = {};
       condition.$or = [condition2,condition3];
