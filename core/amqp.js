@@ -1,10 +1,10 @@
 
 var amqp = require('amqp')
   , mq = require('config').mq
-<<<<<<< .merge_file_CH13X4
   , thumbq = require('config').thumbq
   , cq = require('config').cq
-  , mq_photo = require('config').mq_photo;
+  , mq_photo = require('config').mq_photo
+  , mq_apn = require('config').mq_apn;
 
 var options = {
     host: mq.host
@@ -13,10 +13,7 @@ var options = {
   , password: mq.password
   , vhost: '/'
  }
-=======
-  , mq_photo = require('config').mq_photo
-  , mq_apn = require('config').mq_apn;
->>>>>>> .merge_file_ODw6ot
+
 
 
  exports.smartThumb = function(message){
