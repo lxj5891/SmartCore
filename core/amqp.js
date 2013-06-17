@@ -1,8 +1,18 @@
 
 var amqp = require('amqp')
   , mq = require('config').mq
+  , thumbq = require('config').thumbq
   , mq_photo = require('config').mq_photo
   , mq_apn = require('config').mq_apn;
+
+
+exports.smartThumb = function(message){
+  var connection = amqp.createConnection(thumbq);
+  connection.on('ready', function () {
+    
+    connection.publish(thumbq.queue, message);
+  });
+};
 
 /**
  * 分词，参数格式如下：
@@ -28,6 +38,7 @@ exports.notice = function(message) {
     connection.publish(mq.notification_queue, message);
   });
 };
+
 
 /**
  * 处理图片？
