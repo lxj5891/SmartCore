@@ -68,5 +68,12 @@
     , "user": "guest"
     , "password": "guest"
     , "queue": "smartPhoto"
+  },
+  "mq_apn": {
+      "host": "10.2.8.232"
+    , "port": 5672
+    , "user": "guest"
+    , "password": "guest"
+    , "queue": "smartApn"
   }
 }
