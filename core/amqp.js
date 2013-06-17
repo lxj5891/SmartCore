@@ -2,7 +2,6 @@
 var amqp = require('amqp')
   , mq = require('config').mq
   , thumbq = require('config').thumbq
-  , cq = require('config').cq
   , mq_photo = require('config').mq_photo
   , mq_apn = require('config').mq_apn;
 
