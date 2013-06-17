@@ -5,23 +5,14 @@ var amqp = require('amqp')
   , mq_photo = require('config').mq_photo
   , mq_apn = require('config').mq_apn;
 
-var options = {
-    host: mq.host
-  , port: mq.port
-  , login: mq.user
-  , password: mq.password
-  , vhost: '/'
- }
 
-
-
- exports.smartThumb = function(message){
+exports.smartThumb = function(message){
   var connection = amqp.createConnection(thumbq);
   connection.on('ready', function () {
     
     connection.publish(thumbq.queue, message);
   });
- }
+};
 
 /**
  * 分词，参数格式如下：
