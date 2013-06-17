@@ -91,16 +91,16 @@ exports.createForMessage = function(message_, callback_) {
   var tasks = [];
 
   // TODO: 分离Core后，需要把消息关联的内容拿出去
-  var message = require('../modules/mod_message');
+  // var message = require('../modules/mod_message');
 
   // reply
   if(message_.type == 2){
     var task_reply = function(cb){
-      message.at(message_.target, function(err, msg){
+
         var notification_ = {
           content: message_.content,
           read:[],
-          tousers : [msg.createby],
+          tousers : message_.part.targetcreateby,
           togroups : [],
           type : "reply",
           objectid: message_.target,
@@ -109,14 +109,14 @@ exports.createForMessage = function(message_, callback_) {
         };
 
         amqp.notice({
-          _id: msg.createby
+          _id: message_.part.targetcreateby
         , content : "1"
         });
 
         notification.create(notification_, function(err, notification){
           cb(err, notification);
         });
-      });
+
     };
     tasks.push(task_reply);
   }
@@ -160,9 +160,9 @@ exports.createForMessage = function(message_, callback_) {
   }
   
   async.waterfall(tasks,function(err, result){
-    if(callback_)
-      // 保存成功发送消息
+    if(callback_){
       callback_(err, result);
+    }
   });
 };
 

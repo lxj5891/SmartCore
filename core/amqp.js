@@ -1,6 +1,8 @@
 
 var amqp = require('amqp')
   , mq = require('config').mq
+  , thumbq = require('config').thumbq
+  , cq = require('config').cq
   , mq_photo = require('config').mq_photo;
 
 var options = {
@@ -9,6 +11,15 @@ var options = {
   , login: mq.user
   , password: mq.password
   , vhost: '/'
+ }
+
+
+ exports.smartThumb = function(message){
+  var connection = amqp.createConnection(thumbq);
+  connection.on('ready', function () {
+    
+    connection.publish(thumbq.queue, message);
+  });
  }
 
 /**
@@ -36,6 +47,7 @@ exports.notice = function(message) {
     connection.publish(mq.notification_queue, message);
   });
 }
+
 
 /**
  * 处理图片？
