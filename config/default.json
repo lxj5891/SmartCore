@@ -1,7 +1,6 @@
 {  
   "db": {
-       "host": "127.0.0.1"
-     // "host": ""
+      "host": "127.0.0.1"
     , "port": 27017
     , "dbname": "smart"
     , "pool": 5
@@ -9,14 +8,13 @@
 
   "testdb": {
       "host": "127.0.0.1"
-     // "host": "10.2.8.237"
     , "port": 27017
     , "dbname": "developer"
     , "pool": 5
   },
 
   "solr": {
-      "host": "10.2.3.27"
+      "host": "127.0.0.1"
     , "port": 10080
   },
 
@@ -55,7 +53,7 @@
   },
   
   "mq": {
-      "host": "10.2.8.232"
+      "host": "127.0.0.1"
     , "port": 5672
     , "user": "guest"
     , "password": "guest"
@@ -63,14 +61,14 @@
     , "notification_queue": "SmartNotification"
   },
   "mq_photo": {
-      "host": "10.2.8.232"
+      "host": "127.0.0.1"
     , "port": 5672
     , "user": "guest"
     , "password": "guest"
     , "queue": "smartPhoto"
   },
   "mq_apn": {
-      "host": "10.2.8.232"
+      "host": "127.0.0.1"
     , "port": 5672
     , "user": "guest"
     , "password": "guest"
