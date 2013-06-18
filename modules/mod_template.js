@@ -395,7 +395,4 @@ exports.structure = function(id, success) {
     
   });
 
-}
-
-
-
+};
