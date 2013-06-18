@@ -12,7 +12,7 @@ var express     = require("express")
   , confapp     = require("config").app
   , confcookie  = require("config").cookie
   , routes      = require("./routes")
-  , middleware  = require("./core/middleware")
+  , middleware  = require("./core/middleware");
 
 /**
  * 国际化
