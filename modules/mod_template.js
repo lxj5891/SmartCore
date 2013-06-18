@@ -1,20 +1,13 @@
 /**
  * Template:
- * Copyright (c) 2012 Author Name <l_li@dreamarts.co.jp>
- * @see http://10.2.8.224/ssdb
+ * Copyright (c) 2012 Author Name l_li
  */
 
 var mongo = require('mongoose')
-  , util = require('util')
   , sync = require('async')
   , log = require('../core/log')
   , conn = require('./connection')
-  , dbconf = require('config').db
   , schema = mongo.Schema;
-
-function model() {
-  return conn().model('Template', Template);
-}
 
 var Template = new schema({
     docid: {type: String}
@@ -24,7 +17,7 @@ var Template = new schema({
   , layout: {
       width: {type: Number}
     , height: {type: Number}
-  }
+    }
   , item: [{
       itemid: {type: String}
     , index: {type: Number}
@@ -39,60 +32,56 @@ var Template = new schema({
           , y: {type: Number}
           , width: {type: Number}
           , height: {type: Number}
-        }
-      , font: {
+          }
+        , font: {
             name: {type: String}
           , size: {type: String}
           , color: {type: String}
+          }
+        , bgcolor: {type: String}
         }
-      , bgcolor: {type: String}
-      }
-    , source: {
-        document: {type: String}
-      , item: {type: String}
-      , join: [{
-            srcDoc: {type: String}
-          , srcItem: {type: String}
-          , targetDoc: {type: String}
-          , targetItem: {type: String}
+      , source: {
+          document: {type: String}
+        , item: {type: String}
+        , join: [{
+              srcDoc: {type: String}
+            , srcItem: {type: String}
+            , targetDoc: {type: String}
+            , targetItem: {type: String}
+            , condition: {type: String}
+            }]
+          }
+        , filter: [{
+            source: {type: String}
+          , join: {type: String}
           , condition: {type: String}
+          , compute: {type: String}
+          }]
+        , validater: [{
+            type: {type: String}
+          , scope: {type: String}
+          , content: {type: String}
+          , format: {type: String}
+          }]
+        , defaults: {type: String}
+        , history: {
+            version: {type: String}
+          , value: {type: String}
+          , at: {type: Date}
+          , by: {type: String}
+          }
         }]
-    }
-    , filter: [{
-        source: {type: String}
-      , join: {type: String}
-      , condition: {type: String}
-      , compute: {type: String}
-      }]
-    , validater: [{
-        type: {type: String}
-      , scope: {type: String}
-      , content: {type: String}
-      , format: {type: String}
-      }]
-    , default: {type: String}
-    , history: {
-        version: {type: String}
-      , value: {type: String}
-      , at: {type: Date}
-      , by: {type: String}
-      }
-    }]
-  // , attach: [{
-  //     name: {type: String}
-  //   , path: {type: String}
-  //   }]
-  , category: {type: String, description: "分类"}
-  , fixed: {type: String}
-  , description: {type: String, description: "描述"}
-  , template: {type: String, description: "模板"}
-  , expire: {type: Date}
-  , createby: {type: String, description: "创建者"}
-  , createat: {type: Date, description: "创建时间"}
-  , editby: {type: String, description: "修改者"}
-  , editat: {type: Date, description: "修改时间"}
-  , delete: {type: Number}
-});
+      , category: {type: String, description: "分类"}
+      , fixed: {type: String}
+      , description: {type: String, description: "描述"}
+      , template: {type: String, description: "模板"}
+      , expire: {type: Date}
+      , createby: {type: String, description: "创建者"}
+      , createat: {type: Date, description: "创建时间"}
+      , editby: {type: String, description: "修改者"}
+      , editat: {type: Date, description: "修改时间"}
+      , remove: {type: Number}
+      });
 
 exports.create = function(_tmpl, success) {
 
@@ -104,11 +93,11 @@ exports.create = function(_tmpl, success) {
   tmpl.createat = new Date();
   tmpl.editby = 'lilin';
   tmpl.editat = new Date();
-  tmpl.delete = 1;
+  tmpl.remove = 1;
 
   tmpl.title = _tmpl.title;
   tmpl.status = _tmpl.status;
-  tmpl.version = 0
+  tmpl.version = 0;
   tmpl.layout = _tmpl.layout;
   
   // reset item id
@@ -159,7 +148,7 @@ exports.update = function(id, _tmpl, success) {
     , layout: {
         width: _tmpl.layout.width
       , height: _tmpl.layout.height
-    }
+      }
     , item: _tmpl.item
     , attach: _tmpl.attach
     , category: _tmpl.category
@@ -168,16 +157,13 @@ exports.update = function(id, _tmpl, success) {
     , template: _tmpl.template
     , editby: "lilin"
     , editat: new Date()
-  };
+    };
   
-  template.update(conditions, data, options, function(err, count){
+  template.update(conditions, data, options, function(err){
     if (err) log.out("error", err);
     success({result: "ok"});
   });
-}
-
-exports.updatedef = function(doc, success) {
-}
+};
 
 exports.at = function(id, success) {
 
@@ -191,7 +177,8 @@ exports.at = function(id, success) {
 exports.find = function(condition, success){
   
   var doc = conn().model('Template', Template);
-  doc.where('docid').in(condition)    // conditions
+  doc.where('docid')
+    // .in(condition)    // conditions
     //.select('_id', 'active', 'userid')  // colums
     .skip(0)                            // range
     .limit(30)
@@ -206,6 +193,7 @@ exports.remove = function(id, success) {
   var doc = conn().model('Template', Template);
   doc.find({docid: id}).remove(function(err){
     log.out('error'. err);
+    success(err);
   });
 };
 
@@ -223,14 +211,15 @@ exports.components = function(did, cid, success) {
   doc.find({docid: '1'}, {item: {$slice: [1, 1]}}, function (err, doc){
     success(doc);
   });
-}
+};
 
 // update ctrl
 exports.updateComponent = function(did, component, success) {
   var doc = conn().model('Template', Template);
   doc.update({docid: did}, {"item.0.design.position" : component.positon}, function(err){
+    success(err);
   });  
-}
+};
 
 // append component to record
 exports.addComponent = function(component, success) {
@@ -242,22 +231,22 @@ exports.addComponent = function(component, success) {
     
     // add
     doc.item.push({design: {
-        position: component.position,
-        font: component.font,
-        color: component.color,
+        position: component.position
+      , font: component.font
+      , color: component.color
       }
     });
     
     doc.save(function(e){
-      success({});
+      success(e, {});
     });
   });
-}
+};
 
 exports.list = function(options, success) {
 
   var tmpl = conn().model('Template', Template)
-    , skip = isNumber(options.page) ? parseInt(options.page) - 1 : 0
+    , skip = isNumber(options.page) ? parseInt(options.page, null) - 1 : 0
     , limit = 20;
  
   tmpl.find()
@@ -276,11 +265,11 @@ exports.list = function(options, success) {
           , group: "dac"
           , by: doc.editby
           , at: doc.editat
-        });
+          });
       });
       success({result: list});
     });
-}
+};
 
 function isNumber(value) {
   if(value instanceof Array) {
@@ -290,7 +279,7 @@ function isNumber(value) {
   //trim
   value = String(value).replace(/^[ 　]+|[ 　]+$/g, '');
 
-  if(value.length == 0) {
+  if(value.length === 0) {
     return false;
   }
       
@@ -355,7 +344,8 @@ exports.references = function(t, success) {
       
       callback(null, doclist);
       
-    }], function(err, result){
+    }
+  ], function(err, result){
       success(result);
     }
   );
@@ -384,7 +374,7 @@ exports.items = function(type, id, success) {
   //     {title:"b", type:"String", description:""}
   //   ]
   // }
-}
+};
 
 exports.structure = function(id, success) {
   

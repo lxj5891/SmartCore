@@ -23,8 +23,8 @@
   "mail": {
       "service": "Gmail"
     , "auth": {
-        "user": "r2space@gmail.com"
-      , "pass": "bgSxYsl7"
+        "user": "smart@gmail.com"
+      , "pass": "smart"
     }
     // "host": "mail.securemx.jp"
     // "port": 465
@@ -33,13 +33,13 @@
 
   "session": {
       "timeout": 720 // 24 * 30 一个月
-    , "secret": "jp.co.dreamarts.smart"
+    , "secret": "com.smart"
     , "key": "smart.sid"
   },
 
   "cookie": {
       "key": "smart.cookie"
-    , "secret": "jp.co.dreamarts.smart"
+    , "secret": "com.smart"
     , "timeout": 12
   },
   

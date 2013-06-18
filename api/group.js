@@ -1,7 +1,6 @@
 /**
  * API Group
- * Copyright (c) 2012 Author Name <dd_dai@dreamarts.co.jp>
- * @see http://10.2.8.224/ssdb
+ * Copyright (c) 2012 Author Name dd_dai
  */
 
 var util = require("../core/util")

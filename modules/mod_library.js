@@ -1,16 +1,11 @@
 /**
  * Library:
- * Copyright (c) 2012 Author Name <l_li@dreamarts.co.jp>
- * @see http://10.2.8.224/ssdb
+ * Copyright (c) 2012 Author Name l_li
  */
 
 var mongo = require('mongoose')
-  , util = require('util')
-  , log = require('../core/log')
   , conn = require('./connection')
-  , dbconf = require('config').db
-  , schema = mongo.Schema
-  , ObjectId = schema.ObjectId;
+  , schema = mongo.Schema;
 
 function model() {
   return conn().model('Library', Library);
@@ -27,7 +22,7 @@ var Library = new schema({
   , createat: {type: Date}
   , editby: {type: String}
   , editat: {type: Date}
-});
+  });
 
 exports.create = function(file_, callback_) {
 
@@ -58,10 +53,10 @@ exports.some = function(callback_) {
   var optionObj = {"sort": {"name": "asc"}, "skip": start_-1};
 
   if(uid_){
-    fieldObj["member"] = uid_;
+    fieldObj.member = uid_;
   }
   if(count_){
-    optionObj["limit"] = count_;
+    optionObj.limit = count_;
   }
 
   if(!gidArr_){
@@ -69,9 +64,12 @@ exports.some = function(callback_) {
       callback_(err, libraryList);
     });
   }else{
-    library.find(fieldObj).where("_id").in(gidArr_).setOptions(optionObj).exec(function(err, libraryList){
-      callback_(err, libraryList);
-    });
+    library.find(fieldObj).where("_id")
+      //.in(gidArr_)
+      .setOptions(optionObj)
+      .exec(function(err, libraryList){
+        callback_(err, libraryList);
+      });
   }
 };
 
@@ -86,10 +84,10 @@ exports.all = function(callback_) {
   var optionObj = {"sort": {"name": "asc"}, "skip": start_-1};
 
   if(uid_){
-    fieldObj["member"] = uid_;
+    fieldObj.member = uid_;
   }
   if(count_){
-    optionObj["limit"] = count_;
+    optionObj.limit = count_;
   }
 
   if(!gidArr_){
@@ -97,9 +95,13 @@ exports.all = function(callback_) {
       callback_(err, libraryList);
     });
   }else{
-    library.find(fieldObj).where("_id").in(gidArr_).setOptions(optionObj).exec(function(err, libraryList){
-      callback_(err, libraryList);
-    });
+    library.find(fieldObj)
+      .where("_id")
+      //.in(gidArr_)
+      .setOptions(optionObj)
+      .exec(function(err, libraryList){
+        callback_(err, libraryList);
+      });
   }
 };
 
@@ -116,7 +118,7 @@ exports.search = function(keywords_, callback_) {
     .exec(function(err, librarys){
       callback_(librarys);
     });
-}
+};
 
 
 exports.list = function(callback_) {
@@ -129,10 +131,10 @@ exports.list = function(callback_) {
   var optionObj = {"sort": {"name": "asc"}, "skip": start_-1};
 
   if(uid_){
-    fieldObj["member"] = uid_;
+    fieldObj.member = uid_;
   }
   if(count_){
-    optionObj["limit"] = count_;
+    optionObj.limit = count_;
   }
 
   if(!gidArr_){
@@ -140,9 +142,13 @@ exports.list = function(callback_) {
       callback_(err, libraryList);
     });
   }else{
-    library.find(fieldObj).where("_id").in(gidArr_).setOptions(optionObj).exec(function(err, libraryList){
-      callback_(err, libraryList);
-    });
+    library.find(fieldObj)
+      .where("_id")
+      //.in(gidArr_)
+      .setOptions(optionObj)
+      .exec(function(err, libraryList){
+        callback_(err, libraryList);
+      });
   }
 };
 
@@ -173,7 +179,7 @@ exports.find = function(args_, callback_){
   });
 };
 
-exports.delete = function(gid_, callback_){
+exports.remove = function(gid_, callback_){
   var library = model();
   library.findByIdAndRemove(gid_, function(err, g){
     callback_(err, g);
@@ -192,7 +198,7 @@ exports.search = function(keywords_, callback_) {
     .exec(function(err, librarys){
       callback_(librarys);
     });
-}
+};
 
 exports.fullsearch = function(keywords_, callback_) {
   
@@ -204,4 +210,4 @@ exports.fullsearch = function(keywords_, callback_) {
     .exec(function(err, librarys){
       callback_(librarys);
     });
-}
+};

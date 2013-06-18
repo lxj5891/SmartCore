@@ -1,14 +1,11 @@
 /**
  * Document:
- * Copyright (c) 2012 Author Name <l_li@dreamarts.co.jp>
- * @see http://10.2.8.224/ssdb
+ * Copyright (c) 2012 Author Name l_li
  */
 
 var mongo = require('mongoose')
-  , util = require('util')
   , log = require('../core/log')
   , conn = require('./connection')
-  , dbconf = require('config').db
   , _ = require('underscore')
   , schema = mongo.Schema;
 
@@ -41,8 +38,8 @@ var Document = new schema({
   , createat: {type: Date, description: "创建时间"}
   , editby: {type: String, description: "修改者"}
   , editat: {type: Date, description: "修改时间"}
-  , delete: {type: Number}
-});
+  , remove: {type: Number}
+  });
 
 Document.virtual("aaa").get(function(){
   return "中文";
@@ -58,11 +55,11 @@ exports.create = function(_doc, _template, success) {
   doc.createat = new Date();
   doc.editby = 'lilin';
   doc.editat = new Date();
-  doc.delete = 1;
+  doc.remove = 1;
 
   doc.title = _doc.value.title;
   doc.status = _doc.status;
-  doc.version = 0
+  doc.version = 0;
 
   doc.items = _doc.value.items;
 
@@ -98,16 +95,13 @@ exports.update = function(id, _doc, success) {
     , template: _doc.template
     , editby: "lilin"
     , editat: new Date()
-  };
+    };
   
   document.update(conditions, data, options, function(err, count){
     if (err) log.out("error", err);
-    else success();
+    else success(err, count);
   });
-}
-
-exports.updatedef = function(doc, success) {
-}
+};
 
 exports.at = function(id, success) {
   
@@ -121,7 +115,8 @@ exports.at = function(id, success) {
 exports.find = function(condition, success){
   
   var doc = conn().model('Document', Document);
-  doc.where('docid').in(condition)    // conditions
+  doc.where('docid')
+    //.in(condition)    // conditions
     //.select('_id', 'active', 'userid')  // colums
     .skip(0)                            // range
     .limit(30)
@@ -136,6 +131,7 @@ exports.remove = function(id, success) {
   var doc = conn().model('Document', Document);
   doc.find({docid: id}).remove(function(err){
     log.out('error'. err);
+    success(err);
   });
 };
 
@@ -153,14 +149,15 @@ exports.components = function(did, cid, success) {
   doc.find({docid: '1'}, {item: {$slice: [1, 1]}}, function (err, doc){
     success(doc);
   });
-}
+};
 
 // update ctrl
 exports.updateComponent = function(did, component, success) {
   var doc = conn().model('Document', Document);
   doc.update({docid: did}, {"item.0.design.position" : component.positon}, function(err){
+    success(err);
   });  
-}
+};
 
 // append component to record
 exports.addComponent = function(component, success) {
@@ -173,14 +170,14 @@ exports.addComponent = function(component, success) {
         position: component.position,
         font: component.font,
         color: component.color
-    }
+      }
     });
     
     doc.save(function(e){
-      success({});
+      success(e, {});
     });
   });
-}
+};
 
 exports.list = function(success) {
  
@@ -201,12 +198,12 @@ exports.list = function(success) {
           , template: doc.template
           , by: doc.editby
           , at: doc.editat
-        });
+          });
       });
       success({result: list});
     });
 
-}
+};
 
 exports.structure = function() {
 
@@ -224,7 +221,7 @@ exports.structure = function() {
   });
 
   return result;
-}
+};
 
 exports.search = function(_keywords, success) {
 
@@ -238,7 +235,7 @@ exports.search = function(_keywords, success) {
     .exec(function(err, docs){
       success(docs);
     });
-}
+};
 
 exports.fullsearch = function(_keywords, success) {
 
@@ -250,7 +247,7 @@ exports.fullsearch = function(_keywords, success) {
     .exec(function(err, docs){
       success(docs);
     });
-}
+};
 
 exports.getTableData = function(rule, success){
   filterByCondition(rule, function(data){
@@ -262,7 +259,7 @@ exports.getTableData = function(rule, success){
   // var joinedDocs = joinByConnection(docids, rule);
   // var result = getTargetFiled(joinedDocs);
   // success(result);
-}
+};
 
 function pickFields(ids, data, rule, success){
   var result = [];
@@ -299,13 +296,13 @@ function putInDic(rule, data) {
     var dic = {};
     var dic2 = {};
     for (var j = 0; j < ctdocs.length; j++) {
-      if (i == 0 ) {
+      if (i === 0 ) {
         dic[ctdocs[j]._id] = getFieldValue(ctdocs[j], connFields[i].itemid);
       } else if(i == connFields.length - 1){
         dic[getFieldValue(ctdocs[j], connFields[i].itemid)] = ctdocs[j]._id+"";
       }else {
         dic[getFieldValue(ctdocs[j], connFields[i].itemid)] = ctdocs[j]._id+"";
-        dic2[ctdocs[j]._id] = dic[getFieldValue(ctdocs[j], connFields[i + 1].itemid)]
+        dic2[ctdocs[j]._id] = dic[getFieldValue(ctdocs[j], connFields[i + 1].itemid)];
       }
     }
     if (_.isEmpty(dic2)) {
@@ -365,7 +362,7 @@ function getFieldValue(doc, itemid){
     if(doc.items[i].itemid == itemid){
       return doc.items[i].value;
     }
-  };
+  }
 }
 
 function connToFieldArray(conns){
@@ -373,7 +370,7 @@ function connToFieldArray(conns){
   for (var i = 0; i < conns.length; i++) {
     fields.push(conns[i].leftField);
     fields.push(conns[i].rightField);
-  };
+  }
   return fields;
 }
 
@@ -382,10 +379,10 @@ function prepareConn(connections){
   for (var i = 0; i < connections.length; i++) {
     templateids.push(connections[i].leftField.templateid);
     templateids.push(connections[i].rightField.templateid);
-  };
-  var firstConn;
-  for (var i = 0; i < templateids.length; i++) {
-    var conns = findConnByTmp(templateids[i],connections);
+  }
+  var firstConn, conns;
+  for (i = 0; i < templateids.length; i++) {
+    conns = findConnByTmp(templateids[i],connections);
     if(conns.length == 1){
       firstConn = conns[0];
       if(!isLeft(templateids[i], firstConn)){
@@ -394,7 +391,7 @@ function prepareConn(connections){
       break;
     }
   }
-  var conns = connections;
+  conns = connections;
   var currentConn = firstConn;
 
   var sortedConns = [];
@@ -403,8 +400,8 @@ function prepareConn(connections){
   while(sortedConns.length < connections.length){
     var ctmplid =  currentConn.rightField.templateid;
     var cconns = findConnByTmp(ctmplid, connections);
-    for (var i = 0; i < cconns.length; i++) {
-      cconns[i];
+    for (i = 0; i < cconns.length; i++) {
+      // cconns[i];
       if(!isEqual(currentConn,cconns[i])){
         if(isLeft(ctmplid,cconns[i])){
           currentConn = copyConn(cconns[i]);
@@ -428,37 +425,32 @@ function findConnByTmp(tmpl, connections){
   return result;
 }
 
-function getField(tmpl, connection){
-  if(connection.leftField.templateid == tmpl){
-    return connection.leftField;
-  }else{
-    return connection.rightField;
-  }
-}
+// function getField(tmpl, connection){
+//   if(connection.leftField.templateid == tmpl){
+//     return connection.leftField;
+//   }else{
+//     return connection.rightField;
+//   }
+// }
 
-function getOtherField(tmpl, connection){
-  if(connection.leftField.templateid == tmpl){
-    return connection.rightField;
-  }else{
-    return connection.leftField;
-  }
-}
+// function getOtherField(tmpl, connection){
+//   if(connection.leftField.templateid == tmpl){
+//     return connection.rightField;
+//   }else{
+//     return connection.leftField;
+//   }
+// }
 
 function hasTmplid(tmpl, connection){
-  return connection.leftField.templateid == tmpl
-        || connection.rightField.templateid == tmpl;
+  return connection.leftField.templateid == tmpl || connection.rightField.templateid == tmpl;
 }
 
 function isSame(conn1, conn2){
-  return conn1.leftField.templateid == conn2.leftField.templateid
-        && conn1.leftField.itemid == conn2.leftField.itemid
-        && conn1.rightField.templateid == conn2.rightField.templateid
-        && conn1.rightField.itemid == conn2.rightField.itemid;
+  return conn1.leftField.templateid == conn2.leftField.templateid && conn1.leftField.itemid == conn2.leftField.itemid && conn1.rightField.templateid == conn2.rightField.templateid && conn1.rightField.itemid == conn2.rightField.itemid;
 }
 
 function isEqual(conn1, conn2){
-  return isSame(conn1,conn2) 
-        || isSame(exchangeConn(conn1),conn2) ;
+  return isSame(conn1,conn2) || isSame(exchangeConn(conn1),conn2) ;
 }
 
 function exchangeConn(conn){
@@ -484,42 +476,39 @@ function filterByCondition(rule, success){
     if(ct.indexOf(item.templateid) == -1){
       ct.push(item.templateid);
     }
-  };
+  }
 
-  var result = {};
   var querys = {};
-  querys["$or"]=[];
-  for (var i = 0; i < ct.length; i++) {
+  querys.$or = [];
+  for (i = 0; i < ct.length; i++) {
     var templateid = ct[i];
-    var ids =[];
-    var first = true;
     var subQuerys = {};
-    subQuerys["$and"] = [];
+    subQuerys.$and = [];
     //get the doc ids match the condition
     for (var j = 0; j < rule.conditions.length; j++) {
       var condition = rule.conditions[j];
       if(templateid == condition.templateid){
         var q = {};
-        q["template"] = templateid;
+        q.template = templateid;
         q["items.itemid"] = condition.itemid;
         //---
         q["items.value"] = condition.value;
         //---
-        subQuerys["$and"].push(q); 
+        subQuerys.$and.push(q); 
       }
     }
-    if(subQuerys["$and"].length > 0){
-      querys["$or"].push(subQuerys);
+    if(subQuerys.$and.length > 0){
+      querys.$or.push(subQuerys);
     }
   }
 
   var ft = _.difference(rule.documents,ct);
-  for (var i = 0; i < ft.length; i++){
-    querys["$or"].push({"template" : ft[i]});
+  for (i = 0; i < ft.length; i++){
+    querys.$or.push({"template" : ft[i]});
   }
   model().find(querys)
     .select("_id template items").exec(function(err,docs){
       success(docs);
-  });
+    });
 }
 

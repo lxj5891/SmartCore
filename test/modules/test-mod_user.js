@@ -1,11 +1,9 @@
 var assert  = require("assert")
   , _       = require("underscore")
-  , log     = require("../../core/log")
   , auth    = require("../../core/auth");
 
 // jscoverage or original library
-var user = process.env['COVER'] 
-  ? require('../../cover_modules/mod_user')
+var user = process.env.COVER ? require('../../cover_modules/mod_user')
   : require('../../modules/mod_user');
 
 describe("User Module", function() {
@@ -14,25 +12,25 @@ describe("User Module", function() {
   var operationDate = new Date()
     , userid
     , newUser = {
-        uid: "smart"
-      , password: auth.sha256("smart")
-      , email: {
-        email1: "smart@dreamarts.com.cn"
+      uid: "smart"
+    , password: auth.sha256("smart")
+    , email: {
+        email1: "smart@smart.com"
       }
-      , name: {
-          first: "first"
-        , last: "last"
+    , name: {
+        first: "first"
+      , last: "last"
       }
-      , title: "CEO"
-      , address: {
-          country: "中国"
-        , state: "大连"
+    , title: "CEO"
+    , address: {
+        country: "中国"
+      , state: "大连"
       }
-      , lang: "CN"
-      , createby: "li"
-      , createat: operationDate
-      , editby: "li"
-      , editat: operationDate
+    , lang: "CN"
+    , createby: "li"
+    , createat: operationDate
+    , editby: "li"
+    , editat: operationDate
     };
 
   /*****************************************************************/
@@ -88,7 +86,7 @@ describe("User Module", function() {
   /*****************************************************************/
   // 添加关注
   it("test follow function", function(done) {
-    user.follow("1", userid, function(err, result) {});
+    user.follow("1", userid, function() {});
     user.follow("2", userid, function(err, result) {
       assert.equal(err, null, "Error should be null.");
       assert.notEqual(result, null, "Able to get user information.");
@@ -101,7 +99,7 @@ describe("User Module", function() {
   /*****************************************************************/
   // 删除用户
   it("test delete function", function(done) {
-    user.delete(userid, function(err, result) {
+    user.remove(userid, function(err, result) {
       assert.equal(err, null, "Error should be null.");
       assert.notEqual(result, null, "Able to get user information.");
       assert.equal(result._id.toString(), userid, "The userid should be correct.");
@@ -266,6 +264,6 @@ describe("User Module", function() {
  */
 function removeTestData(uids) {
   _.each(uids, function(uid){
-    user.delete(uid, function(err, result){});
+    user.remove(uid, function(){});
   });
 }

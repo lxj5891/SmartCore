@@ -1,7 +1,6 @@
 /**
  * Errors:
- * Copyright (c) 2012 Author Name <l_li@dreamarts.co.jp>
- * @see http://10.2.8.224/ssdb
+ * Copyright (c) 2012 Author Name l_li
  */
 
 /**
@@ -33,8 +32,7 @@
  *  505 HTTP Version not supported
  */
 
-var util = require('util')
-  , log = require('./log');
+var util = require('util');
 
 /**
  * AbstractError:
@@ -46,10 +44,10 @@ var AbstractError = function (msg, constr) {
   
   // If defined, pass the constr property to V8's
   // captureStackTrace to clean up the output
-  Error.captureStackTrace(this, constr || this)
+  Error.captureStackTrace(this, constr || this);
   
   // If defined, store a custom error message
-  this.message = msg || 'Error'
+  this.message = msg || 'Error';
 };
 
 // Extend our AbstractError from Error
@@ -67,10 +65,10 @@ AbstractError.prototype.code = -1;
  */
 var DatabaseError = function (c, msg) {
   this.code = c;
-  DatabaseError.super_.call(this, msg, this.constructor)
-}
+  DatabaseError.super_.call(this, msg, this.constructor);
+};
 util.inherits(DatabaseError, AbstractError);
-DatabaseError.prototype.message = 'Database Error'
+DatabaseError.prototype.message = 'Database Error';
 
 /**
  * BadRequestError:
@@ -115,7 +113,7 @@ util.inherits(NotFoundError, AbstractError);
 var InternalServerError = function (msg) {
   this.code = 500;
   InternalServerError.super_.call(this, msg, this.constructor);
-}
+};
 util.inherits(InternalServerError, AbstractError);
 
 /**
@@ -126,7 +124,7 @@ util.inherits(InternalServerError, AbstractError);
 var ForbiddenError = function (msg) {
   this.code = 403;
   ForbiddenError.super_.call(this, msg, this.constructor);
-}
+};
 util.inherits(ForbiddenError, AbstractError);
 
 /**
@@ -140,7 +138,7 @@ module.exports = {
   , NotFound: NotFoundError
   , InternalServer: InternalServerError
   , Forbidden: ForbiddenError
-}
+  };
 
 /**
  * 处理未捕获的异常。

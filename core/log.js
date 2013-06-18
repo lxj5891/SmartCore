@@ -1,7 +1,6 @@
 /**
  * Log:
- * Copyright (c) 2012 Author Name <l_li@dreamarts.co.jp>
- * @see http://10.2.8.224/ssdb
+ * Copyright (c) 2012 Author Name l_li
  */
 
 /**
@@ -40,13 +39,13 @@ Object.defineProperty(global, '__stack', {
   get: function(){
     var orig = Error.prepareStackTrace;
     Error.prepareStackTrace = function(_, stack){ return stack; };
-    var err = new Error;
+    var err = new Error();
     Error.captureStackTrace(err, arguments.callee);
     var stack = err.stack;
     Error.prepareStackTrace = orig;
     return stack;
   }
-})
+});
 
 /**
  * __line:
@@ -57,7 +56,7 @@ Object.defineProperty(global, '__line', {
   get: function(){
     return __stack[1].getLineNumber();
   }
-})
+});
 
 /**
  * __pline:
@@ -68,7 +67,7 @@ Object.defineProperty(global, '__pline', {
   get: function(){
     return __stack[2].getLineNumber();
   }
-})
+});
 
 /**
  * __pfilename:
@@ -79,7 +78,7 @@ Object.defineProperty(global, '__pfilename', {
   get: function(){
     return __stack[2].getFileName();
   }
-})
+});
 
 /**
  * Emitter:
@@ -99,7 +98,7 @@ emitter.on('trace', function(type, message, source, line){
   if (type == 'audit') {
     audit.trace(message + '  ' + source + ':' + line);
   }
-})
+});
 
 // debug
 emitter.on('debug', function(type, message, source, line){
@@ -112,7 +111,7 @@ emitter.on('debug', function(type, message, source, line){
   if (type == 'audit') {
     audit.debug(message + '  ' + source + ':' + line);
   }
-})
+});
 
 // info
 emitter.on('info', function(type, message, source, line){
@@ -125,7 +124,7 @@ emitter.on('info', function(type, message, source, line){
   if (type == 'audit') {
     audit.info(message + '  ' + source + ':' + line);
   }
-})
+});
 
 // warn
 emitter.on('warn', function(type, message, source, line){
@@ -138,7 +137,7 @@ emitter.on('warn', function(type, message, source, line){
   if (type == 'audit') {
     audit.warn(message + '  ' + source + ':' + line);
   }
-})
+});
 
 // error
 emitter.on('error', function(type, message, source, line){
@@ -151,7 +150,7 @@ emitter.on('error', function(type, message, source, line){
   if (type == 'audit') {
     audit.error(message + '  ' + source + ':' + line);
   }
-})
+});
 
 // fatal
 emitter.on('fatal', function(type, message, source, line){
@@ -164,7 +163,7 @@ emitter.on('fatal', function(type, message, source, line){
   if (type == 'audit') {
     audit.fatal(message + '  ' + source + ':' + line);
   }
-})
+});
 
 /**
  * Out:
@@ -182,7 +181,7 @@ function out(level, type, message, source, line){
  */
 exports.out = function(level, message){
   out(level, 'application', message, __pfilename, __pline);
-}
+};
 
 /**
  * Opera:
@@ -192,7 +191,7 @@ exports.out = function(level, message){
  */
 exports.opera = function(level, message){
   out(level, 'operation', message, __pfilename, __pline);
-}
+};
 
 /**
  * Audit:
@@ -202,5 +201,5 @@ exports.opera = function(level, message){
  */
 exports.audit = function(level, message){
   out(level, 'audit', message, __pfilename, __pline);
-}
+};
 

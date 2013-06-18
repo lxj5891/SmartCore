@@ -1,12 +1,9 @@
 /**
  * API Template
- * Copyright (c) 2012 Author Name <l_li@dreamarts.co.jp>
- * @see http://10.2.8.224/ssdb
+ * Copyright (c) 2012 Author Name l_li
  */
 
-var util = require('util')
-  , log = require('../core/log')
-  , templ = require("../modules/mod_template");
+var templ = require("../modules/mod_template");
 
 exports.view = function(req, res){
 
