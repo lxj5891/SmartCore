@@ -7,7 +7,7 @@ var _       = require("underscore")
   , mongo   = require('mongoose')
   // , util    = require('util')
   // , log     = require('../core/log')
-  , solr = require('../core/solr')
+  // , solr = require('../core/solr')
   , conn    = require('./connection')
   , async = require("async")
   , mod_group = require('../modules/mod_group')
@@ -57,7 +57,7 @@ exports.create = function(group_, callback_) {
   var group = model();
 
   new group(group_).save(function(err, ret){
-    solr.update(ret, "group", "insert", function(){});
+    // solr.update(ret, "group", "insert", function(){});
     callback_(err, ret);
   });
 };
@@ -84,7 +84,7 @@ exports.remove = function(gid_, callback_){
   var group = model();
 
   group.findByIdAndRemove(gid_, function(err, result){
-    solr.update(result, "group", "delete", function(){});
+    // solr.update(result, "group", "delete", function(){});
     callback_(err, result);
   });
 };
@@ -112,7 +112,7 @@ exports.update = function(gid_, newvals_, callback_) {
 
   var group = model();
   group.findByIdAndUpdate(gid_, newvals_, function(err, result){
-    solr.update(result, "group", "update", function(){});
+    // solr.update(result, "group", "update", function(){});
     callback_(err, result);
   });
 };
