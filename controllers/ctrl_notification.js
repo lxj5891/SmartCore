@@ -95,6 +95,7 @@ exports.createForMessage = function(message_, callback_) {
 
   // reply
   //TODO :这里可能 有BUG  message_.part.targetcreateby, 未空
+  //DONE : 修改回复的BUG
   if(message_.type == 2&&message_.part.targetcreateby){
     var task_reply = function(cb){
 
