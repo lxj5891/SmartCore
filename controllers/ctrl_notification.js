@@ -94,7 +94,8 @@ exports.createForMessage = function(message_, callback_) {
   // var message = require('../modules/mod_message');
 
   // reply
-  if(message_.type == 2){
+  //TODO :这里可能 有BUG  message_.part.targetcreateby, 未空
+  if(message_.type == 2&&message_.part.targetcreateby){
     var task_reply = function(cb){
 
         var notification_ = {
