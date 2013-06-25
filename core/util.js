@@ -134,7 +134,7 @@ exports.isBrowser = function(req) {
   isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^otest.*$/i);
 
   // iPhone
-  isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^Cross.*$/i);
+  isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^cross.*$/i);
   // iPhone
   isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^TribeIPhone.*$/i);
   // iPad
