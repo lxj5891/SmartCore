@@ -122,6 +122,7 @@ exports.timeout = function(req, res, next) {
   isUpload = isUpload || req.url.match(/^\/file\/download\.json/i);
   isUpload = isUpload || req.url.match(/^\/file\/upload\.json/i);
   isUpload = isUpload || req.url.match(/^\/gridfs\/save\.json/i);
+  isUpload = isUpload || req.url.match(/^\/picture\//i);
 
   if (!isUpload) {
     req.connection.setTimeout(confapp.timeout * 1000);
