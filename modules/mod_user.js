@@ -146,7 +146,7 @@ exports.update = function(userid_, newvals_, callback_){
   var user = model();
 
   user.findByIdAndUpdate(userid_, newvals_, function(err, result){
-    solr.update(result, "user", "update", function(){});
+    // solr.update(result, "user", "update", function(){});
     callback_(err, result);
   });
 };
