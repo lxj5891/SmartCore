@@ -333,15 +333,20 @@ exports.updateUser = function(currentuser, obj, callback_){
     return callback_(new error.BadRequest(__("user.error.emptyName")));
   }
   
-  var retObj = checkEmail(u.email);
-  if(retObj.code){
-    return callback_(new error.BadRequest(retObj.msg));
-  }
+  // TODO
+  // 2013/6/28 临时对应先不验证邮箱
+  if (u.email) {
+    var retObj = checkEmail(u.email);
+    if(retObj.code){
+      return callback_(new error.BadRequest(retObj.msg));
+    }
 
-  retObj = checkTel(u.tel);
-  if(retObj.code){
-    return callback_(new error.BadRequest(retObj.msg));
+    retObj = checkTel(u.tel);
+    if(retObj.code){
+      return callback_(new error.BadRequest(retObj.msg));
+    }
   }
+  
 
   var newval = {};
   var password_new = u.password_new;
