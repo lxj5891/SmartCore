@@ -9,8 +9,8 @@ var f       = require('fs')
   , user    = require('../controllers/ctrl_user')
   , notification = require('../controllers/ctrl_notification')
   , amqp = require('../core/amqp')
-  , fileinfo    = require('../modules/mod_file.js');
-
+  , fileinfo    = require('../modules/mod_file.js')
+  , error   = require('../core/errors');
 /**
  * 返回用户上传的文件列表
  */
@@ -282,6 +282,11 @@ exports.image = function(req, res, success) {
   }
 
   gridfs.load(fileid, function(err, doc, info){
+    if(!info) {
+        log.out("error", "Image is not found. fileid:" + fileid);
+        return success(new error.NotFound("Image is not found. fileid:" + fileid));
+    }
+
     if (info.filename) {
       res.header('Content-Length', info.length);
       res.contentType(info.filename);
