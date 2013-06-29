@@ -283,7 +283,7 @@ exports.image = function(req, res, success) {
 
   gridfs.load(fileid, function(err, doc, info){
     if(!info) {
-        log.out("error", "Image is not found. fileid:" + fileid);
+        log.out("info", "Image is not found. fileid:" + fileid);
         return success(new error.NotFound("Image is not found. fileid:" + fileid));
     }
 
