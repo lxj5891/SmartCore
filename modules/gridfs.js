@@ -64,7 +64,11 @@ exports.load = function(fileid, callback) {
 
     var gridStore = new GridStore(db, new ObjectID(fileid), 'r');
     gridStore.open(function(err, gridStore) {
-      
+      // 临时对应案，否则出错时，iPhone画面出1004错误
+      var error     = require('../core/errors')
+      if(err)
+        return callback(new error.NotFound(__("user.error.notFound")));
+
       // Set the pointer of the read head to the start of the gridstored file
       gridStore.seek(0, function(){
         gridStore.read(function(err, data){
