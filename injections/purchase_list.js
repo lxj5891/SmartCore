@@ -12,8 +12,8 @@ purchase_list.befor = function(param, start, limit, callback) {
   var condition = {};
 
   // 如果指定了月份
-  if (param.month) {
-    condition = {date: new RegExp("^" + param.month + ".*$", "i")};
+  if (param.date) {
+    condition = {date: param.date};
   }
 
   // 如果指定了起始日

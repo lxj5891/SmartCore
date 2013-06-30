@@ -8,16 +8,8 @@ purchase_update.befor = function(condition, document, callback) {
 
   console.log("purchase_update_befor");
 
-  var data = {
-      category: document.category
-    , amount: document.amount
-    , editby: document.editby
-    , editat: document.editat
-    };
-
-
   var err = null;
-  callback(err, condition, data);
+  callback(err, condition, document);
 
 };
 

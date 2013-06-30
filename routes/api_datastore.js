@@ -32,7 +32,7 @@ exports.guiding = function(app){
 
   });
 
-  app.post('/app/purchase/update.json', function(req, res){
+  app.put('/app/purchase/update.json', function(req, res){
 
     req.appid = "purchase_update";
     datastore.updateById(req, res);
