@@ -53,7 +53,7 @@
   },
   
   "mq": {
-      "host": "127.0.0.1"
+      "host": "mq"
     , "port": 5672
     , "user": "guest"
     , "password": "guest"
@@ -61,14 +61,14 @@
     , "notification_queue": "SmartNotification"
   },
   "mq_photo": {
-      "host": "127.0.0.1"
+      "host": "mq"
     , "port": 5672
     , "user": "guest"
     , "password": "guest"
     , "queue": "smartPhoto"
   },
   "mq_apn": {
-      "host": "127.0.0.1"
+      "host": "mq"
     , "port": 5672
     , "user": "guest"
     , "password": "guest"
