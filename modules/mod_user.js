@@ -16,6 +16,7 @@ var mongo = require('mongoose')
 var User = new schema({
     uid: {type: String, required: true}       // 登陆认证用，TODO:换成邮件登陆
   , password: {type: String, required: true}
+  , type: {type:Number}                       // 用户类型， 默认0.   0: 普通用户, 1: 系统管理员
   , email: {
       email1: {type: String}
     , email2: {type: String}
