@@ -520,7 +520,8 @@ exports.updateUser = function(req_, res_){
 exports.login = function(req_, res_){
 
   var userid = req_.query.name
-    , passwd = req_.query.pass;
+    , passwd = req_.query.pass
+    , home   = req_.query.home || "message";
 
   user.approved(userid, passwd, function(err, result){
     if (err) {
@@ -530,7 +531,7 @@ exports.login = function(req_, res_){
     // TODO: 在API内，不应该有迁移控制，应该拿到客户端实现。和Oauth一起实现
     auth.login(req_, res_, result);
     if (util.isBrowser(req_)) {
-      return res_.redirect("/message");
+      return res_.redirect("/" + home);
     }
 
     return res_.send(json.dataSchema(result));
