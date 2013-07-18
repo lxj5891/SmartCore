@@ -517,11 +517,10 @@ exports.updateUser = function(req_, res_){
  * @param {String}  uid (required) 用户ID
  * @param {String}  password (required) 用户密码 
  */
-exports.login = function(req_, res_){
+exports.login = function(req_, res_, logined_filter){
 
   var userid = req_.query.name
-    , passwd = req_.query.pass
-    , home   = req_.query.home || "message";
+    , passwd = req_.query.pass;
 
   user.approved(userid, passwd, function(err, result){
     if (err) {
@@ -530,11 +529,12 @@ exports.login = function(req_, res_){
 
     // TODO: 在API内，不应该有迁移控制，应该拿到客户端实现。和Oauth一起实现
     auth.login(req_, res_, result);
-    if (util.isBrowser(req_)) {
-      return res_.redirect("/" + home);
-    }
-
-    return res_.send(json.dataSchema(result));
+    // 登陆成功后，返回前可在这里做一些处理。
+    logined_filter(result);
+    
+    var out = json.dataSchema(result);
+    out.home = req_.query.home || "message"; // 设置返回的home URL
+    return res_.send(out);
   });
 };
 
