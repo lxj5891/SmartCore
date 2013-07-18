@@ -98,6 +98,11 @@ exports.batchDelete = function(callback) {
 
 
 exports.update = function(object, obj_type, func, callback) {
+  if (!solr) {
+    console.log("Error: solr need host and port");
+    return;
+  }
+
   var options = {
     host: solr.host,
     port: solr.port,
