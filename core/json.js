@@ -5,7 +5,7 @@
 exports.send = function(res, error, data) {
 
   // 设定ContentType
-  res.contentType('application/json');
+  res.contentType('application/json; charset=UTF-8');
 
   // 返回错误信息
   if (error) {
