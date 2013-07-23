@@ -1,4 +1,6 @@
-var sanitize = require('validator').sanitize;
+var sanitize = require('validator').sanitize
+  , check     = require("validator").check
+  ;
 
 
 exports.format_date = function (date, friendly) {
@@ -183,4 +185,31 @@ exports.isBrowser = function(req) {
   isSmartPhone = isSmartPhone || req.headers["user-agent"].match(/^ShoppingListIPad.*$/i);
  
   return !isSmartPhone;
+};
+
+exports.isEmail = function(email){
+  try{
+    check(email).isEmail();
+    return true;
+  }catch(e){
+    return false;
+  }
+};
+
+exports.isTel = function (tel){
+  try{
+    check(tel).regex(exports.getTelRegex());
+    return true;
+  }catch(e){
+    return false;
+  }
+};
+
+exports.isUrl = function (url){
+    try{
+        check(url).isUrl();
+        return true;
+    }catch(e){
+        return false;
+    }
 };
