@@ -1,6 +1,14 @@
 var json = require("../core/json")
   , dbfile = require('../controllers/ctrl_dbfile');
 
+exports.image = function(req, res) {
+
+  dbfile.image(req, res, function(err, doc, info){
+    res.send(doc);
+  });
+
+};
+
 exports.ioshistory = function(req_,res_){
   var fid = req_.query.fid;
   dbfile.detail(fid, function(err, result){
@@ -101,7 +109,7 @@ exports.upload = function(req_, res_) {
 exports.save = function(req_, res_){
 
   var uid = req_.session.user._id;
-  
+  console.log(req_);
   // Get file list from the request
   var filearray;
   if (req_.files.files instanceof Array) {
@@ -110,6 +118,7 @@ exports.save = function(req_, res_){
     filearray = [];
     filearray.push(req_.files.files);
   }
+  console.log(filearray);
 
   dbfile.gridfsSave(uid, filearray, function(err, result){
     if (err) {
