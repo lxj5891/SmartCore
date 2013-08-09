@@ -271,7 +271,27 @@ exports.unfollow = function(fileid, uid, success){
     success(err, file);
   });
 };
+exports.ipaFile = function(fileId, res, success){
+    if (fileId === "undefined") {
+        return success();
+    }
+    gridfs.load(fileId, function(err, doc, info){
+        if(!info) {
+            log.out("info", "Image is not found. fileid:" + fileid);
+            return success(new error.NotFound("Image is not found. fileid:" + fileid));
+        }
 
+        console.log(info);
+        if (info.filename) {
+            res.header('Content-Length', info.length);
+            res.contentType(info.filename);
+            res.send(doc);
+            return;
+        } else {
+            log.out("error","filename is null");
+        }
+    });
+};
 exports.image = function(req, res, success) {
   
   var fileid =  req.params.id;
