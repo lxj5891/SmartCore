@@ -15,6 +15,16 @@ exports.send = function(res, error, data) {
   // 返回JSON数据
   return res.send(exports.dataSchema(data));
 }
+/**
+ * 发送自定义错误JSON数据
+ */
+exports.sendError = function(res, error) {
+    // 设定ContentType
+    res.contentType('application/json; charset=UTF-8');
+
+    // 返回错误信息
+    return res.send(exports.errorSchema(error.code, error.message));
+}
 
 exports.dataSchema = function(data) {
   return {
