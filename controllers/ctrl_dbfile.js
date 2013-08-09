@@ -289,6 +289,9 @@ exports.ipaFile = function(fileId, res, success){
             return;
         } else {
             log.out("error","filename is null");
+            //TODO：未知错误  需要验证
+            res.send(0);
+            return;
         }
     });
 };
