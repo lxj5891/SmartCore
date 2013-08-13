@@ -286,7 +286,7 @@ exports.ipaFile = function(fileId, res, success){
             res.header('Content-Length', info.length);
             res.contentType(info.filename);
             res.send(doc);
-            return;
+            success(err);
         } else {
             log.out("error","filename is null");
             //TODO：未知错误  需要验证
