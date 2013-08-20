@@ -25,6 +25,7 @@ module.exports = {
       user: require("./modules/mod_user")
     , group: require("./modules/mod_group")
     , notification: require("./modules/mod_notification")
+    , gridfs: require("./modules/gridfs")
     },
     core: {
       amqp: require("./core/amqp")
