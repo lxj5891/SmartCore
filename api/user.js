@@ -790,3 +790,19 @@ exports.registerConfirm = function(req_, res_) {
   });
 };
 
+//yukari
+exports.list = function(req_, res_) {
+
+    var start = req_.query.start
+        , limit = req_.query.count
+        , uid = req_.session.user._id;
+
+    user.list(start, limit, function(err, result) {
+        if (err) {
+            return res_.send(err.code, json.errorSchema(err.code, err.message));
+        } else {
+            return res_.send(json.dataSchema(result));
+        }
+    });
+};
+

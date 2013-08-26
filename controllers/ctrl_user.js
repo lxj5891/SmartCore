@@ -717,3 +717,25 @@ exports.appendUser = function(data, uidcolumn, callback_) {
 
 };
 
+//yukri
+exports.list = function(start_, limit_, callback_) {
+
+    var start = start_ || 0
+        , limit = limit_ || 20
+        , condition = {
+//            valid:1
+        };
+    user.total(function(err, count){
+        if (err) {
+            return callback_(new error.InternalServer(err));
+        }
+        user.list(condition, start, limit, function(err, result){
+            console.log(err);
+            if (err) {
+                return callback_(new error.InternalServer(err));
+            }
+            return callback_(err,  {totalItems: count, items:result});
+        });
+    });
+};
+

@@ -65,9 +65,13 @@ var User = new schema({
     }
 
   // YUKARi 用
-  , authority: {type: String}
+  , authority: {
+        notice:{type:String,description: "通知权限"}
+       ,approve:{type:String,description: "布局承认权限"}
+    }
   , description: {type: String}
-
+  , companyid:{type:String,description: "公司ID"}
+  , valid: {type: Number, default:1, description: "0:无效 1:有效"}
   });
 
 
@@ -404,4 +408,25 @@ exports.structure = function() {
 function model() {
   return conn().model('User', User);
 }
+
+//yukari
+// 获取用户有效件数
+exports.total = function(callback_){
+    var user = model();
+    user.count().exec(function(err, count){
+        callback_(err, count);
+    });
+};
+exports.list = function(condition_, start_, limit_, callback_){
+
+    var user = model();
+
+    user.find(condition_)
+        .skip(start_ || 0)
+        .limit(limit_ || 20)
+        .sort({createat: 'desc'})
+        .exec(function(err, result){
+            callback_(err, result);
+        });
+};
 
