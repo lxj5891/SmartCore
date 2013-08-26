@@ -6,7 +6,7 @@
 var mongo = require('mongoose')
   // , util = require('util')
   // , log = require('../core/log')
-  , solr = require('../core/solr')
+//  , solr = require('../core/solr')
   , conn = require('./connection')
   , schema = mongo.Schema;
 
@@ -63,6 +63,11 @@ var User = new schema({
     , middle: {type: String}
     , small: {type: String}
     }
+
+  // YUKARi 用
+  , authority: {type: String}
+  , description: {type: String}
+
   });
 
 
@@ -74,7 +79,7 @@ exports.create = function(user_, callback_){
   var user = model();
 
   new user(user_).save(function(err, result){
-    solr.update(result, "user", "insert", function(){});
+//    solr.update(result, "user", "insert", function(){});
     callback_(err, result);
   });
 };
@@ -252,7 +257,7 @@ exports.headMatch = function(head_, keywords_, start_, limit_, callback_) {
     ];
   }
 
-  user.find(condition)//.skip(start_ || 0).limit(limit_ || 2)
+  user.find(condition).skip(start_ || 0).limit(limit_ || 20)
     .sort({"name.name_zh": 'asc'})
     .exec(function(err, users){
       callback_(err, users);

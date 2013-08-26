@@ -646,7 +646,7 @@ exports.setPhoto = function(req, res){
 exports.getUserList = function(req_, res_){
 
   var firstLetter  = req_.query.firstLetter
-    , uid = req_.query.uid
+    , uid = req_.query.uid || req_.session.user._id
     , start = req_.query.start
     , limit = req_.query.count
     , kind = req_.query.kind;
