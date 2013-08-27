@@ -805,4 +805,44 @@ exports.list = function(req_, res_) {
         }
     });
 };
+// 获取指定用户
+exports.searchOne = function(req_, res_) {
+
+    var userid = req_.query.userid;
+
+    user.searchOne(userid, function(err, result) {
+        if (err) {
+            return res_.send(err.code, json.errorSchema(err.code, err.message));
+        } else {
+            return res_.send(json.dataSchema(result));
+        }
+    });
+};
+// 添加用户
+exports.add = function(req_, res_) {
+
+    var uid = req_.session.user._id;
+    var compid = req_.session.user.companyid;
+
+    user.add(uid, compid,req_.body, function(err, result) {
+        if (err) {
+            return res_.send(err.code, json.errorSchema(err.code, err.message));
+        } else {
+            return res_.send(json.dataSchema(result));
+        }
+    });
+};
+// 更新用户
+exports.update = function(req_, res_) {
+
+    var uid = req_.session.user._id;
+    var compid = req_.session.user.companyid;
+    user.update(uid, compid,req_.body, function(err, result) {
+        if (err) {
+            return res_.send(err.code, json.errorSchema(err.code, err.message));
+        } else {
+            return res_.send(json.dataSchema(result));
+        }
+    });
+};
 

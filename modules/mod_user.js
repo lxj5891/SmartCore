@@ -66,8 +66,8 @@ var User = new schema({
 
   // YUKARi 用
   , authority: {
-        notice:{type:String,description: "通知权限"}
-       ,approve:{type:String,description: "布局承认权限"}
+        notice:{type:Number,description: "通知权限"}
+       ,approve:{type:Number,description: "布局承认权限"}
     }
   , description: {type: String}
   , companyid:{type:String,description: "公司ID"}
@@ -428,5 +428,13 @@ exports.list = function(condition_, start_, limit_, callback_){
         .exec(function(err, result){
             callback_(err, result);
         });
+};
+exports.searchOne = function(userid,callback_){
+
+    var user = model();
+
+    user.findById(userid, function(err, result){
+        callback_(err, result);
+    });
 };
 
