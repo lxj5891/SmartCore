@@ -795,7 +795,6 @@ exports.list = function(req_, res_) {
 
     var start = req_.query.start
         , limit = req_.query.count
-        , uid = req_.session.user._id;
 
     user.list(start, limit, function(err, result) {
         if (err) {
@@ -822,9 +821,8 @@ exports.searchOne = function(req_, res_) {
 exports.add = function(req_, res_) {
 
     var uid = req_.session.user._id;
-    var compid = req_.session.user.companyid;
 
-    user.add(uid, compid,req_.body, function(err, result) {
+    user.add(uid, req_.body, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
         } else {
@@ -836,8 +834,7 @@ exports.add = function(req_, res_) {
 exports.update = function(req_, res_) {
 
     var uid = req_.session.user._id;
-    var compid = req_.session.user.companyid;
-    user.update(uid, compid,req_.body, function(err, result) {
+    user.update(uid, req_.body, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
         } else {

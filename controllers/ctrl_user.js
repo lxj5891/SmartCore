@@ -739,12 +739,11 @@ exports.list = function(start_, limit_, callback_) {
     });
 };
 
-exports.add = function (uid, compid, userInfo, callback_) {
+exports.add = function (uid,  userInfo, callback_) {
     userInfo.createat = new Date();
     userInfo.createby = uid;
     userInfo.editat = new Date();
     userInfo.editby = uid;
-    userInfo.companyid = compid;
 
     user.create(userInfo, function(err, result){
         if (err) {
@@ -754,10 +753,10 @@ exports.add = function (uid, compid, userInfo, callback_) {
     });
 }
 
-exports.update = function(uid_, compid,userInfo, callback_) {
+exports.update = function(uid_,userInfo, callback_) {
     userInfo.editat = new Date();
     userInfo.editby = uid_;
-    userInfo.companyid = compid;
+
     user.update(userInfo.id, userInfo, function(err, result){
         if (err) {
             return callback_(new error.InternalServer(err));

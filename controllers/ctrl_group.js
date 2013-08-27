@@ -12,7 +12,7 @@ exports.createGroup = function (g_, creator_, callback_) {
   }
 
   var date = new Date()
-    , member = g_.member ? g_.member_.split(",") : new Array();
+    , member = g_.member ? g_.member.split(",") : new Array();
   
   member.push(creator_);
 
@@ -27,6 +27,8 @@ exports.createGroup = function (g_, creator_, callback_) {
     , "createat": date
     , "editby": creator_
     , "editat": date
+    , "valid" : g_.valid      //yukari
+    , "companyid" : g_.companyid //yukari
   };
 
   // 允许组织重名的组存在，所以不判断是否已经有同名的组
@@ -297,3 +299,26 @@ function removeOneMember(member, id, creator){
   }
   return member;
 }
+
+//yukari
+exports.list = function(start_, limit_,companyid_, callback_) {
+
+  var start = start_ || 0
+    , limit = limit_ || 20
+    , condition = {
+            valid:1
+            ,companyid : companyid_
+    };
+  group.total(function(err, count){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+    group.list(condition, start, limit, function(err, result){
+      console.log(err);
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+      return callback_(err,  {totalItems: count, items:result});
+    });
+  });
+};

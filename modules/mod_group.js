@@ -46,6 +46,9 @@ var Group = new schema({
   , createat: {type: Date}
   , editby: {type: String}
   , editat: {type: Date}
+  //yukari
+  , valid: {type: Number, default:1, description: "0:无效 1:有效"}
+  , companyid:{type:String,description: "公司ID"}
   });
 
 
@@ -453,3 +456,23 @@ exports.getAllGroupByUid = function(uid, callback_) {
 function model() {
   return conn().model('Group', Group);
 }
+
+// 获取组有效件数
+exports.total = function(callback_){
+  var group = model();
+  group.count({valid:1}).exec(function(err, count){
+    callback_(err, count);
+  });
+};
+exports.list = function(condition_, start_, limit_, callback_){
+
+  var group = model();
+
+  group.find(condition_)
+    .skip(start_ || 0)
+    .limit(limit_ || 20)
+    .sort({createat: 'desc'})
+    .exec(function(err, result){
+      callback_(err, result);
+    });
+};

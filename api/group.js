@@ -37,6 +37,8 @@ exports.createGroup = function (req_, res_) {
     , "description": req_.body.description
     , "category": req_.body.category
     , "secure": req_.body.secure
+    , "valid" : req_.body.valid
+    , "companyid" : req_.session.user.companyid
     };
 
   group.createGroup(g, creator, function(err, result){
@@ -141,6 +143,7 @@ exports.updateGroup = function(req_, res_) {
   var gobj = util.checkObject(req_.body);
   gobj.editby = req_.session.user ? req_.session.user._id : "";
   gobj.editat = Date.now();
+  gobj.valid = req_.body.valid;
 
   group.updateGroup(gobj, function(err, result){
     if(err){
@@ -289,6 +292,21 @@ exports.getMember = function(req_, res_) {
       return res_.send(json.errorSchema(err.code, err.message));
     } else {
       return res_.send(json.dataSchema({items: result}));
+    }
+  });
+};
+//yukari
+exports.list = function(req_, res_) {
+
+  var start = req_.query.start
+    , limit = req_.query.count
+    , companyId = req_.session.user.companyid
+
+  group.list(start, limit,companyId, function(err, result) {
+    if (err) {
+      return res_.send(err.code, json.errorSchema(err.code, err.message));
+    } else {
+      return res_.send(json.dataSchema(result));
     }
   });
 };
