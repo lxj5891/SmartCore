@@ -795,8 +795,8 @@ exports.list = function(req_, res_) {
 
     var start = req_.query.start
         , limit = req_.query.count
-
-    user.list(start, limit, function(err, result) {
+        , company = req_.session.user.companyid
+    user.list(start, limit,company, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
         } else {
@@ -821,8 +821,10 @@ exports.searchOne = function(req_, res_) {
 exports.add = function(req_, res_) {
 
     var uid = req_.session.user._id;
-
-    user.add(uid, req_.body, function(err, result) {
+    var userData = req_.body;
+        userData.companyid = req_.session.user.companyid;
+        userData.password = auth.sha256(userData.password);
+    user.add(uid, userData, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
         } else {

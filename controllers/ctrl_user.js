@@ -718,12 +718,13 @@ exports.appendUser = function(data, uidcolumn, callback_) {
 };
 
 //yukri
-exports.list = function(start_, limit_, callback_) {
+exports.list = function(start_, limit_,companyid_, callback_) {
 
     var start = start_ || 0
         , limit = limit_ || 20
         , condition = {
-//            valid:1
+              valid  : 1
+            , companyid:  companyid_
         };
     user.total(function(err, count){
         if (err) {
@@ -744,6 +745,7 @@ exports.add = function (uid,  userInfo, callback_) {
     userInfo.createby = uid;
     userInfo.editat = new Date();
     userInfo.editby = uid;
+    userInfo.uid = userInfo.userid;
 
     user.create(userInfo, function(err, result){
         if (err) {
@@ -756,6 +758,7 @@ exports.add = function (uid,  userInfo, callback_) {
 exports.update = function(uid_,userInfo, callback_) {
     userInfo.editat = new Date();
     userInfo.editby = uid_;
+    userInfo.password = auth.sha256(userInfo.password);
 
     user.update(userInfo.id, userInfo, function(err, result){
         if (err) {
@@ -775,4 +778,24 @@ exports.searchOne = function( uid_, callback_) {
     });
 
 };
+exports.remove = function(uid_,compId_, callback_){
+  var obj = {
+    valid:0,
+    editat:new Date(),
+    editby:uid_
+  };
+  user.remove(compId_,obj,function(err,result){
+    callback_(err, result);
+  });
+}
+exports.active = function(uid_,compId_,active_ ,  callback_){
+  var obj = {
+    active:active_,
+    editat:new Date(),
+    editby:uid_
+  };
+  user.active(compId_,obj,function(err,result){
+    callback_(err, result);
+  });
+}
 

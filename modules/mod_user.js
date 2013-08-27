@@ -16,7 +16,7 @@ var mongo = require('mongoose')
 var User = new schema({
     uid: {type: String, required: true}       // 登陆认证用，TODO:换成邮件登陆
   , password: {type: String, required: true}
-  , type: {type:Number}                       // 用户类型， 默认0.   0: 普通用户, 1: 系统管理员
+  , type: {type:Number}                       // 用户类型， 默认0.   0: 普通用户, 1: 系统管理员, 2:DAC ,3 :dev
   , email: {
       email1: {type: String}
     , email2: {type: String}
@@ -413,7 +413,7 @@ function model() {
 // 获取用户有效件数
 exports.total = function(callback_){
     var user = model();
-    user.count().exec(function(err, count){
+    user.count({valid: 1}).exec(function(err, count){
         callback_(err, count);
     });
 };
@@ -437,4 +437,16 @@ exports.searchOne = function(userid,callback_){
         callback_(err, result);
     });
 };
+exports.remove = function(compId_,obj, callback_){
+  var user = model();
+  user.update({companyid:compId_},obj,function(err,result){
+    callback_(err, result);
+  });
+}
+exports.active = function(compId_,obj, callback_){
+  var user = model();
+  user.update({companyid:compId_},obj,function(err,result){
+    callback_(err, result);
+  });
+}
 
