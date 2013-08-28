@@ -823,7 +823,6 @@ exports.add = function(req_, res_) {
     var uid = req_.session.user._id;
     var userData = req_.body;
         userData.companyid = req_.session.user.companyid;
-        userData.password = auth.sha256(userData.password);
     user.add(uid, userData, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));

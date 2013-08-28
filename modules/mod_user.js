@@ -439,13 +439,13 @@ exports.searchOne = function(userid,callback_){
 };
 exports.remove = function(compId_,obj, callback_){
   var user = model();
-  user.update({companyid:compId_},obj,function(err,result){
+  user.update({companyid:compId_},obj,{multi:true},function(err,result){
     callback_(err, result);
   });
 }
 exports.active = function(compId_,obj, callback_){
   var user = model();
-  user.update({companyid:compId_},obj,function(err,result){
+  user.update({companyid:compId_},obj,{multi:true},function(err,result){
     callback_(err, result);
   });
 }

@@ -746,6 +746,9 @@ exports.add = function (uid,  userInfo, callback_) {
     userInfo.editat = new Date();
     userInfo.editby = uid;
     userInfo.uid = userInfo.userid;
+    if (userInfo.password) {
+      userInfo.password = auth.sha256(userInfo.password);
+    }
 
     user.create(userInfo, function(err, result){
         if (err) {
@@ -758,8 +761,9 @@ exports.add = function (uid,  userInfo, callback_) {
 exports.update = function(uid_,userInfo, callback_) {
     userInfo.editat = new Date();
     userInfo.editby = uid_;
-    userInfo.password = auth.sha256(userInfo.password);
-
+    if (userInfo.password && userInfo.password.length < 20) {
+      userInfo.password = auth.sha256(userInfo.password);
+    }
     user.update(userInfo.id, userInfo, function(err, result){
         if (err) {
             return callback_(new error.InternalServer(err));
