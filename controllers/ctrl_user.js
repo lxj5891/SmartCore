@@ -424,7 +424,8 @@ exports.approved = function (userid_, passwd_, callback_) {
   }
 
   // 查询数据库
-  user.find({"uid": userid_}, function(err, result) {
+  //yukari 追加无效,和删除flag
+  user.find({"uid": userid_,"valid":1,"active":1}, function(err, result) {
 
     // 查询出错
     if (err) {
@@ -746,7 +747,7 @@ exports.add = function (uid,  userInfo, callback_) {
     userInfo.editat = new Date();
     userInfo.editby = uid;
     userInfo.uid = userInfo.userid;
-    if (userInfo.password) {
+    if (userInfo.password && userInfo.password.length < 20) {
       userInfo.password = auth.sha256(userInfo.password);
     }
 
