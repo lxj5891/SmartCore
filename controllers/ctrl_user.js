@@ -727,7 +727,7 @@ exports.list = function(start_, limit_,companyid_, callback_) {
               valid  : 1
             , companyid:  companyid_
         };
-    user.total(function(err, count){
+    user.total(companyid_,function(err, count){
         if (err) {
             return callback_(new error.InternalServer(err));
         }
