@@ -12,9 +12,9 @@ exports.createGroup = function (g_, creator_, callback_) {
   }
 
   var date = new Date()
-    , member = g_.member ? g_.member.split(",") : new Array();
-  
-  member.push(creator_);
+    , member = g_.member;
+  //yukari sl_yang
+  //member.push(creator_);
 
   var data = {
       "name": g_.name
@@ -91,7 +91,7 @@ exports.updateGroup = function(gobj_, callback_) {
             , "collection": "groups"
           });
         }
-      }else{
+      } else{
         updateObj[i] = gobj_[i];
       }
     }
@@ -319,6 +319,27 @@ exports.list = function(start_, limit_,companyid_, callback_) {
         return callback_(new error.InternalServer(err));
       }
       return callback_(err,  {totalItems: count, items:result});
+    });
+  });
+};
+/**
+ * 获取组的成员一览
+ */
+exports.getGroupWithMemberByGid = function(gid_, callback_){
+  group.at(gid_, function(err, group){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+
+    var user = require("../modules/mod_user")
+      , uids = group.member;
+
+    user.headMatchByUids("", "", uids, "0", "0", function(err, result){
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+      group._doc.users = result;
+      callback_(err, group);
     });
   });
 };

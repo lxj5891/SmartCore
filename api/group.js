@@ -310,3 +310,16 @@ exports.list = function(req_, res_) {
     }
   });
 };
+/**
+ * 获取组的成员一览
+ */
+exports.getGroupWithMemberByGid = function(req_, res_){
+  var gid = req_.query.gid;
+  group.getGroupWithMemberByGid(gid, function(err, result) {
+    if (err) {
+      return res_.send(err.code, json.errorSchema(err.code, err.message));
+    } else {
+      return res_.send(json.dataSchema(result));
+    }
+  });
+};
