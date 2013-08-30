@@ -314,6 +314,11 @@ exports.image = function(req, res, success) {
 
     if (info.filename) {
       res.header('Content-Length', info.length);
+
+      // 允许图片缓存
+      res.header('Cache-Control', "public, max-age=0");
+      res.header('Last-Modified', info.uploadDate);
+      
       res.contentType(info.filename);
       success(err, doc, info);
     } else {
