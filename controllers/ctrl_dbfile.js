@@ -300,6 +300,7 @@ exports.ipaFile = function(fileId, res, success){
 exports.image = function(req, res, success) {
   
   var fileid =  req.params.id;
+  console.log(fileid);
 
   // TODO: 字符串的undefined？客户端需要对应
   if (fileid === "undefined") {
@@ -313,6 +314,10 @@ exports.image = function(req, res, success) {
     }
 
     if (info.filename) {
+      console.log(info.length);
+      console.log(info.filename);
+      console.log(info);
+      console.log(doc);
       res.header('Content-Length', info.length);
       res.contentType(info.filename);
       success(err, doc, info);
