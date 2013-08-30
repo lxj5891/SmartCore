@@ -843,4 +843,12 @@ exports.update = function(req_, res_) {
         }
     });
 };
+// 下载模板
+exports.downloadTemp = function(req_, res_) {
+  user.downloadTemp(req_, res_);
+};
+// 用户一括登录
+exports.import = function(req_, res_) {
+  user.import(req_, res_);
+};
 

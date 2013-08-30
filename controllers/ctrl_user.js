@@ -11,7 +11,10 @@ var _         = require("underscore")
   , error     = require('../core/errors')
   , auth      = require('../core/auth')
   , async     = require("async")
-  , mail      = require("../core/mail");
+  , mail      = require("../core/mail")
+  , csv       = require('csv')
+  , json      = require('../core/json')
+  , fs        = require('fs');
 
 
 /**
@@ -747,6 +750,7 @@ exports.add = function (uid,  userInfo, callback_) {
     userInfo.editat = new Date();
     userInfo.editby = uid;
     userInfo.uid = userInfo.userid;
+    userInfo.valid = 1;
     if (userInfo.password && userInfo.password.length < 20) {
       userInfo.password = auth.sha256(userInfo.password);
     }
@@ -803,4 +807,79 @@ exports.active = function(uid_,compId_,active_ ,  callback_){
     callback_(err, result);
   });
 }
+// 下载模板
+exports.downloadTemp = function(req_, res_) {
+  user.getTemplate(function(err, data){
+    res_.set('Content-Type', 'text/csv');
+    res_.attachment("user_template.csv");
+    csv().from.array(data).to.stream(res_, {rowDelimiter: '\r\n'});
+  })
+};
+// CSV导入用户
+exports.import = function(req_, res_){
+
+  if(!req_.files.csvfile || !req_.files.csvfile.path) {
+    json.send(res_, { code: 400, message: "Can't find import file!"});
+    return;
+  }
+
+  // 先读文件的目的是为了预处理回车换行符，当前csv模块处理有问题。
+  fs.readFile(req_.files.csvfile.path, 'utf-8', function(err, data) {
+    if (err) {
+      json.send(res_, { code: 400, message: "Can't find import file!"});
+      return;
+    }
+
+    // 统一换行符，解决这个csv模块的回车换行的bug
+    data = data.replace(/\r\n/g, '\n');
+    data = data.replace(/\r/g, '\n');
+
+    var records = [];
+    var error_import;
+    csv()
+      .from.string(data)
+      .on('record', function(row,index){
+        if(index > 0) { // 跳过Head
+          records.push(row);
+        }
+        return row;
+      })
+      .on('end', function(count){
+        if(error_import) {
+          error_import.message = "第" + (index + 1) + "行: " + error_import.message;
+          json.send(res_, { code: 200, message: error_import.message});
+        } else {
+          if(records.length == 0) {
+            json.send(res_, null, { message: "没有数据可导入，请输入数据。" });
+            return;
+          }
+
+          for(var index=0;  index < records.length; index++) {
+            var row = records[index];
+            console.log('#'+index+' '+JSON.stringify(row));
+            user.csvImportRow(req_.session.user, row, function(err, result){
+              if(err) { error_import = err; }
+            });
+
+            if(error_import) {
+              error_import.message = "第" + (index + 1) + "行: " + error_import.message;
+              json.send(res_, { code: 200, message: error_import.message});
+              break;
+            } else if(index == records.length -1) {
+              json.send(res_, null, { message: "成功导入" + records.length + "条数据" });
+            }
+          };
+        }
+
+      })
+      .on('error', function(error){
+        var error_message = "解析csv文件出错。";
+        error_import = {
+          code: 200
+          ,message: error_message
+        };
+        console.log(error_message + '\n' + error.message);
+      });
+  });
+};
 
