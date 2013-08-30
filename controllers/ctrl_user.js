@@ -883,3 +883,12 @@ exports.import = function(req_, res_){
   });
 };
 
+exports.userTotalByComId = function(compId_, callback_) {
+  user.userTotalByComId(compId_, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+    return callback_(err,  result);
+  });
+};
+

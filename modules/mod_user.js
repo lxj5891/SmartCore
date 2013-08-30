@@ -600,3 +600,10 @@ exports.csvImportRow = function(exe_user, row, callback) {
   });
 }
 
+exports.userTotalByComId = function(comid_, callback_) {
+  var user = model();
+  user.count({companyid:comid_,valid:1}).exec(function(err, count){
+    callback_(err, count);
+  });
+};
+
