@@ -458,9 +458,9 @@ function model() {
 }
 
 // 获取组有效件数
-exports.total = function(callback_){
+exports.total = function(condition,callback_){
   var group = model();
-  group.count({valid:1}).exec(function(err, count){
+  group.count(condition).exec(function(err, count){
     callback_(err, count);
   });
 };

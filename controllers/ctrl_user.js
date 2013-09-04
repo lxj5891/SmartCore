@@ -730,7 +730,7 @@ exports.list = function(start_, limit_,companyid_, callback_) {
               valid  : 1
             , companyid:  companyid_
         };
-    user.total(companyid_,function(err, count){
+    user.total(condition,function(err, count){
         if (err) {
             return callback_(new error.InternalServer(err));
         }
@@ -755,11 +755,23 @@ exports.add = function (uid,  userInfo, callback_) {
       userInfo.password = auth.sha256(userInfo.password);
     }
 
-    user.create(userInfo, function(err, result){
+    // 确认用户id重复
+    user.find({"uid": userInfo.uid}, function(err, result) {
+      if (err) {
+        return new callback_(new error.error.InternalServer("システムエラーが発生しました。"));
+      }
+
+      if (result.length > 0) {
+        return callback_(new error.BadRequest("ユーザが存在しました。"));
+      }
+
+      user.create(userInfo, function(err, result){
         if (err) {
-            return callback_(new error.InternalServer(err));
+          return callback_(new error.InternalServer(err));
         }
         return callback_(err, result);
+      });
+
     });
 }
 

@@ -413,9 +413,9 @@ function model() {
 
 //yukari
 // 获取用户有效件数
-exports.total = function(companyid_,callback_){
+exports.total = function(condition,callback_){
     var user = model();
-    user.count({valid: 1,companyid:companyid_}).exec(function(err, count){
+    user.count(condition).exec(function(err, count){
         callback_(err, count);
     });
 };
