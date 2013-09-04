@@ -13,8 +13,9 @@ exports.createGroup = function (g_, creator_, callback_) {
 
   var date = new Date()
     , member = g_.member;
-  //yukari sl_yang
-  //member.push(creator_);
+
+  member.push(creator_);
+  member = _._.uniq(member);
 
   var data = {
       "name": g_.name
@@ -96,7 +97,7 @@ exports.updateGroup = function(gobj_, callback_) {
       }
     }
   }
-
+  updateObj.member = _._.uniq(updateObj.member);
   group.update(gid, updateObj, function(err, g) {
     err = err ? new error.InternalServer(err) : null;
     return callback_(err, g);
