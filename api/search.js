@@ -99,7 +99,9 @@ exports.user = function(req_, res_) {
   var condition = {
     keywords:req_.query.keywords,
     login:req_.session.user._id,
-    scope:req_.query.scope || 1
+    scope:req_.query.scope || 1,
+    target:req_.query.search_target,
+    auth: req_.query.search_auth
   };
 
   search.user(condition, function(err, result){

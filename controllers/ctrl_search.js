@@ -15,67 +15,77 @@ exports.user = function(condition_, callback_) {
 
   var keywords_ = condition_.keywords
     , login_ = condition_.login
-    , scope_ = condition_.scope;
+    , scope_ = condition_.scope
+    , target_= condition_.target
+    , auth_ = condition_.auth;
+
 
   sync.parallel({
     user: function(callback) {
-      user.search(keywords_, function(err, users){
-        if(scope_ == "1"){
-          callback(err, users);
-        }else{
-          group.getAllUserByGid(scope_, function(err, uids){
-            var result = [];
-            _.each(users, function(u){
-              if(_.contains(uids, u._id.toString())){
-                result.push(u);
-              }
-            });
-            callback(err, result);
-          });
-        }
-      });
-    },
-    group: function(callback) {
-      group.search(keywords_, function(err, groups){
 
-        group.getAllGroupByUid(login_, function(err,viewable){
-          var gids = [];
-          var groupViewable = [];
-          _.each(viewable, function(g){gids.push(g._id.toString());});
-          _.each(groups, function(g){
-            if(_.contains(gids,g._id.toString())){
-              groupViewable.push(g);
-            }
-          });
-          
+      if (target_ == "all" || target_ == "user") {
+
+        user.search(keywords_, auth_, function(err, users){
           if(scope_ == "1"){
-            callback(err, groupViewable);
+            callback(err, users);
           }else{
-            group.childDepartments([scope_], function(err, children){
-              var gids = [scope_];
-              _.each(children, function(g){gids.push(g._id.toString());});
-              //console.log(gids);
+            group.getAllUserByGid(scope_, function(err, uids){
               var result = [];
-              _.each(groupViewable, function(g){
-                if(_.contains(gids, g._id.toString())){
-                  result.push(g);
+              _.each(users, function(u){
+                if(_.contains(uids, u._id.toString())){
+                  result.push(u);
                 }
               });
               callback(err, result);
             });
           }
-
         });
+      } else {
+        callback();
+      }
+    },
+    group: function(callback) {
+      group.search(keywords_, function(err, groups){
 
-        
+        if (target_ == "all" || target_ == "group") {
+
+          group.getAllGroupByUid(login_, function(err,viewable){
+            var gids = [];
+            var groupViewable = [];
+            _.each(viewable, function(g){gids.push(g._id.toString());});
+            _.each(groups, function(g){
+              if(_.contains(gids,g._id.toString())){
+                groupViewable.push(g);
+              }
+            });
+
+            if(scope_ == "1"){
+              callback(err, groupViewable);
+            }else{
+              group.childDepartments([scope_], function(err, children){
+                var gids = [scope_];
+                _.each(children, function(g){gids.push(g._id.toString());});
+                //console.log(gids);
+                var result = [];
+                _.each(groupViewable, function(g){
+                  if(_.contains(gids, g._id.toString())){
+                    result.push(g);
+                  }
+                });
+                callback(err, result);
+              });
+            }
+          });
+        } else {
+          callback();
+        }
       });
     }
   },
-  
+
   function(err, results){
     callback_(err, results);
   });
-
 }
 
 /**
@@ -90,7 +100,7 @@ exports.quick = function(uid_, keywords_, callback_) {
       });
     },
     user: function(callback) {
-      user.search(keywords_, function(err, users){
+      user.search(keywords_, null, function(err, users){
         callback(err, users.slice(0,5));
       });
     },
@@ -128,7 +138,7 @@ exports.full = function(uid_, keywords_, callback_) {
       });
     },
     user: function(callback) {
-      user.search(keywords_, function(err, users){
+      user.search(keywords_, null, function(err, users){
         callback(err, users);
       });
     },

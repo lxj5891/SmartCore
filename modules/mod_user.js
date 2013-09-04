@@ -219,16 +219,22 @@ exports.followerIds = function(uid_, callback_){
 /**
  * 用户名的模糊检索。前方一致检索，不区分大小写
  */
-exports.search = function(keywords_, callback_) {
+exports.search = function(keywords_, auth_, callback_) {
   
   var user = model()
     , condition = {};
+
+  if (auth_ == "notice") {
+    condition = { "authority.notice" : 1};
+  } else if (auth_ == "approve") {
+    condition = { "authority.approve" : 1};
+  }
 
   condition.$or = [
     {"name.name_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
   , {"name.letter_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
   ];
-  
+
   user.find(condition).select('_id name photo title')//.skip(0).limit(5)
     .sort({"name.name_zh": 'asc'})
     .exec(function(err, users){
