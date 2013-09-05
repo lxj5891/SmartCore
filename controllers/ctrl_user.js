@@ -758,7 +758,7 @@ exports.add = function (uid,  userInfo, callback_) {
     // 确认用户id重复
     user.find({"uid": userInfo.uid}, function(err, result) {
       if (err) {
-        return new callback_(new error.error.InternalServer("システムエラーが発生しました。"));
+        return new callback_(new error.InternalServer("システムエラーが発生しました。"));
       }
 
       if (result.length > 0) {

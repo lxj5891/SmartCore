@@ -10,6 +10,7 @@ var mongo = require('mongoose')
   // , log = require('../core/log')
 //  , solr = require('../core/solr')
   , conn = require('./connection')
+  , error     = require('../core/errors')
   , schema = mongo.Schema;
 
 /**
@@ -505,10 +506,10 @@ exports.csvImportRow = function(exe_user, row, callback) {
 
   // Check uid
   if(!u.uid) {
-    callback(new Error("UIDを指定してください。"));
+    callback(new error.BadRequest("UIDを指定してください。"));
     return;
   }else if(u.uid == "admin") {
-    callback(new Error("UIDに管理者を指定できません。"));
+    callback(new error.BadRequest("UIDに管理者を指定できません。"));
     return;
   }
 
@@ -516,7 +517,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
   if(!u.password) {// 如果没输入用默认的uid做密码，如果是邮件取"@"前做密码
     /^(.*)@.*$/.test(u.uid);
     if(!RegExp.$1) {
-      callback(new Error("パスワードを指定してください。"));
+      callback(new error.BadRequest("パスワードを指定してください。"));
       return;
     }
     u.password = auth.sha256(RegExp.$1);
@@ -534,8 +535,8 @@ exports.csvImportRow = function(exe_user, row, callback) {
 //    }
 //  }
   // Check name
-  if(!u.name || !u.name.name_zh) {
-     return callback(new Error("名前を指定してください。"));
+  if(!u.name) {
+     return callback(new error.BadRequest("名前を指定してください。"));
   }
 //    if(u.tel.mobile && !util.isTel(u.tel.mobile)) {
 //      callback(new Error("携帯番号が正しくありません。"));
@@ -545,7 +546,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
   // Check tel
   if(u.tel) {
     if(u.tel.telephone && !util.isTel(u.tel.telephone)) {
-      callback(new Error("電話番号が正しくありません。"));
+      callback(new error.BadRequest("電話番号が正しくありません。"));
       return;
     }
 //    if(u.tel.mobile && !util.isTel(u.tel.mobile)) {
@@ -557,7 +558,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
   // Check language
   if(u.lang){
     if(u.lang != "zh" && u.lang != "en" && u.lang != "ja") {
-      callback(new Error('入力言語が正しくありません。”zh”、”en”、”ja”の何れを指定してください。'));
+      callback(new error.BadRequest('入力言語が正しくありません。”zh”、”en”、”ja”の何れを指定してください。'));
       return;
     }
   }else {
@@ -567,7 +568,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
   // Check timezone
   if(u.timezone) {
     if(u.timezone != "GMT+08:00" && u.timezone != "GMT+09:00" && u.timezone != "GMT-05:00") {
-      callback(new Error('タイムゾーンが正しくありません。”GMT+08:00”、”GMT+09:00”、 ”GMT-05:00”の何れを指定してください。'));
+      callback(new error.BadRequest('タイムゾーンが正しくありません。”GMT+08:00”、”GMT+09:00”、 ”GMT-05:00”の何れを指定してください。'));
       return;
     }
   } else {
