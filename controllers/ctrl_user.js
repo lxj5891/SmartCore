@@ -858,11 +858,11 @@ exports.import = function(req_, res_){
       })
       .on('end', function(count){
         if(error_import) {
-          error_import.message = "第" + (index + 1) + "行: " + error_import.message;
+          error_import.message =  (index + 1) + "行目： " + error_import.message;
           json.send(res_, { code: 200, message: error_import.message});
         } else {
           if(records.length == 0) {
-            json.send(res_, null, { message: "没有数据可导入，请输入数据。" });
+            json.send(res_, null, { message: "インポートデータがありません。データを指定してください。" });
             return;
           }
 
@@ -874,18 +874,18 @@ exports.import = function(req_, res_){
             });
 
             if(error_import) {
-              error_import.message = "第" + (index + 1) + "行: " + error_import.message;
+              error_import.message =  (index + 1) + "行目：" + error_import.message;
               json.send(res_, { code: 200, message: error_import.message});
               break;
             } else if(index == records.length -1) {
-              json.send(res_, null, { message: "成功导入" + records.length + "条数据" });
+              json.send(res_, null, { message: "インポートしました：" + records.length + "件" });
             }
           };
         }
 
       })
       .on('error', function(error){
-        var error_message = "解析csv文件出错。";
+        var error_message = "CSVファイルが解析できません。";
         error_import = {
           code: 200
           ,message: error_message

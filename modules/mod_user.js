@@ -461,9 +461,9 @@ exports.active = function(compId_,obj, callback_){
 exports.getTemplate = function(callback){
   var data = [
     [ // titles
-      "uid(*)", "密码(默认uid邮件地址中@之前的名)", "邮件1", "邮件2", "中文名称", "中文拼音", "职位", "生日"
-      ,"国家", "州", "省", "城市", "县", "行政区", "镇", "村", "街道", "公路", "邮编"
-      ,"电话", "手机", "语言", "时区", "状态", "主页地址", "备注"
+      "UID（*）", "パスワード（デフォルトはUIDのアドレスの先頭）", "メールアドレス１", "メールアドレス２", "名前", "フリガナ", "職位", "出生年月日"
+      ,"国籍", "州", "省", "城市", "县", "行政区", "镇", "村", "街道", "公路", "郵便番号"
+      ,"電話番号", "携帯番号", "言語", "タイムゾーン", "ステータス", "ホームページ", "コメント"
     ]
     ,[ // line1
       'temp@gmail.com', '', 'temp@gmail.com','', 'temp', 'temp', '', '2000/10/12'
@@ -514,10 +514,10 @@ exports.csvImportRow = function(exe_user, row, callback) {
 
   // Check uid
   if(!u.uid) {
-    callback(new Error("uid不能为空"));
+    callback(new Error("UIDを指定してください。"));
     return;
   }else if(u.uid == "admin") {
-    callback(new Error("uid不能使用管理帐号"));
+    callback(new Error("UIDに管理者を指定できません。"));
     return;
   }
 
@@ -525,7 +525,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
   if(!u.password) {// 如果没输入用默认的uid做密码，如果是邮件取"@"前做密码
     /^(.*)@.*$/.test(u.uid);
     if(!RegExp.$1) {
-      callback(new Error("密码不能为空"));
+      callback(new Error("パスワードを指定してください。"));
       return;
     }
     u.password = auth.sha256(RegExp.$1);
@@ -534,11 +534,11 @@ exports.csvImportRow = function(exe_user, row, callback) {
   // Check email
   if(u.email) {
     if(u.email.email1 && !util.isEmail(u.email.email1)) {
-      callback(new Error("邮件格式不正确"));
+      callback(new Error("メールアドレスが正しくありません。"));
       return;
     }
     if(u.email.email2 && !util.isEmail(u.email.email2)) {
-      callback(new Error("邮件格式不正确"));
+      callback(new Error("メールアドレスが正しくありません。"));
       return;
     }
   }
@@ -546,11 +546,11 @@ exports.csvImportRow = function(exe_user, row, callback) {
   // Check tel
   if(u.tel) {
     if(u.tel.telephone && !util.isTel(u.tel.telephone)) {
-      callback(new Error("电话号码格式不正确"));
+      callback(new Error("電話番号が正しくありません。"));
       return;
     }
     if(u.tel.mobile && !util.isTel(u.tel.mobile)) {
-      callback(new Error("手机号码格式不正确"));
+      callback(new Error("携帯番号が正しくありません。"));
       return;
     }
   }
@@ -558,7 +558,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
   // Check language
   if(u.lang){
     if(u.lang != "zh" && u.lang != "en" && u.lang != "ja") {
-      callback(new Error('语言入力不正确，目前语言只支持"zh","en","ja"'));
+      callback(new Error('入力言語が正しくありません。”zh”、”en”、”ja”の何れを指定してください。'));
       return;
     }
   }else {
@@ -568,7 +568,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
   // Check timezone
   if(u.timezone) {
     if(u.timezone != "GMT+08:00" && u.timezone != "GMT+09:00" && u.timezone != "GMT-05:00") {
-      callback(new Error('时区格式不正确，目前支持的时区格式,中国"GMT+08:00", 日本"GMT+09:00", 美国"GMT-05:00"'));
+      callback(new Error('タイムゾーンが正しくありません。”GMT+08:00”、”GMT+09:00”、 ”GMT-05:00”の何れを指定してください。'));
       return;
     }
   }else {
@@ -578,7 +578,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
   if(u.custom) {
     // Check url
     if(u.custom.url && !util.isUrl(u.custom.url)) {
-      callback(new Error('主页地址格式不正确'));
+      callback(new Error('ホームページが正しくありません。'));
       return;
     }
   }
