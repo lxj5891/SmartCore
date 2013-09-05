@@ -458,22 +458,31 @@ exports.active = function(compId_,obj, callback_){
   });
 }
 
+//yukari
 exports.getTemplate = function(callback){
+//  var data = [
+//    [ // titles
+//      "UID（*）", "パスワード（デフォルトはUIDのアドレスの先頭）", "メールアドレス１", "メールアドレス２", "名前", "フリガナ", "職位", "出生年月日"
+//      ,"国籍", "州", "省", "城市", "县", "行政区", "镇", "村", "街道", "公路", "郵便番号"
+//      ,"電話番号", "携帯番号", "言語", "タイムゾーン", "ステータス", "ホームページ", "コメント"
+//    ]
+//    ,[ // line1
+//      'temp@gmail.com', '', 'temp@gmail.com','', 'temp', 'temp', '', '2000/10/12'
+//      ,'China', '', 'Liao ning','dalian', 'sha he kou', '', '', '', '','', '116600'
+//      ,'0411-8888888', '+8113999999999', 'zh','GMT+08:00', '', 'http://www.baidu.com', ''
+//    ]
+//  ];
   var data = [
     [ // titles
-      "UID（*）", "パスワード（デフォルトはUIDのアドレスの先頭）", "メールアドレス１", "メールアドレス２", "名前", "フリガナ", "職位", "出生年月日"
-      ,"国籍", "州", "省", "城市", "县", "行政区", "镇", "村", "街道", "公路", "郵便番号"
-      ,"電話番号", "携帯番号", "言語", "タイムゾーン", "ステータス", "ホームページ", "コメント"
+      "UID（*）", "パスワード（デフォルトはUIDのアドレスの先頭）", "名前",  "職位", "電話番号", "コメント", "言語", "タイムゾーン"
     ]
     ,[ // line1
-      'temp@gmail.com', '', 'temp@gmail.com','', 'temp', 'temp', '', '2000/10/12'
-      ,'China', '', 'Liao ning','dalian', 'sha he kou', '', '', '', '','', '116600'
-      ,'0411-8888888', '+8113999999999', 'zh','GMT+08:00', '', 'http://www.baidu.com', ''
+      'temp@gmail.com', '', 'temp','課長','0411-12345678', '', 'zh','GMT+08:00'
     ]
   ];
   callback(null, data);
 };
-
+//yukari
 exports.csvImportRow = function(exe_user, row, callback) {
   var user = model();
   var now = new Date();
@@ -483,32 +492,14 @@ exports.csvImportRow = function(exe_user, row, callback) {
     ,companyid : exe_user.companyid
     ,valid : 1
   };
-  if(row[0])  { u.uid                                              = row[0]; }
-  if(row[1])  { u.password                                         = auth.sha256(row[1]); }
-  if(row[2])  { u.email = u.email || {}; u.email.email1            = row[2]; }
-  if(row[3])  { u.email = u.email || {}; u.email.email2            = row[3]; }
-  if(row[4])  { u.name = u.name || {}; u.name.name_zh              = row[4]; }
-  if(row[5])  { u.name = u.name || {}; u.name.letter_zh            = row[5]; }
-  if(row[6])  { u.title                                            = row[6]; }
-  if(row[7])  { u.birthday                                         = row[7]; }
-  if(row[8])  { u.address = u.address || {}; u.address.country     = row[8]; }
-  if(row[9])  { u.address = u.address || {}; u.address.state       = row[9]; }
-  if(row[10]) { u.address = u.address || {}; u.address.province    = row[10]; }
-  if(row[11]) { u.address = u.address || {}; u.address.city        = row[11]; }
-  if(row[12]) { u.address = u.address || {}; u.address.county      = row[12]; }
-  if(row[13]) { u.address = u.address || {}; u.address.district    = row[13]; }
-  if(row[14]) { u.address = u.address || {}; u.address.township    = row[14]; }
-  if(row[15]) { u.address = u.address || {}; u.address.village     = row[15]; }
-  if(row[16]) { u.address = u.address || {}; u.address.street      = row[16]; }
-  if(row[17]) { u.address = u.address || {}; u.address.road        = row[17]; }
-  if(row[18]) { u.address = u.address || {}; u.address.zip         = row[18]; }
-  if(row[19]) { u.tel = u.tel || {}; u.tel.telephone               = row[19]; }
-  if(row[20]) { u.tel = u.tel || {}; u.tel.mobile                  = row[20]; }
-  if(row[21]) { u.lang                                             = row[21]; }
-  if(row[22]) { u.timezone                                         = row[22]; }
-  if(row[23]) { u.status                                           = row[23]; }
-  if(row[24]) { u.custom = u.custom || {}; u.custom.url            = row[24]; }
-  if(row[25]) { u.custom = u.custom || {}; u.custom.memo           = row[25]; }
+  if(row[0]) { u.uid                                              = row[0]; }
+  if(row[1]) { u.password                                         = auth.sha256(row[1]); }
+  if(row[2]) { u.name = u.name || {}; u.name.name_zh              = row[2]; }
+  if(row[3]) { u.title                                            = row[3]; }
+  if(row[4]) { u.tel = u.tel || {}; u.tel.telephone               = row[4]; }
+  if(row[5]) { u.description                                      = row[5]; }
+  if(row[6]) { u.lang                                             = row[6]; }
+  if(row[7]) { u.timezone                                         = row[7]; }
 
   u = util.checkObject(u);
 
@@ -530,29 +521,37 @@ exports.csvImportRow = function(exe_user, row, callback) {
     }
     u.password = auth.sha256(RegExp.$1);
   }
-
-  // Check email
-  if(u.email) {
-    if(u.email.email1 && !util.isEmail(u.email.email1)) {
-      callback(new Error("メールアドレスが正しくありません。"));
-      return;
-    }
-    if(u.email.email2 && !util.isEmail(u.email.email2)) {
-      callback(new Error("メールアドレスが正しくありません。"));
-      return;
-    }
+//
+//  // Check email
+//  if(u.email) {
+//    if(u.email.email1 && !util.isEmail(u.email.email1)) {
+//      callback(new Error("メールアドレスが正しくありません。"));
+//      return;
+//    }
+//    if(u.email.email2 && !util.isEmail(u.email.email2)) {
+//      callback(new Error("メールアドレスが正しくありません。"));
+//      return;
+//    }
+//  }
+  // Check name
+  if(!u.name || !u.name.name_zh) {
+     return callback(new Error("名前を指定してください。"));
   }
-
+//    if(u.tel.mobile && !util.isTel(u.tel.mobile)) {
+//      callback(new Error("携帯番号が正しくありません。"));
+//      return;
+//    }
+//  }
   // Check tel
   if(u.tel) {
     if(u.tel.telephone && !util.isTel(u.tel.telephone)) {
       callback(new Error("電話番号が正しくありません。"));
       return;
     }
-    if(u.tel.mobile && !util.isTel(u.tel.mobile)) {
-      callback(new Error("携帯番号が正しくありません。"));
-      return;
-    }
+//    if(u.tel.mobile && !util.isTel(u.tel.mobile)) {
+//      callback(new Error("携帯番号が正しくありません。"));
+//      return;
+//    }
   }
 
   // Check language
@@ -571,25 +570,24 @@ exports.csvImportRow = function(exe_user, row, callback) {
       callback(new Error('タイムゾーンが正しくありません。”GMT+08:00”、”GMT+09:00”、 ”GMT-05:00”の何れを指定してください。'));
       return;
     }
-  }else {
+  } else {
     u.timezone = "GMT+08:00"; // default timezone
   }
-
-  if(u.custom) {
-    // Check url
-    if(u.custom.url && !util.isUrl(u.custom.url)) {
-      callback(new Error('ホームページが正しくありません。'));
-      return;
-    }
-  }
-
+//
+//  if(u.custom) {
+//    // Check url
+//    if(u.custom.url && !util.isUrl(u.custom.url)) {
+//      callback(new Error('ホームページが正しくありません。'));
+//      return;
+//    }
+//  }
   exports.find({"uid": u.uid}, function(err, result){
     if(result && result.length > 0){               // Update user
       u.editby = exe_user.uid;
       u.editat = now;
 
       exports.update(result[0]._id, u, function(err, result) {
-        console.log('Update User.');
+        //console.log('Update User.');
         callback(err, result);
       });
     } else {                                        // Create user
@@ -599,7 +597,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
       u.editat = now;
 
       exports.create(u, function(err, result) {
-        console.log('Create User.');
+        //console.log('Create User.');
         callback(err, result);
       });
     }
