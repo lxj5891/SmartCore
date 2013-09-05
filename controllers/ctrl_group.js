@@ -310,7 +310,7 @@ exports.list = function(start_, limit_,companyid_, callback_) {
             valid:1
             ,companyid : companyid_
     };
-  group.total(function(err, count){
+  group.total(condition,function(err, count){
     if (err) {
       return callback_(new error.InternalServer(err));
     }
