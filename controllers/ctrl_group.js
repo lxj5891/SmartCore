@@ -344,3 +344,35 @@ exports.getGroupWithMemberByGid = function(gid_, callback_){
     });
   });
 };
+
+
+// get group list by ids
+exports.listByGids = function(gids_, start_, limit_, callback_){
+
+  // 开始
+  if (start_) {
+    if (isNaN(start_)){
+      return callback_(new error.BadRequest(__("group.error.wrongStart")));
+    }
+    start_ = start_ < 0 ? 0 : start_;
+  }
+
+  // 件数
+  if (limit_) {
+    if (isNaN(limit_)){
+      return callback_(new error.BadRequest(__("group.error.wrongCount")));
+    }
+
+    // limit = 0默认获取所有数据，添加限制
+    limit_ = limit_ < 1 ? 1 : limit_;
+    limit_ = limit_ > 100 ? 100 : limit_;
+  }
+
+  group.many(gids_, start_, limit_, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+
+    callback_(err, result);
+  });
+};

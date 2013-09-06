@@ -476,3 +476,14 @@ exports.list = function(condition_, start_, limit_, callback_){
       callback_(err, result);
     });
 };
+
+exports.many = function(gids_, start_, limit_, callback_) {
+
+  var group = model();
+
+  group.find({"_id": {$in: gids_}})
+    .skip(start_ || 0).limit(limit_ || 100)
+    .exec(function(err, result){
+      callback_(err, result);
+    });
+};
