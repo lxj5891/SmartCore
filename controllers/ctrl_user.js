@@ -58,6 +58,18 @@ exports.getUser = function(uid_, callback_){
   });
 };
 
+exports.getUserById = function(uid_, callback_) {
+
+  user.at(uid_, function(err, result) {
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+
+    result.password = undefined;
+    callback_(err, result);
+  });
+};
+
 /**
  * 给定复数个用户ID，获取用户详细信息列表
  */
