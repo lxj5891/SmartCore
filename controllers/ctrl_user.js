@@ -755,23 +755,11 @@ exports.add = function (uid,  userInfo, callback_) {
       userInfo.password = auth.sha256(userInfo.password);
     }
 
-    // 确认用户id重复
-    user.find({"uid": userInfo.uid}, function(err, result) {
+    user.create(userInfo, function(err, result){
       if (err) {
-        return new callback_(new error.InternalServer("システムエラーが発生しました。"));
+        return callback_(new error.InternalServer(err));
       }
-
-      if (result.length > 0) {
-        return callback_(new error.BadRequest("ユーザが存在しました。"));
-      }
-
-      user.create(userInfo, function(err, result){
-        if (err) {
-          return callback_(new error.InternalServer(err));
-        }
-        return callback_(err, result);
-      });
-
+      return callback_(err, result);
     });
 }
 
