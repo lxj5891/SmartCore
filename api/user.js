@@ -554,7 +554,7 @@ exports.logout = function(req_, res_){
   auth.logout(req_, res_);
 
   if (util.isBrowser(req_)) {
-    return res_.redirect("/login");
+    return res_.redirect(req_.query.home || "/login");
   }
   return res_.send(json.dataSchema("success"));
 };
