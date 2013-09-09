@@ -278,7 +278,7 @@ exports.ipaFile = function(fileId, res, success){
     gridfs.load(fileId, function(err, doc, info){
         if(!info) {
             log.out("info", "Image is not found. fileid:" + fileid);
-            return success(new error.NotFound("Image is not found. fileid:" + fileid));
+            return success(new error.NotFound(__("file.err.ImageIsNotFound") + fileid));
         }
 
         console.log(info);
@@ -309,7 +309,7 @@ exports.image = function(req, res, success) {
   gridfs.load(fileid, function(err, doc, info){
     if(!info) {
         log.out("info", "Image is not found. fileid:" + fileid);
-        return success(new error.NotFound("Image is not found. fileid:" + fileid));
+        return success(new error.NotFound(__("file.err.ImageIsNotFound") + fileid));
     }
 
     if (info.filename) {

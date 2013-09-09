@@ -8,7 +8,7 @@ var log = require('../core/log')
 exports.createGroup = function (g_, creator_, callback_) {
 
   if (!g_.name) {
-    return callback_(new error.BadRequest("组织名称不能为空"));
+    return callback_(new error.BadRequest(__("group.error.OrganizationNameCanNotBeEmpty")));
   }
 
   var date = new Date()
@@ -74,7 +74,7 @@ exports.updateGroup = function(gobj_, callback_) {
   var gid = gobj_ ? gobj_._id : "";
 
   if(!gid){
-    return callback_(new error.BadRequest("组织ID不能为空"));
+    return callback_(new error.BadRequest(__("group.error.OrganizationIdCanNotBeEmpty")));
   }
 
   var updateObj = {};
@@ -123,7 +123,7 @@ exports.setPhoto = function(req, res){
 
 exports.getGroup = function(gid_, callback_){
   if(!gid_){
-    return callback_(new error.BadRequest("组织ID为空"));
+    return callback_(new error.BadRequest(__("group.error.OrganizationIdCanNotBeEmpty")));
   }
 
   group.at(gid_, function(err, g){
@@ -134,7 +134,7 @@ exports.getGroup = function(gid_, callback_){
 
 exports.deleteGroup = function(gid_, callback_){
   if(!gid_){
-    return callback_(new error.BadRequest("组织ID不能为空"));
+    return callback_(new error.BadRequest(__("group.error.OrganizationIdCanNotBeEmpty")));
   }
 
   group.delete(gid_, function(err, g){
@@ -147,11 +147,11 @@ exports.addMember = function(gid_, uid_, userid_, callback_){
 
   uid_ = uid_ || userid_;
   if (!uid_) {
-    return callback_(new error.BadRequest("无效的用户"));
+    return callback_(new error.BadRequest(__("group.error.InvalidUser")));
   }
 
   if (!gid_) {
-    return callback_(new error.BadRequest("组织ID不能为空"));
+    return callback_(new error.BadRequest(__("group.error.OrganizationIdCanNotBeEmpty")));
   }
 
   
@@ -212,11 +212,11 @@ exports.removeMember = function(gid_, uid_, userid_, callback_){
 
   uid_ = uid_ || userid_;
   if (!uid_) {
-    return callback_(new error.BadRequest("无效的用户"));
+    return callback_(new error.BadRequest(__("group.error.InvalidUser")));
   }
 
   if (!gid_) {
-    return callback_(new error.BadRequest("组织ID不能为空"));
+    return callback_(new error.BadRequest(__("group.error.OrganizationIdCanNotBeEmpty")));
   }
 
   group.removeMember(gid_, uid_, function(err, result){

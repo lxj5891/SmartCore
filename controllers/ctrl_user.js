@@ -435,7 +435,7 @@ exports.updateUser = function(currentuser, obj, callback_){
 exports.approved = function (userid_, passwd_, callback_) {
 
   if (!userid_ || !passwd_) {
-    return callback_(new error.BadRequest("There is no user name or bad password."));
+    return callback_(new error.BadRequest(__("user.error.ThereIsNoUserNameOrBadPassword")));
   }
 
   // 查询数据库
@@ -444,17 +444,17 @@ exports.approved = function (userid_, passwd_, callback_) {
 
     // 查询出错
     if (err) {
-      return callback_(new error.InternalServer("Failed to get user information."));
+      return callback_(new error.InternalServer(__("user.error.FailedToGetUserInformation")));
     }
 
     // 用户不存在
     if (!result || result.length <=0) {
-      return callback_(new error.NotFound("The user does not exist."));
+      return callback_(new error.NotFound(__("user.error.TheUserDoesNotExist")));
     }
 
     // 用户密码不正确
     if (result[0].password !== auth.sha256(passwd_)) {
-      return callback_(new error.BadRequest("The password is incorrect."));
+      return callback_(new error.BadRequest(__("user.error.ThePasswordIsIncorrect")));
     }
 
     return callback_(null, result[0]);
@@ -831,14 +831,14 @@ exports.downloadTemp = function(req_, res_) {
 exports.import = function(req_, res_){
 
   if(!req_.files.csvfile || !req_.files.csvfile.path) {
-    json.send(res_, { code: 400, message: "Can't find import file!"});
+    json.send(res_, { code: 400, message: __("user.error.CantFindImportFile")});
     return;
   }
 
   // 先读文件的目的是为了预处理回车换行符，当前csv模块处理有问题。
   fs.readFile(req_.files.csvfile.path, 'utf-8', function(err, data) {
     if (err) {
-      json.send(res_, { code: 400, message: "Can't find import file!"});
+      json.send(res_, { code: 400, message: __("user.error.CantFindImportFile")});
       return;
     }
 
@@ -858,11 +858,11 @@ exports.import = function(req_, res_){
       })
       .on('end', function(count){
         if(error_import) {
-          error_import.message =  (index + 1) + "行目： " + error_import.message;
+          error_import.message =  (index + 1) + __("user.csv.rownum") + error_import.message;
           json.send(res_, { code: 200, message: error_import.message});
         } else {
           if(records.length == 0) {
-            json.send(res_, null, { message: "インポートデータがありません。データを指定してください。" });
+            json.send(res_, null, { message: __("user.error.ThereIsNoImportDataPleaseSpecifyTheData") });
             return;
           }
 
@@ -874,18 +874,18 @@ exports.import = function(req_, res_){
             });
 
             if(error_import) {
-              error_import.message =  (index + 1) + "行目：" + error_import.message;
+              error_import.message =  (index + 1) + __("user.csv.rownum") + error_import.message;
               json.send(res_, { code: 200, message: error_import.message});
               break;
             } else if(index == records.length -1) {
-              json.send(res_, null, { message: "インポートしました：" + records.length + "件" });
+              json.send(res_, null, { message: __("user.csv.imported") + records.length + __("user.csv.unit") });
             }
           };
         }
 
       })
       .on('error', function(error){
-        var error_message = "CSVファイルが解析できません。";
+        var error_message = __("user.csv.canNotToParseTheCSVFile");
         error_import = {
           code: 200
           ,message: error_message
