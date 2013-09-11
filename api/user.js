@@ -796,6 +796,7 @@ exports.list = function(req_, res_) {
     var start = req_.query.start
         , limit = req_.query.count
         , company = req_.session.user.companyid
+
     user.list(start, limit,company, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
