@@ -302,7 +302,7 @@ function removeOneMember(member, id, creator){
 }
 
 //yukari
-exports.list = function(start_, limit_,companyid_, callback_) {
+exports.list = function(start_, limit_,companyid_,keyword_, callback_) {
 
   var start = start_ || 0
     , limit = limit_ || 20
@@ -310,6 +310,11 @@ exports.list = function(start_, limit_,companyid_, callback_) {
             valid:1
             ,companyid : companyid_
     };
+    if(keyword_){
+        condition.$or = [
+            {"name.name_zh": new RegExp( keyword_.toLowerCase(), "i")}
+            , {"name.letter_zh": new RegExp( keyword_.toLowerCase() , "i")}]
+    }
   group.total(condition,function(err, count){
     if (err) {
       return callback_(new error.InternalServer(err));

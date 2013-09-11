@@ -301,8 +301,9 @@ exports.list = function(req_, res_) {
   var start = req_.query.start
     , limit = req_.query.count
     , companyId = req_.session.user.companyid
+    , keyword = req_.query.keyword
 
-  group.list(start, limit,companyId, function(err, result) {
+  group.list(start, limit,companyId,keyword, function(err, result) {
     if (err) {
       return res_.send(err.code, json.errorSchema(err.code, err.message));
     } else {
