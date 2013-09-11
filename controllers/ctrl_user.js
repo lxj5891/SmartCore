@@ -808,19 +808,19 @@ exports.add = function (uid,  userInfo, callback_) {
 
 exports.update = function(uid_,userInfo, callback_) {
     try {
-      if (userInfo.password) {
+      if (userInfo.password != undefined) {
         check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
         check(userInfo.password, __("js.ctr.check.user.password.max")).notEmpty().len(1,20);
       }
 
-      if (userInfo.name) {
+      if (userInfo.name  != undefined) {
         check(userInfo.name.name_zh, __("js.ctr.check.user.name.min")).notEmpty();
         check(userInfo.name.name_zh, __("js.ctr.check.user.name.max")).notEmpty().len(1,20);
       }
 
       check(userInfo.title, __("js.ctr.check.user.title.max")).len(0,20);
 
-      if (userInfo.tel) {
+      if (userInfo.tel  != undefined) {
         check(userInfo.tel.telephone, __("js.ctr.check.user.telephone.max")).len(0,30);
       }
 
@@ -829,7 +829,7 @@ exports.update = function(uid_,userInfo, callback_) {
       return callback_(new error.BadRequest(e.message));
     }
 
-    if (userInfo.password) {
+    if (userInfo.password  != undefined) {
       userInfo.password = auth.sha256(userInfo.password);
     }
 
