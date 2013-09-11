@@ -762,30 +762,80 @@ exports.list = function(start_, limit_, keyword_, companyid_, callback_) {
 };
 
 exports.add = function (uid,  userInfo, callback_) {
+
+    try {
+      check(userInfo.userid, __("js.ctr.check.user.uid.min")).notEmpty();
+      check(userInfo.userid, __("js.ctr.check.user.uid.max")).notEmpty().len(3,30);
+      check(userInfo.userid, __("js.ctr.check.user.uid.ismail")).notEmpty().isEmail();
+      check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
+      check(userInfo.password, __("js.ctr.check.user.password.max")).notEmpty().len(1,20);
+      check(userInfo.name.name_zh, __("js.ctr.check.user.name.min")).notEmpty();
+      check(userInfo.name.name_zh, __("js.ctr.check.user.name.max")).notEmpty().len(1,20);
+      check(userInfo.title, __("js.ctr.check.user.title.max")).len(0,20);
+      check(userInfo.tel.telephone, __("js.ctr.check.user.telephone.max")).len(0,30);
+      check(userInfo.description, __("js.ctr.check.user.description.max")).len(0,100);
+    } catch (e) {
+      return callback_(new error.BadRequest(e.message));
+    }
+
     userInfo.createat = new Date();
     userInfo.createby = uid;
     userInfo.editat = new Date();
     userInfo.editby = uid;
     userInfo.uid = userInfo.userid;
     userInfo.valid = 1;
-    if (userInfo.password && userInfo.password.length < 20) {
-      userInfo.password = auth.sha256(userInfo.password);
-    }
+    userInfo.password = auth.sha256(userInfo.password);
 
-    user.create(userInfo, function(err, result){
+    // 确认用户id重复
+    user.find({"uid": userInfo.uid}, function(err, result) {
       if (err) {
-        return callback_(new error.InternalServer(err));
+        return new callback_(new error.InternalServer(__("js.ctr.common.system.error")));
       }
-      return callback_(err, result);
+
+      if (result.length > 0) {
+        return callback_(new error.BadRequest(__("js.ctr.check.user")));
+      }
+
+      user.create(userInfo, function(err, result){
+        if (err) {
+          return callback_(new error.InternalServer(err));
+        }
+        return callback_(err, result);
+      });
+
     });
 }
 
 exports.update = function(uid_,userInfo, callback_) {
-    userInfo.editat = new Date();
-    userInfo.editby = uid_;
-    if (userInfo.password && userInfo.password.length < 20) {
+    try {
+      if (userInfo.password) {
+        check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
+        check(userInfo.password, __("js.ctr.check.user.password.max")).notEmpty().len(1,20);
+      }
+
+      if (userInfo.name) {
+        check(userInfo.name.name_zh, __("js.ctr.check.user.name.min")).notEmpty();
+        check(userInfo.name.name_zh, __("js.ctr.check.user.name.max")).notEmpty().len(1,20);
+      }
+
+      check(userInfo.title, __("js.ctr.check.user.title.max")).len(0,20);
+
+      if (userInfo.tel) {
+        check(userInfo.tel.telephone, __("js.ctr.check.user.telephone.max")).len(0,30);
+      }
+
+      check(userInfo.description, __("js.ctr.check.user.description.max")).len(0,100);
+    } catch (e) {
+      return callback_(new error.BadRequest(e.message));
+    }
+
+    if (userInfo.password) {
       userInfo.password = auth.sha256(userInfo.password);
     }
+
+    userInfo.editat = new Date();
+    userInfo.editby = uid_;
+
     user.update(userInfo.id, userInfo, function(err, result){
         if (err) {
             return callback_(new error.InternalServer(err));

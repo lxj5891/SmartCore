@@ -823,7 +823,8 @@ exports.add = function(req_, res_) {
 
     var uid = req_.session.user._id;
     var userData = req_.body;
-        userData.companyid = req_.session.user.companyid;
+    //TODO 如果session里的用户公司id不是要追加用户的公司ID时,有问题!!
+    userData.companyid = req_.session.user.companyid;
     user.add(uid, userData, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
