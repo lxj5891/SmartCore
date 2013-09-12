@@ -1,6 +1,7 @@
 var log = require('../core/log')
   , error = require("../core/errors")
   , group = require("../modules/mod_group")
+  , util      = require('../core/util')
   , amqp  = require('../core/amqp')
   , ctrl_notification = require('../controllers/ctrl_notification')
   , _ = require("underscore");
@@ -307,14 +308,16 @@ exports.list = function(start_, limit_,companyid_,keyword_, callback_) {
   var start = start_ || 0
     , limit = limit_ || 20
     , condition = {
-            valid:1
-            ,companyid : companyid_
+      valid: 1, companyid: companyid_
     };
-    if(keyword_){
-        condition.$or = [
-            {"name.name_zh": new RegExp( keyword_.toLowerCase(), "i")}
-            , {"name.letter_zh": new RegExp( keyword_.toLowerCase() , "i")}]
-    }
+  if (keyword_) {
+    keyword_ = util.quoteRegExp(keyword_);
+    condition.$or = [
+      {"name.name_zh": new RegExp(keyword_.toLowerCase(), "i")}
+      ,
+      {"name.letter_zh": new RegExp(keyword_.toLowerCase(), "i")}
+    ]
+  }
   group.total(condition,function(err, count){
     if (err) {
       return callback_(new error.InternalServer(err));
