@@ -764,16 +764,33 @@ exports.list = function(start_, limit_, keyword_, companyid_, callback_) {
 exports.add = function (uid,  userInfo, callback_) {
 
     try {
-      check(userInfo.userid, __("js.ctr.check.user.uid.min")).notEmpty();
-      check(userInfo.userid, __("js.ctr.check.user.uid.max")).notEmpty().len(3,30);
-      check(userInfo.userid, __("js.ctr.check.user.uid.ismail")).notEmpty().isEmail();
-      check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
-      check(userInfo.password, __("js.ctr.check.user.password.max")).notEmpty().len(1,20);
-      check(userInfo.name.name_zh, __("js.ctr.check.user.name.min")).notEmpty();
-      check(userInfo.name.name_zh, __("js.ctr.check.user.name.max")).notEmpty().len(1,20);
-      check(userInfo.title, __("js.ctr.check.user.title.max")).len(0,20);
-      check(userInfo.tel.telephone, __("js.ctr.check.user.telephone.max")).len(0,30);
-      check(userInfo.description, __("js.ctr.check.user.description.max")).len(0,100);
+      if (userInfo.userid != undefined) {
+        check(userInfo.userid, __("js.ctr.check.user.uid.min")).notEmpty();
+        check(userInfo.userid, __("js.ctr.check.user.uid.max")).notEmpty().len(3,30);
+        check(userInfo.userid, __("js.ctr.check.user.uid.ismail")).notEmpty().isEmail();
+      }
+
+      if (userInfo.password != undefined) {
+        check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
+        check(userInfo.password, __("js.ctr.check.user.password.max")).notEmpty().len(1,20);
+      }
+
+      if (userInfo.name != undefined) {
+        check(userInfo.name.name_zh, __("js.ctr.check.user.name.min")).notEmpty();
+        check(userInfo.name.name_zh, __("js.ctr.check.user.name.max")).notEmpty().len(1,20);
+      }
+
+      if (userInfo.title != undefined) {
+        check(userInfo.title, __("js.ctr.check.user.title.max")).len(0,20);
+      }
+
+      if (userInfo.tel != undefined) {
+        check(userInfo.tel.telephone, __("js.ctr.check.user.telephone.max")).len(0,30);
+      }
+
+      if (userInfo.description != undefined) {
+        check(userInfo.description, __("js.ctr.check.user.description.max")).len(0,100);
+      }
     } catch (e) {
       return callback_(new error.BadRequest(e.message));
     }
