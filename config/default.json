@@ -50,6 +50,7 @@
     , "queue": "true"
     , "port": 3000
     , "timeout": 30
+    , "cache_control": false
   },
   
   "mq": {
