@@ -14,6 +14,7 @@ var _         = require("underscore")
   , mail      = require("../core/mail")
   , csv       = require('csv')
   , json      = require('../core/json')
+  , util      = require('../core/util')
   , fs        = require('fs');
 
 
@@ -736,29 +737,31 @@ exports.appendUser = function(data, uidcolumn, callback_) {
 //yukri
 exports.list = function(start_, limit_, keyword_, companyid_, callback_) {
 
-    var start = start_ || 0
-        , limit = limit_ || 20
-        , condition = {
-              valid  : 1
-            , companyid:  companyid_
-        };
-    if(keyword_){
-        condition.$or = [
-            {"name.name_zh": new RegExp( keyword_.toLowerCase(), "i")}
-          , {"name.letter_zh": new RegExp( keyword_.toLowerCase() , "i")}]
+  var start = start_ || 0
+    , limit = limit_ || 20
+    , condition = {
+      valid: 1, companyid: companyid_
+    };
+  if (keyword_) {
+    keyword_ = util.quoteRegExp(keyword_);
+    condition.$or = [
+      {"name.name_zh": new RegExp(keyword_.toLowerCase(), "i")}
+      ,
+      {"name.letter_zh": new RegExp(keyword_.toLowerCase(), "i")}
+    ]
+  }
+  user.total(condition, function (err, count) {
+    if (err) {
+      return callback_(new error.InternalServer(err));
     }
-    user.total(condition,function(err, count){
-        if (err) {
-            return callback_(new error.InternalServer(err));
-        }
-        user.list(condition, start, limit, function(err, result){
-            console.log(err);
-            if (err) {
-                return callback_(new error.InternalServer(err));
-            }
-            return callback_(err,  {totalItems: count, items:result});
-        });
+    user.list(condition, start, limit, function (err, result) {
+      console.log(err);
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+      return callback_(err, {totalItems: count, items: result});
     });
+  });
 };
 
 exports.add = function (uid,  userInfo, callback_) {

@@ -213,3 +213,6 @@ exports.isUrl = function (url){
         return false;
     }
 };
+exports.quoteRegExp = function(s) {
+  return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+};
