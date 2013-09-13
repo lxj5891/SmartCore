@@ -1,4 +1,5 @@
 var log = require('../core/log')
+  , check     = require("validator").check
   , error = require("../core/errors")
   , group = require("../modules/mod_group")
   , util      = require('../core/util')
@@ -12,8 +13,21 @@ exports.createGroup = function (g_, creator_, callback_) {
     return callback_(new error.BadRequest(__("group.error.OrganizationNameCanNotBeEmpty")));
   }
 
+  try {
+    if (g_.name != undefined) {
+      check(g_.name.name_zh, __("js.ctr.check.group.name.min")).notEmpty();
+      check(g_.name.name_zh, __("js.ctr.check.group.name.max")).notEmpty().len(1,20);
+    }
+  } catch (e) {
+    return callback_(new error.BadRequest(e.message));
+  }
+
   var date = new Date()
     , member = g_.member;
+
+  if ( g_.member == undefined || g_.member.length < 1) {
+    return callback_(new error.BadRequest(__("js.public.check.group.member")));
+  }
 
   member.push(creator_);
   member = _._.uniq(member);
@@ -98,6 +112,21 @@ exports.updateGroup = function(gobj_, callback_) {
       }
     }
   }
+
+  try {
+    if (updateObj.name != undefined) {
+      check(updateObj.name.name_zh, __("js.ctr.check.group.name.min")).notEmpty();
+      check(updateObj.name.name_zh, __("js.ctr.check.group.name.max")).notEmpty().len(1,20);
+    }
+  } catch (e) {
+    return callback_(new error.BadRequest(e.message));
+  }
+
+
+  if ( updateObj.member == undefined || updateObj.member.length < 1) {
+    return callback_(new error.BadRequest(__("js.public.check.group.member")));
+  }
+
   updateObj.member = _._.uniq(updateObj.member);
   group.update(gid, updateObj, function(err, g) {
     err = err ? new error.InternalServer(err) : null;

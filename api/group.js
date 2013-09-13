@@ -37,7 +37,7 @@ exports.createGroup = function (req_, res_) {
     , "description": req_.body.description
     , "category": req_.body.category
     , "secure": req_.body.secure
-    , "valid" : req_.body.valid
+    , "valid" : 1
     , "companyid" : req_.session.user.companyid
     };
 
@@ -143,16 +143,13 @@ exports.updateGroup = function(req_, res_) {
   var gobj = util.checkObject(req_.body);
   gobj.editby = req_.session.user ? req_.session.user._id : "";
   gobj.editat = Date.now();
-  gobj.valid = req_.body.valid;
+  gobj.valid = 1;
 
   group.updateGroup(gobj, function(err, result){
-    if(err){
-      return res_.send({
-          "code": err.code
-        , "msg": err.message
-        });
-    }else{
-      return res_.send(result);
+    if (err) {
+      return res_.send(err.code, json.errorSchema(err.code, err.message));
+    } else {
+      return res_.send(json.dataSchema(result));
     }
   });
 };
