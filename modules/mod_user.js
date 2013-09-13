@@ -74,6 +74,7 @@ var User = new schema({
     }
   , description: {type: String}
   , companyid:{type:String,description: "公司ID"}
+  , companycode:{type:String,description: "公司Code"}
   , valid: {type: Number, default:1, description: "0:无效 1:有效"}
   });
 
