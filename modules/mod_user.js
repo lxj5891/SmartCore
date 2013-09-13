@@ -92,6 +92,14 @@ exports.create = function(user_, callback_){
   });
 };
 
+exports.createByDBName = function(dbname, user_, callback_){
+
+  var user = model(dbname);
+
+  new user(user_).save(function(err, result){
+    callback_(err, result);
+  });
+};
 
 /**
  * 获取指定用户的信息

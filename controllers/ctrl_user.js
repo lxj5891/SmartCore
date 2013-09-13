@@ -766,6 +766,10 @@ exports.list = function(start_, limit_, keyword_, companyid_, callback_) {
 };
 
 exports.add = function (uid,  userInfo, callback_) {
+  exports.addByDBName('', uid, userInfo, callback_);
+};
+
+exports.addByDBName = function (dbName, uid,  userInfo, callback_) {
 
     try {
       if (userInfo.userid != undefined) {
@@ -807,24 +811,45 @@ exports.add = function (uid,  userInfo, callback_) {
     userInfo.valid = 1;
     userInfo.password = auth.sha256(userInfo.password);
 
-    // 确认用户id重复
-    user.find({"uid": userInfo.uid}, function(err, result) {
-      if (err) {
-        return new callback_(new error.InternalServer(__("js.ctr.common.system.error")));
-      }
-
-      if (result.length > 0) {
-        return callback_(new error.BadRequest(__("js.ctr.check.user")));
-      }
-
-      user.create(userInfo, function(err, result){
+    if(dbName){
+      // 确认用户id重复
+      user.findByDBName(dbName, {"uid": userInfo.uid}, function(err, result) {
         if (err) {
-          return callback_(new error.InternalServer(err));
+          return new callback_(new error.InternalServer(__("js.ctr.common.system.error")));
         }
-        return callback_(err, result);
-      });
 
-    });
+        if (result.length > 0) {
+          return callback_(new error.BadRequest(__("js.ctr.check.user")));
+        }
+
+        user.createByDBName(dbName, userInfo, function(err, result){
+          if (err) {
+            return callback_(new error.InternalServer(err));
+          }
+          return callback_(err, result);
+        });
+
+      });
+    } else {
+      // 确认用户id重复
+      user.find({"uid": userInfo.uid}, function(err, result) {
+        if (err) {
+          return new callback_(new error.InternalServer(__("js.ctr.common.system.error")));
+        }
+
+        if (result.length > 0) {
+          return callback_(new error.BadRequest(__("js.ctr.check.user")));
+        }
+
+        user.create(userInfo, function(err, result){
+          if (err) {
+            return callback_(new error.InternalServer(err));
+          }
+          return callback_(err, result);
+        });
+
+      });
+    }
 }
 
 exports.update = function(uid_,userInfo, callback_) {
