@@ -433,7 +433,7 @@ exports.updateUser = function(currentuser, obj, callback_){
 /**
  * 验证是否可以登陆
  */
-exports.approved = function (userid_, passwd_, callback_) {
+exports.approved = function (userid_, passwd_, dbname_, callback_) {
 
   if (!userid_ || !passwd_) {
     return callback_(new error.BadRequest(__("user.error.ThereIsNoUserNameOrBadPassword")));
@@ -441,7 +441,7 @@ exports.approved = function (userid_, passwd_, callback_) {
 
   // 查询数据库
   //yukari 追加无效,和删除flag
-  user.find({"uid": userid_,"valid":1,"active":1}, function(err, result) {
+  user.findByDBName(dbname_, {"uid": userid_,"valid":1,"active":1}, function(err, result) {
 
     // 查询出错
     if (err) {
@@ -459,6 +459,7 @@ exports.approved = function (userid_, passwd_, callback_) {
     }
 
     return callback_(null, result[0]);
+    return callback_(null, {status:32});
   });
 
 };

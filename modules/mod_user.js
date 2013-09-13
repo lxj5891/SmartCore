@@ -124,12 +124,26 @@ exports.many = function(userids_, start_, limit_, callback_) {
 
 /**
  * 给定条件检索用户
- * Example: 
+ * Example:
  *  用名称检索{uid: "smart"}
  */
 exports.find = function(args_, callback_){
 
   var user = model();
+
+  user.find(args_, function(err, result){
+    callback_(err, result);
+  });
+};
+
+/**
+ * 给定条件检索用户
+ * Example:
+ *  用名称检索{uid: "smart"}
+ */
+exports.findByDBName = function(dbname, args_, callback_){
+
+  var user = model(dbname);
 
   user.find(args_, function(err, result){
     callback_(err, result);
@@ -415,8 +429,8 @@ exports.structure = function() {
 };
 
 
-function model() {
-  return conn().model('User', User);
+function model(dbname) {
+  return conn(dbname).model('User', User);
 }
 
 //yukari

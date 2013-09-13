@@ -517,12 +517,12 @@ exports.updateUser = function(req_, res_){
  * @param {String}  uid (required) 用户ID
  * @param {String}  password (required) 用户密码 
  */
-exports.login = function(req_, res_, logined_filter){
+exports.login = function(req_, res_, logined_filter, dbname){
 
   var userid = req_.query.name
     , passwd = req_.query.pass;
 
-  user.approved(userid, passwd, function(err, result){
+  user.approved(userid, passwd, dbname, function(err, result){
     if (err) {
       return res_.send(err.code, json.errorSchema(err.code, err.message));
     }
