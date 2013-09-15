@@ -13,9 +13,10 @@ exports.update = function (req_, res_) {
 
   var uid = req_.session.user._id
     , tocken = req_.body.devicetoken 
-    , owner = req_.body.deviceowner;
+    , owner = req_.body.deviceowner
+    , code = req_.session.user.companycode;
 
-  apn.update(uid, tocken, owner, function(err, result){
+  apn.update(code, uid, tocken, owner, function(err, result){
     if (err) {
       return res_.send(json.errorSchema(err.code, err.message));
     } else {
@@ -29,7 +30,10 @@ exports.update = function (req_, res_) {
  */
 exports.find = function (req_, res_) {
 
-  apn.find(req_.query.deviceowner, function(err, result){
+  var code = req_.session.user.companycode
+    , deviceowner = req_.query.deviceowner;
+
+  apn.find(deviceowner, function(err, result){
     if (err) {
       return res_.send(json.errorSchema(err.code, err.message));
     } else {
@@ -40,7 +44,10 @@ exports.find = function (req_, res_) {
 
 exports.clear = function (req_, res_) {
 
-  apn.remove(req_.body.devicetoken, function(err, result){
+  var code = req_.session.user.companycode
+    , devicetoken = req_.query.deviceowner;
+
+  apn.remove(devicetoken, function(err, result){
     if (err) {
       return res_.send(json.errorSchema(err.code, err.message));
     } else {
