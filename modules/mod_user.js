@@ -125,9 +125,9 @@ exports.many = function(code_, userids_, start_, limit_, callback_) {
  * Example:
  *  用名称检索{uid: "smart"}
  */
-exports.find = function(code, args_, callback_){
+exports.find = function(code_, args_, callback_){
 
-  var user = model(code);
+  var user = model(code_);
 
   user.find(args_, function(err, result){
     callback_(err, result);
