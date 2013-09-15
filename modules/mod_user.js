@@ -217,10 +217,10 @@ exports.followerIds = function(uid_, callback_){
 /**
  * 用户名的模糊检索。前方一致检索，不区分大小写
  */
-exports.search = function(keywords_, auth_, callback_) {
+exports.search = function(dbName,keywords_, auth_, callback_) {
   
-  var user = model()
-    , condition = {};
+  var user = model(dbName)
+    , condition = {valid:1,active:1};
 
   if (auth_ == "notice") {
     condition = { "authority.notice" : 1};
@@ -283,9 +283,9 @@ exports.headMatch = function(head_, keywords_, start_, limit_, callback_) {
  * @param {String} start_       开始位置
  * @param {String} limit_       返回个数
  */
-exports.headMatchByUids = function(head_, keywords_, uids_, start_, limit_, callback_) {
+exports.headMatchByUids = function(dbName_,head_, keywords_, uids_, start_, limit_, callback_) {
 
-  var user = model()
+  var user = model(dbName_)
     , condition = {};
 
   if (keywords_) {
@@ -480,18 +480,6 @@ exports.activeByDBName = function(dbName_,obj, callback_){
   });
 }
 exports.getTemplate = function(callback){
-//  var data = [
-//    [ // titles
-//      "UID（*）", "パスワード（デフォルトはUIDのアドレスの先頭）", "メールアドレス１", "メールアドレス２", "名前", "フリガナ", "職位", "出生年月日"
-//      ,"国籍", "州", "省", "城市", "县", "行政区", "镇", "村", "街道", "公路", "郵便番号"
-//      ,"電話番号", "携帯番号", "言語", "タイムゾーン", "ステータス", "ホームページ", "コメント"
-//    ]
-//    ,[ // line1
-//      'temp@gmail.com', '', 'temp@gmail.com','', 'temp', 'temp', '', '2000/10/12'
-//      ,'China', '', 'Liao ning','dalian', 'sha he kou', '', '', '', '','', '116600'
-//      ,'0411-8888888', '+8113999999999', 'zh','GMT+08:00', '', 'http://www.baidu.com', ''
-//    ]
-//  ];
   var data = [
     [ // titles
       "UID（*）", "パスワード（デフォルトはUIDのアドレスの先頭）", "名前",  "職位", "電話番号", "コメント", "言語", "タイムゾーン"
@@ -624,7 +612,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
 }
 exports.userTotalByComId = function(dbName_, callback_) {
   var user = model(dbName_);
-  user.count({valid:1}).exec(function(err, count){
+  user.count({valid:1,active:1}).exec(function(err, count){
     callback_(err, count);
   });
 };

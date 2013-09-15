@@ -137,9 +137,9 @@ exports.removeMember = function(gid_, uid_, callback_) {
 /**
  * 组名的模糊检索。前方一致检索，不区分大小写
  */
-exports.search = function(keywords_, callback_) {
+exports.search = function(dbName,keywords_, callback_) {
 
-  var group = model()
+  var group = model(dbName)
     , condition = {};
 
   condition.$or = [
@@ -274,7 +274,7 @@ exports.headMatch = function(condition_, callback_) {
 /**
  * 获取下位部门的ID一览
  */
-exports.childDepartments = function(parentGid_, callback_) {
+exports.childDepartments = function(dbName,parentGid_, callback_) {
 
   // TODO: 递归可能有性能问题
 
@@ -282,7 +282,7 @@ exports.childDepartments = function(parentGid_, callback_) {
   (function() {
 
     var departments = []
-      , group = model();
+      , group = model(dbName);
 
     fetch(parentGid_, function(err) {
       callback_(err, departments);
@@ -347,9 +347,9 @@ exports.departmentsPath = function(childGid_, parents, callback_) {
  * 3.gid 的owner
  * 4.gid上位 的owner
  */
-exports.getAllUserByGid = function(gid, callback_) {
+exports.getAllUserByGid = function(dbName,gid, callback_) {
 
-  var group = model();
+  var group = model(dbName);
   var tasks = [];
 
   // 1.gid 的members
@@ -398,9 +398,9 @@ exports.getAllUserByGid = function(gid, callback_) {
  * 3.owner的group
  * 4.owner的下位group
  */
-exports.getAllGroupByUid = function(uid, callback_) {
+exports.getAllGroupByUid = function(dbName,uid, callback_) {
   
-  var group = model();
+  var group = model(dbName);
   var tasks = [];
 
   // 1.所属group

@@ -103,8 +103,9 @@ exports.user = function(req_, res_) {
     target:req_.query.search_target,
     auth: req_.query.search_auth
   };
+  var dbName = req_.session.user.companycode;
 
-  search.user(condition, function(err, result){
+  search.user(dbName,condition, function(err, result){
     if (err) {
       return res_.send(err.code, json.errorSchema(err.code, err.message));
     } else {
