@@ -14,8 +14,8 @@ var mongo = require('mongoose')
   , mod_group = require('../modules/mod_group')
   , schema = mongo.Schema;
 
-function model() {
-  return conn().model('Notification', Notification);
+function model(code) {
+  return conn(code).model('Notification', Notification);
 }
 
 // 通知的数据结构设计为不允许编辑
@@ -31,18 +31,18 @@ var Notification = new schema({
   , objectid: {type: String, description: "objectid"}
 });
 
-exports.create = function(notification_, callback_) {
+exports.create = function(code, notification_, callback_) {
   
-  var notification = model();
+  var notification = model(code);
   new notification(notification_).save(function(err, notification){
     callback_(err, notification);
   });
 };
 
 
-exports.delete = function(nid_, callback_) {
+exports.delete = function(code, nid_, callback_) {
 
-  var notification = model();
+  var notification = model(code);
 
   notification.findByIdAndRemove(nid_, function(err, result) {
     callback_(err, result);
@@ -50,9 +50,9 @@ exports.delete = function(nid_, callback_) {
 };
 
 
-exports.update = function(nid_, newvals_, callback_) {
+exports.update = function(code, nid_, newvals_, callback_) {
 
-  var notification = model();
+  var notification = model(code);
 
   notification.findByIdAndUpdate(nid_, newvals_, function(err, result) {
     callback_(err, result);
@@ -60,18 +60,18 @@ exports.update = function(nid_, newvals_, callback_) {
 };
 
 
-exports.at = function(nid_, callback_) {
+exports.at = function(code, nid_, callback_) {
 
-  var notification = model();
+  var notification = model(code);
 
   notification.findById(nid_, function(err, result) {
     callback_(err, result);
   });
 };
 
-exports.list = function(option_, callback_) {
+exports.list = function(code, option_, callback_) {
 
-  var notification = model()
+  var notification = model(code)
     , or = []
     , and = []
     , options = {"sort": {"createat": "desc"}}
@@ -102,7 +102,7 @@ exports.list = function(option_, callback_) {
     and.push({"type":{$in : types}});
   }
 
-  mod_group.getAllGroupByUid(uid, function(err, groups){
+  mod_group.getAllGroupByUid(code, uid, function(err, groups){
     var gids = [];
     _.each(groups, function(g){gids.push(g._id);});
     or.push({"togroups": {$in : gids}});
@@ -136,9 +136,9 @@ exports.list = function(option_, callback_) {
 };
 
 
-exports.find = function(args_, callback_) {
+exports.find = function(code, args_, callback_) {
 
-  var notification = model();
+  var notification = model(code);
 
   notification.find(args_, function(err, result) {
     callback_(err, result);

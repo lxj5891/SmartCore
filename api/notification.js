@@ -9,9 +9,10 @@ exports.read = function(req_, res_) {
 
   var nids = req_.body.nids;
   var uids = req_.body.uids || [req_.session.user._id];
+  var code = req_.session.user.companycode;
   
 
-  notification.read(nids, uids, function(err, result){
+  notification.read(code, nids, uids, function(err, result){
     if (err) {
       return res_.send(json.errorSchema(err.code, err.message));
     } else {
@@ -30,15 +31,15 @@ exports.read = function(req_, res_) {
 
 
 exports.getList = function(req_, res_) {
-
+  var code = req_.session.user.companycode;
   var param = {
     "start":req_.query.start ,
     "limit":req_.query.limit ,
     "type":req_.query.type ,
-    "uid": req_.query.uid || req_.session.user._id ,
+    "uid": req_.query.uid || req_.session.user._id
   };
 
-  notification.getList(param, function(err, result){
+  notification.getList(code, param, function(err, result){
     if (err) {
       return res_.send(json.errorSchema(err.code, err.message));
     } else {
@@ -48,7 +49,7 @@ exports.getList = function(req_, res_) {
 };
 
 exports.getUnreadList = function(req_, res_) {
-
+  var code = req_.session.user.companycode;
   var param = {
     "start":req_.query.start ,
     "limit":req_.query.limit ,
@@ -57,7 +58,7 @@ exports.getUnreadList = function(req_, res_) {
     "unread":true
   };
 
-  notification.getList(param, function(err, result){
+  notification.getList(code, param, function(err, result){
     if (err) {
       return res_.send(json.errorSchema(err.code, err.message));
     } else {

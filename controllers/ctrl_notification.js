@@ -11,7 +11,7 @@ var _ = require('underscore')
 
 
 //我被某组移除的通知
-exports.createForRemove = function(invite,callback_){
+exports.createForRemove = function(code, invite,callback_){
     var notification_ = {
       content: invite.groupName,
       read:[],
@@ -30,14 +30,14 @@ exports.createForRemove = function(invite,callback_){
     });
 
 
-    notification.create(notification_, function(err, notification){
+    notification.create(code, notification_, function(err, notification){
 //      console.log(notification);
     });
     
 }
 
 //我被加入某组的通知
-exports.createForInvite = function(invite,callback_){
+exports.createForInvite = function(code, invite,callback_){
     var notification_ = {
       content: invite.groupName,
       read:[],
@@ -55,14 +55,14 @@ exports.createForInvite = function(invite,callback_){
     });
 
 
-    notification.create(notification_, function(err, notification){
+    notification.create(code, notification_, function(err, notification){
 //      console.log(notification);
     });
     
 }
 
 //创建消息的通知
-exports.createForFollow = function(follow, callback_){
+exports.createForFollow = function(code, follow, callback_){
     var notification_ = {
       content: i18n.__("ctrl.notifiction.js.label.follow"), //"关注我"
       read:[],
@@ -80,13 +80,13 @@ exports.createForFollow = function(follow, callback_){
     });
 
 
-    notification.create(notification_, function(err, notification){
+    notification.create(code, notification_, function(err, notification){
       // console.log(notification);
     });
     
 }
 
-exports.createForMessage = function(message_, callback_) {
+exports.createForMessage = function(code, message_, callback_) {
   
   var tasks = [];
 
@@ -115,7 +115,7 @@ exports.createForMessage = function(message_, callback_) {
         , content : "1"
         });
 
-        notification.create(notification_, function(err, notification){
+        notification.create(code, notification_, function(err, notification){
           cb(err, notification);
         });
 
@@ -138,7 +138,7 @@ exports.createForMessage = function(message_, callback_) {
         createat: message_.createat
       };
 
-      notification.create(notification_, function(err, notification){
+      notification.create(code, notification_, function(err, notification){
         cb(err, notification);
         async.forEach(message_.at.users,function(user){
           amqp.notice({
@@ -147,7 +147,7 @@ exports.createForMessage = function(message_, callback_) {
           });
         });
         async.forEach(message_.at.groups,function(gid){
-          group.getAllUserByGid(gid, function(err, uids){
+          group.getAllUserByGid(code, gid, function(err, uids){
             async.forEach(uids, function(uid){
               amqp.notice({
                 _id: uid
@@ -169,12 +169,12 @@ exports.createForMessage = function(message_, callback_) {
 };
 
 
-exports.read = function(nids, uids, callback_) {
+exports.read = function(code, nids, uids, callback_) {
 
-  notification.find({_id : {$in : nids}}, function(error, notifications){
+  notification.find(code, {_id : {$in : nids}}, function(error, notifications){
     async.forEach(notifications, function(noti, cb_) {
       noti.readers = _.union(noti.readers, uids);
-      notification.update(noti._id, {"readers":noti.readers}, function(err, result){
+      notification.update(code, noti._id, {"readers":noti.readers}, function(err, result){
         //console.log(result);
         amqp.notice({
           _id: noti.readers
@@ -190,18 +190,18 @@ exports.read = function(nids, uids, callback_) {
 
 };
 
-exports.getList = function(param, callback_) {
+exports.getList = function(code, param, callback_) {
 
   var tasks = [];
   var task_getNotifications = function(cb_){
-    notification.list(param,function(err,result){
+    notification.list(code, param,function(err,result){
       cb_(err,result);
     });
   };
   tasks.push(task_getNotifications);
 
   var task_getUsers = function(result, cb_){
-    user.appendUser(result.items, "createby", function(err, added){
+    user.appendUser(code, result.items, "createby", function(err, added){
       result.items = added;
       cb_(err, result);
     });
