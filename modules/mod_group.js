@@ -48,16 +48,16 @@ var Group = new schema({
   , editat: {type: Date}
   //yukari
   , valid: {type: Number, default:1, description: "0:无效 1:有效"}
-  , companyid:{type:String,description: "公司ID"}
+  , code:{type:String,description: "公司code"}
   });
 
 
 /**
  * 创建组
  */
-exports.create = function(group_, callback_) {
+exports.create = function(dbName_,group_, callback_) {
 
-  var group = model();
+  var group = model(dbName_);
 
   new group(group_).save(function(err, ret){
     // solr.update(ret, "group", "insert", function(){});
@@ -69,9 +69,9 @@ exports.create = function(group_, callback_) {
 /**
  * 获取指定ID的组信息
  */
-exports.at = function(gid_, callback_){
+exports.at = function(dbName_, gid_, callback_){
 
-  var group = model();
+  var group = model(dbName_);
 
   group.findById(gid_, function(err, result){
     callback_(err, result);
@@ -98,9 +98,9 @@ exports.remove = function(gid_, callback_){
  * Example: 
  *  用名称检索{name: "myGroup"}
  */
-exports.find = function(args_, callback_){
+exports.find = function(dbName_,args_, callback_){
 
-  var group = model();
+  var group = model(dbName_);
 
   group.find(args_, function(err, result){
     callback_(err, result);
@@ -111,9 +111,9 @@ exports.find = function(args_, callback_){
 /**
  * 更新指定ID的组
  */
-exports.update = function(gid_, newvals_, callback_) {
+exports.update = function(dbName_,gid_, newvals_, callback_) {
 
-  var group = model();
+  var group = model(dbName_);
   group.findByIdAndUpdate(gid_, newvals_, function(err, result){
     // solr.update(result, "group", "update", function(){});
     callback_(err, result);
@@ -453,20 +453,20 @@ exports.getAllGroupByUid = function(uid, callback_) {
   });
 };
 
-function model() {
-  return conn().model('Group', Group);
+function model(dbName_) {
+  return conn(dbName_).model('Group', Group);
 }
 
 // 获取组有效件数
-exports.total = function(condition,callback_){
-  var group = model();
+exports.total = function(dbName_,condition,callback_){
+  var group = model(dbName_);
   group.count(condition).exec(function(err, count){
     callback_(err, count);
   });
 };
-exports.list = function(condition_, start_, limit_, callback_){
+exports.list = function(dbName_,condition_, start_, limit_, callback_){
 
-  var group = model();
+  var group = model(dbName_);
 
   group.find(condition_)
     .skip(start_ || 0)
@@ -477,9 +477,9 @@ exports.list = function(condition_, start_, limit_, callback_){
     });
 };
 
-exports.many = function(gids_, start_, limit_, callback_) {
+exports.many = function(dbName_, gids_, start_, limit_, callback_) {
 
-  var group = model();
+  var group = model(dbName_);
 
   group.find({"_id": {$in: gids_}})
     .skip(start_ || 0).limit(limit_ || 100)

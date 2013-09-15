@@ -7,7 +7,7 @@ var log = require('../core/log')
   , ctrl_notification = require('../controllers/ctrl_notification')
   , _ = require("underscore");
 
-exports.createGroup = function (g_, creator_, callback_) {
+exports.createGroup = function (dbName_,g_, creator_, callback_) {
 
   if (!g_.name) {
     return callback_(new error.BadRequest(__("group.error.OrganizationNameCanNotBeEmpty")));
@@ -44,11 +44,11 @@ exports.createGroup = function (g_, creator_, callback_) {
     , "editby": creator_
     , "editat": date
     , "valid" : g_.valid      //yukari
-    , "companyid" : g_.companyid //yukari
+    , "code" : g_.code //yukari
   };
 
   // 允许组织重名的组存在，所以不判断是否已经有同名的组
-  group.create(data, function(err, result){
+  group.create(dbName_,data, function(err, result){
     err = err ? new error.InternalServer(err) : null;
     return callback_(err, result);
   });
@@ -85,7 +85,7 @@ exports.updateGroupPhoto = function(gid_, uid_, fid_, callback_) {
   });
 }
 
-exports.updateGroup = function(gobj_, callback_) {
+exports.updateGroup = function(dbName_,gobj_, callback_) {
   var gid = gobj_ ? gobj_._id : "";
 
   if(!gid){
@@ -128,7 +128,7 @@ exports.updateGroup = function(gobj_, callback_) {
   }
 
   updateObj.member = _._.uniq(updateObj.member);
-  group.update(gid, updateObj, function(err, g) {
+  group.update(dbName_,gid, updateObj, function(err, g) {
     err = err ? new error.InternalServer(err) : null;
     return callback_(err, g);
   });
@@ -151,12 +151,12 @@ exports.setPhoto = function(req, res){
   });
 };
 
-exports.getGroup = function(gid_, callback_){
+exports.getGroup = function(dbName_, gid_, callback_){
   if(!gid_){
     return callback_(new error.BadRequest(__("group.error.OrganizationIdCanNotBeEmpty")));
   }
 
-  group.at(gid_, function(err, g){
+  group.at(dbName_, gid_, function(err, g){
     err = err ? new error.InternalServer(err) : null;
     return callback_(err, g);
   });
@@ -332,12 +332,12 @@ function removeOneMember(member, id, creator){
 }
 
 //yukari
-exports.list = function(start_, limit_,companyid_,keyword_, callback_) {
+exports.list = function(dbName_, start_, limit_,keyword_, callback_) {
 
   var start = start_ || 0
     , limit = limit_ || 20
     , condition = {
-      valid: 1, companyid: companyid_
+      valid: 1
     };
   if (keyword_) {
     keyword_ = util.quoteRegExp(keyword_);
@@ -347,12 +347,11 @@ exports.list = function(start_, limit_,companyid_,keyword_, callback_) {
       {"name.letter_zh": new RegExp(keyword_.toLowerCase(), "i")}
     ]
   }
-  group.total(condition,function(err, count){
+  group.total(dbName_, condition,function(err, count){
     if (err) {
       return callback_(new error.InternalServer(err));
     }
-    group.list(condition, start, limit, function(err, result){
-      console.log(err);
+    group.list(dbName_, condition, start, limit, function(err, result){
       if (err) {
         return callback_(new error.InternalServer(err));
       }
@@ -363,8 +362,8 @@ exports.list = function(start_, limit_,companyid_,keyword_, callback_) {
 /**
  * 获取组的成员一览
  */
-exports.getGroupWithMemberByGid = function(gid_, callback_){
-  group.at(gid_, function(err, group){
+exports.getGroupWithMemberByGid = function(dbName_,gid_, callback_){
+  group.at(dbName_, gid_, function(err, group){
     if (err) {
       return callback_(new error.InternalServer(err));
     }
@@ -372,7 +371,7 @@ exports.getGroupWithMemberByGid = function(gid_, callback_){
     var user = require("../modules/mod_user")
       , uids = group.member;
 
-    user.headMatchByUids("", "", uids, "0", "0", function(err, result){
+    user.headMatchByUids(dbName_,"", "", uids, "0", "0", function(err, result){
       if (err) {
         return callback_(new error.InternalServer(err));
       }
@@ -384,7 +383,7 @@ exports.getGroupWithMemberByGid = function(gid_, callback_){
 
 
 // get group list by ids
-exports.listByGids = function(gids_, start_, limit_, callback_){
+exports.listByGids = function(dbName_,gids_, start_, limit_, callback_){
 
   // 开始
   if (start_) {
@@ -405,7 +404,7 @@ exports.listByGids = function(gids_, start_, limit_, callback_){
     limit_ = limit_ > 100 ? 100 : limit_;
   }
 
-  group.many(gids_, start_, limit_, function(err, result){
+  group.many(dbName_,gids_, start_, limit_, function(err, result){
     if (err) {
       return callback_(new error.InternalServer(err));
     }
