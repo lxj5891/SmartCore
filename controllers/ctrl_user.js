@@ -707,7 +707,7 @@ function checkTel(tel){
 /**
  * 给指定的Object添加用户信息，该Object需要包User的ID
  */
-exports.appendUser = function(data, uidcolumn, callback_) {
+exports.appendUser = function(code, data, uidcolumn, callback_) {
 
   var uids = [];
 
@@ -715,7 +715,7 @@ exports.appendUser = function(data, uidcolumn, callback_) {
     uids.push(one[uidcolumn]);
   });
 
-  user.find({"_id": {$in: uids}}, function(err, users){
+  user.find(code, {"_id": {$in: uids}}, function(err, users){
    
     // 将Mongoose对象变成普通的Object
     // var result = JSON.parse(JSON.stringify(data));
