@@ -73,7 +73,6 @@ var User = new schema({
        ,approve:{type:Number,description: "布局承认权限"}
     }
   , description: {type: String}
-  , companyid:{type:String,description: "公司ID"}
   , companycode:{type:String,description: "公司Code"}
   , valid: {type: Number, default:1, description: "0:无效 1:有效"}
   });
@@ -88,15 +87,6 @@ exports.create = function(user_, callback_){
 
   new user(user_).save(function(err, result){
 //    solr.update(result, "user", "insert", function(){});
-    callback_(err, result);
-  });
-};
-
-exports.createByDBName = function(dbname, user_, callback_){
-
-  var user = model(dbname);
-
-  new user(user_).save(function(err, result){
     callback_(err, result);
   });
 };
@@ -145,21 +135,6 @@ exports.find = function(args_, callback_){
 };
 
 /**
- * 给定条件检索用户
- * Example:
- *  用名称检索{uid: "smart"}
- */
-exports.findByDBName = function(dbname, args_, callback_){
-
-  var user = model(dbname);
-
-  user.find(args_, function(err, result){
-    callback_(err, result);
-  });
-};
-
-
-/**
  * 删除用户
  */
 // delete is a reserved word, cannot pass by jshint
@@ -186,7 +161,6 @@ exports.update = function(userid_, newvals_, callback_){
     callback_(err, result);
   });
 };
-
 
 /**
  * 添加关注。添加到被关注的人的following列表里。
@@ -443,15 +417,15 @@ function model(dbname) {
 
 //yukari
 // 获取用户有效件数
-exports.total = function(condition,callback_){
-    var user = model();
-    user.count(condition).exec(function(err, count){
+exports.totalByDBName = function(dbName_,condition_,callback_){
+    var user = model(dbName_);
+    user.count(condition_).exec(function(err, count){
         callback_(err, count);
     });
 };
-exports.list = function(condition_, start_, limit_, callback_){
+exports.listByDBName = function(dbName_,condition_, start_, limit_, callback_){
 
-    var user = model();
+    var user = model(dbName_);
 
     user.find(condition_)
         .skip(start_ || 0)
@@ -461,28 +435,50 @@ exports.list = function(condition_, start_, limit_, callback_){
             callback_(err, result);
         });
 };
-exports.searchOne = function(userid,callback_){
+exports.searchOneByDBName = function(dbName_,userid,callback_){
 
-    var user = model();
+    var user = model(dbName_);
 
     user.findById(userid, function(err, result){
         callback_(err, result);
     });
 };
-exports.remove = function(compId_,obj, callback_){
-  var user = model();
-  user.update({companyid:compId_},obj,{multi:true},function(err,result){
-    callback_(err, result);
-  });
-}
-exports.active = function(compId_,obj, callback_){
-  var user = model();
-  user.update({companyid:compId_},obj,{multi:true},function(err,result){
-    callback_(err, result);
-  });
-}
+exports.findByDBName = function(dbName_, args_, callback_){
 
-//yukari
+  var user = model(dbName_);
+
+  user.find(args_, function(err, result){
+    callback_(err, result);
+  });
+};
+exports.createByDBName = function(dbName_, user_, callback_){
+
+  var user = model(dbName_);
+  new user(user_).save(function(err, result){
+    callback_(err, result);
+  });
+};
+exports.updateByDBName = function(dbName_,userid_, newvals_, callback_){
+
+  var user = model(dbName_);
+
+  user.findByIdAndUpdate(userid_, newvals_, function(err, result){
+    // solr.update(result, "user", "update", function(){});
+    callback_(err, result);
+  });
+};
+exports.removeByDBName = function(dbName_,obj, callback_){
+  var user = model(dbName_);
+  user.update(obj,{multi:true},function(err,result){
+    callback_(err, result);
+  });
+}
+exports.activeByDBName = function(dbName_,obj, callback_){
+  var user = model(dbName_);
+  user.update(obj,{multi:true},function(err,result){
+    callback_(err, result);
+  });
+}
 exports.getTemplate = function(callback){
 //  var data = [
 //    [ // titles
@@ -506,7 +502,6 @@ exports.getTemplate = function(callback){
   ];
   callback(null, data);
 };
-//yukari
 exports.csvImportRow = function(exe_user, row, callback) {
   var user = model();
   var now = new Date();
@@ -627,10 +622,9 @@ exports.csvImportRow = function(exe_user, row, callback) {
     }
   });
 }
-
-exports.userTotalByComId = function(comid_, callback_) {
-  var user = model();
-  user.count({companyid:comid_,valid:1}).exec(function(err, count){
+exports.userTotalByComId = function(dbName_, callback_) {
+  var user = model(dbName_);
+  user.count({valid:1}).exec(function(err, count){
     callback_(err, count);
   });
 };

@@ -796,8 +796,8 @@ exports.list = function(req_, res_) {
     var start = req_.query.start
         , limit = req_.query.count
         , keyword = req_.query.keyword
-        , company = req_.session.user.companyid
-    user.list(start, limit, keyword, company, function(err, result) {
+        , dbName = req_.session.user.companycode
+    user.listByDBName(dbName,start, limit, keyword, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
         } else {
@@ -808,9 +808,10 @@ exports.list = function(req_, res_) {
 // 获取指定用户
 exports.searchOne = function(req_, res_) {
 
-    var userid = req_.query.userid;
+    var userid = req_.query.userid
+      , dbName = req_.session.user.companycode;
 
-    user.searchOne(userid, function(err, result) {
+    user.searchOneByDBName(dbName,userid, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
         } else {
@@ -823,9 +824,8 @@ exports.add = function(req_, res_) {
 
     var uid = req_.session.user._id;
     var userData = req_.body;
-    //TODO 如果session里的用户公司id不是要追加用户的公司ID时,有问题!!
-    userData.companyid = req_.session.user.companyid;
-    user.add(uid, userData, function(err, result) {
+    var dbName = req_.session.user.companycode;
+    user.addByDBName(dbName,uid, userData, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
         } else {
@@ -837,7 +837,8 @@ exports.add = function(req_, res_) {
 exports.update = function(req_, res_) {
 
     var uid = req_.session.user._id;
-    user.update(uid, req_.body, function(err, result) {
+    var dbName = req_.session.user.companycode;
+    user.updateByDBName(dbName,uid,req_.body, function(err, result) {
         if (err) {
             return res_.send(err.code, json.errorSchema(err.code, err.message));
         } else {

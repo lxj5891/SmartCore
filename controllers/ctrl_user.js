@@ -736,13 +736,14 @@ exports.appendUser = function(data, uidcolumn, callback_) {
 };
 
 //yukri
-exports.list = function(start_, limit_, keyword_, companyid_, callback_) {
+exports.listByDBName = function(dbName_,start_, limit_, keyword_, callback_) {
 
   var start = start_ || 0
     , limit = limit_ || 20
     , condition = {
-      valid: 1, companyid: companyid_
-    };
+      valid: 1
+    }
+    , dbName =  dbName_;
   if (keyword_) {
     keyword_ = util.quoteRegExp(keyword_);
     condition.$or = [
@@ -751,12 +752,11 @@ exports.list = function(start_, limit_, keyword_, companyid_, callback_) {
       {"name.letter_zh": new RegExp(keyword_.toLowerCase(), "i")}
     ]
   }
-  user.total(condition, function (err, count) {
+  user.totalByDBName(dbName,condition, function (err, count) {
     if (err) {
       return callback_(new error.InternalServer(err));
     }
-    user.list(condition, start, limit, function (err, result) {
-      console.log(err);
+    user.listByDBName(dbName,condition, start, limit, function (err, result) {
       if (err) {
         return callback_(new error.InternalServer(err));
       }
@@ -764,95 +764,68 @@ exports.list = function(start_, limit_, keyword_, companyid_, callback_) {
     });
   });
 };
+exports.addByDBName = function (dbName,uid, userInfo, callback_) {
+  try {
+    if (userInfo.userid != undefined) {
+      check(userInfo.userid, __("js.ctr.check.user.uid.min")).notEmpty();
+      check(userInfo.userid, __("js.ctr.check.user.uid.max")).notEmpty().len(3,30);
+      check(userInfo.userid, __("js.ctr.check.user.uid.ismail")).notEmpty().isEmail();
+    }
 
-exports.add = function (uid,  userInfo, callback_) {
-  exports.addByDBName('', uid, userInfo, callback_);
+    if (userInfo.password != undefined) {
+      check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
+      check(userInfo.password, __("js.ctr.check.user.password.max")).notEmpty().len(1,20);
+    }
+
+    if (userInfo.name != undefined) {
+      check(userInfo.name.name_zh, __("js.ctr.check.user.name.min")).notEmpty();
+      check(userInfo.name.name_zh, __("js.ctr.check.user.name.max")).notEmpty().len(1,20);
+    }
+
+    if (userInfo.title != undefined) {
+      check(userInfo.title, __("js.ctr.check.user.title.max")).len(0,20);
+    }
+
+    if (userInfo.tel != undefined) {
+      check(userInfo.tel.telephone, __("js.ctr.check.user.telephone.max")).len(0,30);
+    }
+
+    if (userInfo.description != undefined) {
+      check(userInfo.description, __("js.ctr.check.user.description.max")).len(0,100);
+    }
+  } catch (e) {
+    return callback_(new error.BadRequest(e.message));
+  }
+
+  userInfo.createat = new Date();
+  userInfo.createby = uid;
+  userInfo.editat = new Date();
+  userInfo.editby = uid;
+  userInfo.uid = userInfo.userid;
+  userInfo.valid = 1;
+  userInfo.password = auth.sha256(userInfo.password);
+
+  // 确认用户id重复
+  user.findByDBName(dbName,{"uid": userInfo.uid},function(err, result) {
+    if (err) {
+      return new callback_(new error.InternalServer(__("js.ctr.common.system.error")));
+    }
+
+    if (result.length > 0) {
+      return callback_(new error.BadRequest(__("js.ctr.check.user")));
+    }
+
+    user.createByDBName(dbName,userInfo, function(err, result){
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+      return callback_(err, result);
+    });
+
+  });
+  //exports.addByDBName(dbName, uid, userInfo, callback_);
 };
-
-exports.addByDBName = function (dbName, uid,  userInfo, callback_) {
-
-    try {
-      if (userInfo.userid != undefined) {
-        check(userInfo.userid, __("js.ctr.check.user.uid.min")).notEmpty();
-        check(userInfo.userid, __("js.ctr.check.user.uid.max")).notEmpty().len(3,30);
-        check(userInfo.userid, __("js.ctr.check.user.uid.ismail")).notEmpty().isEmail();
-      }
-
-      if (userInfo.password != undefined) {
-        check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
-        check(userInfo.password, __("js.ctr.check.user.password.max")).notEmpty().len(1,20);
-      }
-
-      if (userInfo.name != undefined) {
-        check(userInfo.name.name_zh, __("js.ctr.check.user.name.min")).notEmpty();
-        check(userInfo.name.name_zh, __("js.ctr.check.user.name.max")).notEmpty().len(1,20);
-      }
-
-      if (userInfo.title != undefined) {
-        check(userInfo.title, __("js.ctr.check.user.title.max")).len(0,20);
-      }
-
-      if (userInfo.tel != undefined) {
-        check(userInfo.tel.telephone, __("js.ctr.check.user.telephone.max")).len(0,30);
-      }
-
-      if (userInfo.description != undefined) {
-        check(userInfo.description, __("js.ctr.check.user.description.max")).len(0,100);
-      }
-    } catch (e) {
-      return callback_(new error.BadRequest(e.message));
-    }
-
-    userInfo.createat = new Date();
-    userInfo.createby = uid;
-    userInfo.editat = new Date();
-    userInfo.editby = uid;
-    userInfo.uid = userInfo.userid;
-    userInfo.valid = 1;
-    userInfo.password = auth.sha256(userInfo.password);
-
-    if(dbName){
-      // 确认用户id重复
-      user.findByDBName(dbName, {"uid": userInfo.uid}, function(err, result) {
-        if (err) {
-          return new callback_(new error.InternalServer(__("js.ctr.common.system.error")));
-        }
-
-        if (result.length > 0) {
-          return callback_(new error.BadRequest(__("js.ctr.check.user")));
-        }
-
-        user.createByDBName(dbName, userInfo, function(err, result){
-          if (err) {
-            return callback_(new error.InternalServer(err));
-          }
-          return callback_(err, result);
-        });
-
-      });
-    } else {
-      // 确认用户id重复
-      user.find({"uid": userInfo.uid}, function(err, result) {
-        if (err) {
-          return new callback_(new error.InternalServer(__("js.ctr.common.system.error")));
-        }
-
-        if (result.length > 0) {
-          return callback_(new error.BadRequest(__("js.ctr.check.user")));
-        }
-
-        user.create(userInfo, function(err, result){
-          if (err) {
-            return callback_(new error.InternalServer(err));
-          }
-          return callback_(err, result);
-        });
-
-      });
-    }
-}
-
-exports.update = function(uid_,userInfo, callback_) {
+exports.updateByDBName = function(dbName,uid_,userInfo, callback_) {
     try {
       if (userInfo.password != undefined) {
         check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
@@ -882,7 +855,7 @@ exports.update = function(uid_,userInfo, callback_) {
     userInfo.editat = new Date();
     userInfo.editby = uid_;
 
-    user.update(userInfo.id, userInfo, function(err, result){
+    user.updateByDBName(dbName,userInfo.id, userInfo, function(err, result){
         if (err) {
             return callback_(new error.InternalServer(err));
         }
@@ -891,8 +864,8 @@ exports.update = function(uid_,userInfo, callback_) {
     });
 
 };
-exports.searchOne = function( uid_, callback_) {
-    user.searchOne(uid_, function(err, result){
+exports.searchOneByDBName = function(dbName_, uid_, callback_) {
+    user.searchOneByDBName(dbName_,uid_, function(err, result){
         if (err) {
             return callback_(new error.InternalServer(err));
         }
@@ -900,23 +873,23 @@ exports.searchOne = function( uid_, callback_) {
     });
 
 };
-exports.remove = function(uid_,compId_, callback_){
+exports.removeByDBName = function(dbName_,uid_,compId_, callback_){
   var obj = {
     valid:0,
     editat:new Date(),
     editby:uid_
   };
-  user.remove(compId_,obj,function(err,result){
+  user.removeByDBName(dbName_,obj,function(err,result){
     callback_(err, result);
   });
 }
-exports.active = function(uid_,compId_,active_ ,  callback_){
+exports.activeByDBName = function(dbName_,uid_,active_ ,  callback_){
   var obj = {
     active:active_,
     editat:new Date(),
     editby:uid_
   };
-  user.active(compId_,obj,function(err,result){
+  user.activeByDBName(dbName_,obj,function(err,result){
     callback_(err, result);
   });
 }
