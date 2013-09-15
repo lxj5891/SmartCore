@@ -383,7 +383,7 @@ exports.getGroupWithMemberByGid = function(dbName_,gid_, callback_){
 
 
 // get group list by ids
-exports.listByGids = function(code_, dbName_,gids_, start_, limit_, callback_){
+exports.listByGids = function(code_, gids_, start_, limit_, callback_){
 
   // 开始
   if (start_) {
@@ -404,7 +404,7 @@ exports.listByGids = function(code_, dbName_,gids_, start_, limit_, callback_){
     limit_ = limit_ > 100 ? 100 : limit_;
   }
 
-  group.many(code_, dbName_,gids_, start_, limit_, function(err, result){
+  group.many(code_, gids_, start_, limit_, function(err, result){
     if (err) {
       return callback_(new error.InternalServer(err));
     }

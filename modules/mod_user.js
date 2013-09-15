@@ -110,7 +110,7 @@ exports.at = function(userid_, callback_) {
  */
 exports.many = function(code_, userids_, start_, limit_, callback_) {
 
-  var user = model(code);
+  var user = model(code_);
 
   user.find({"_id": {$in: userids_}})
     //.skip(start_ || 0).limit(limit_ || 20)

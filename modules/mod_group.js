@@ -274,7 +274,7 @@ exports.headMatch = function(condition_, callback_) {
 /**
  * 获取下位部门的ID一览
  */
-exports.childDepartments = function(dbName,parentGid_, callback_) {
+exports.childDepartments = function(dbName, parentGid_, callback_) {
 
   // TODO: 递归可能有性能问题
 
@@ -347,7 +347,7 @@ exports.departmentsPath = function(childGid_, parents, callback_) {
  * 3.gid 的owner
  * 4.gid上位 的owner
  */
-exports.getAllUserByGid = function(dbName,gid, callback_) {
+exports.getAllUserByGid = function(dbName, gid, callback_) {
 
   var group = model(dbName);
   var tasks = [];
@@ -366,7 +366,7 @@ exports.getAllUserByGid = function(dbName,gid, callback_) {
 
   // 2.gid下位 的members
   var task_getChildDepartmentMember = function(members, cb){
-    mod_group.childDepartments([gid], function(err, groups){
+    mod_group.childDepartments(dbName, [gid], function(err, groups){
       err = err ? new error.InternalServer(err) : null;
       _.each(groups, function(g){ members = members.concat(g.member); });
       cb(err,members);
@@ -398,7 +398,7 @@ exports.getAllUserByGid = function(dbName,gid, callback_) {
  * 3.owner的group
  * 4.owner的下位group
  */
-exports.getAllGroupByUid = function(dbName,uid, callback_) {
+exports.getAllGroupByUid = function(dbName, uid, callback_) {
   
   var group = model(dbName);
   var tasks = [];
@@ -440,7 +440,7 @@ exports.getAllGroupByUid = function(dbName,uid, callback_) {
 
     var parent = [];
     _.each(groups, function(g){if(_.contains(g.owner,uid)) parent.push(g._id); });
-    mod_group.childDepartments(parent, function(err, result){
+    mod_group.childDepartments(dbName, parent, function(err, result){
       err = err ? new error.InternalServer(err) : null;
       groups = groups.concat(result);
       cb(err,groups);
