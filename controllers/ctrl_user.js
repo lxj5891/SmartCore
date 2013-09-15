@@ -74,7 +74,7 @@ exports.getUserById = function(uid_, callback_) {
 /**
  * 给定复数个用户ID，获取用户详细信息列表
  */
-exports.listByUids = function(uids_, start_, limit_, callback_){
+exports.listByUids = function(code_, uids_, start_, limit_, callback_){
 
   // 开始
   if (start_) {
@@ -95,7 +95,7 @@ exports.listByUids = function(uids_, start_, limit_, callback_){
     limit_ = limit_ > 100 ? 100 : limit_;
   }
 
-  user.many(uids_, start_, limit_, function(err, result){
+  user.many(code_, uids_, start_, limit_, function(err, result){
     if (err) {
       return callback_(new error.InternalServer(err));
     }

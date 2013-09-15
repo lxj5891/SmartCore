@@ -11,7 +11,7 @@ var sync = require('async')
 /**
  * 检索用户
  */
-exports.user = function(condition_, callback_) {
+exports.user = function(dbName,condition_, callback_) {
 
   var keywords_ = condition_.keywords
     , login_ = condition_.login
@@ -25,11 +25,11 @@ exports.user = function(condition_, callback_) {
 
       if (target_ == "all" || target_ == "user") {
 
-        user.search(keywords_, auth_, function(err, users){
+        user.search(dbName,keywords_, auth_, function(err, users){
           if(scope_ == "1"){
             callback(err, users);
           }else{
-            group.getAllUserByGid(scope_, function(err, uids){
+            group.getAllUserByGid(dbName,scope_, function(err, uids){
               var result = [];
               _.each(users, function(u){
                 if(_.contains(uids, u._id.toString())){
@@ -45,11 +45,11 @@ exports.user = function(condition_, callback_) {
       }
     },
     group: function(callback) {
-      group.search(keywords_, function(err, groups){
+      group.search(dbName,keywords_, function(err, groups){
 
         if (target_ == "all" || target_ == "group") {
 
-          group.getAllGroupByUid(login_, function(err,viewable){
+          group.getAllGroupByUid(dbName,login_, function(err,viewable){
             var gids = [];
             var groupViewable = [];
             _.each(viewable, function(g){gids.push(g._id.toString());});
@@ -62,7 +62,7 @@ exports.user = function(condition_, callback_) {
             if(scope_ == "1"){
               callback(err, groupViewable);
             }else{
-              group.childDepartments([scope_], function(err, children){
+              group.childDepartments(dbName,[scope_], function(err, children){
                 var gids = [scope_];
                 _.each(children, function(g){gids.push(g._id.toString());});
                 //console.log(gids);

@@ -38,10 +38,12 @@ exports.createGroup = function (req_, res_) {
     , "category": req_.body.category
     , "secure": req_.body.secure
     , "valid" : 1
-    , "companyid" : req_.session.user.companyid
+    , "code" : req_.session.user.companycode
     };
 
-  group.createGroup(g, creator, function(err, result){
+  var dbName =  req_.session.user.companycode;
+
+  group.createGroup(dbName, g, creator, function(err, result){
     if (err) {
       return res_.send(json.errorSchema(err.code, err.message));
     } else {
@@ -144,8 +146,8 @@ exports.updateGroup = function(req_, res_) {
   gobj.editby = req_.session.user ? req_.session.user._id : "";
   gobj.editat = Date.now();
   gobj.valid = 1;
-
-  group.updateGroup(gobj, function(err, result){
+  var dbName =  req_.session.user.companycode;
+  group.updateGroup(dbName,gobj, function(err, result){
     if (err) {
       return res_.send(err.code, json.errorSchema(err.code, err.message));
     } else {
@@ -297,10 +299,10 @@ exports.list = function(req_, res_) {
 
   var start = req_.query.start
     , limit = req_.query.count
-    , companyId = req_.session.user.companyid
+    , dbName = req_.session.user.companycode
     , keyword = req_.query.keyword
 
-  group.list(start, limit,companyId,keyword, function(err, result) {
+  group.list(dbName,start, limit,keyword, function(err, result) {
     if (err) {
       return res_.send(err.code, json.errorSchema(err.code, err.message));
     } else {
@@ -312,8 +314,10 @@ exports.list = function(req_, res_) {
  * 获取组的成员一览
  */
 exports.getGroupWithMemberByGid = function(req_, res_){
-  var gid = req_.query.gid;
-  group.getGroupWithMemberByGid(gid, function(err, result) {
+  var gid = req_.query.gid
+    , dbName = req_.session.user.companycode;
+
+  group.getGroupWithMemberByGid(dbName,gid, function(err, result) {
     if (err) {
       return res_.send(err.code, json.errorSchema(err.code, err.message));
     } else {

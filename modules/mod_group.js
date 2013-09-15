@@ -48,16 +48,16 @@ var Group = new schema({
   , editat: {type: Date}
   //yukari
   , valid: {type: Number, default:1, description: "0:无效 1:有效"}
-  , companyid:{type:String,description: "公司ID"}
+  , code:{type:String,description: "公司code"}
   });
 
 
 /**
  * 创建组
  */
-exports.create = function(group_, callback_) {
+exports.create = function(dbName_,group_, callback_) {
 
-  var group = model();
+  var group = model(dbName_);
 
   new group(group_).save(function(err, ret){
     // solr.update(ret, "group", "insert", function(){});
@@ -69,9 +69,9 @@ exports.create = function(group_, callback_) {
 /**
  * 获取指定ID的组信息
  */
-exports.at = function(gid_, callback_){
+exports.at = function(dbName_, gid_, callback_){
 
-  var group = model();
+  var group = model(dbName_);
 
   group.findById(gid_, function(err, result){
     callback_(err, result);
@@ -98,9 +98,9 @@ exports.remove = function(gid_, callback_){
  * Example: 
  *  用名称检索{name: "myGroup"}
  */
-exports.find = function(args_, callback_){
+exports.find = function(dbName_,args_, callback_){
 
-  var group = model();
+  var group = model(dbName_);
 
   group.find(args_, function(err, result){
     callback_(err, result);
@@ -111,9 +111,9 @@ exports.find = function(args_, callback_){
 /**
  * 更新指定ID的组
  */
-exports.update = function(gid_, newvals_, callback_) {
+exports.update = function(dbName_,gid_, newvals_, callback_) {
 
-  var group = model();
+  var group = model(dbName_);
   group.findByIdAndUpdate(gid_, newvals_, function(err, result){
     // solr.update(result, "group", "update", function(){});
     callback_(err, result);
@@ -137,9 +137,9 @@ exports.removeMember = function(gid_, uid_, callback_) {
 /**
  * 组名的模糊检索。前方一致检索，不区分大小写
  */
-exports.search = function(keywords_, callback_) {
+exports.search = function(dbName,keywords_, callback_) {
 
-  var group = model()
+  var group = model(dbName)
     , condition = {};
 
   condition.$or = [
@@ -274,7 +274,7 @@ exports.headMatch = function(condition_, callback_) {
 /**
  * 获取下位部门的ID一览
  */
-exports.childDepartments = function(parentGid_, callback_) {
+exports.childDepartments = function(dbName,parentGid_, callback_) {
 
   // TODO: 递归可能有性能问题
 
@@ -282,7 +282,7 @@ exports.childDepartments = function(parentGid_, callback_) {
   (function() {
 
     var departments = []
-      , group = model();
+      , group = model(dbName);
 
     fetch(parentGid_, function(err) {
       callback_(err, departments);
@@ -347,9 +347,9 @@ exports.departmentsPath = function(childGid_, parents, callback_) {
  * 3.gid 的owner
  * 4.gid上位 的owner
  */
-exports.getAllUserByGid = function(gid, callback_) {
+exports.getAllUserByGid = function(dbName,gid, callback_) {
 
-  var group = model();
+  var group = model(dbName);
   var tasks = [];
 
   // 1.gid 的members
@@ -398,9 +398,9 @@ exports.getAllUserByGid = function(gid, callback_) {
  * 3.owner的group
  * 4.owner的下位group
  */
-exports.getAllGroupByUid = function(uid, callback_) {
+exports.getAllGroupByUid = function(dbName,uid, callback_) {
   
-  var group = model();
+  var group = model(dbName);
   var tasks = [];
 
   // 1.所属group
@@ -453,20 +453,20 @@ exports.getAllGroupByUid = function(uid, callback_) {
   });
 };
 
-function model() {
-  return conn().model('Group', Group);
+function model(dbName_) {
+  return conn(dbName_).model('Group', Group);
 }
 
 // 获取组有效件数
-exports.total = function(condition,callback_){
-  var group = model();
+exports.total = function(dbName_,condition,callback_){
+  var group = model(dbName_);
   group.count(condition).exec(function(err, count){
     callback_(err, count);
   });
 };
-exports.list = function(condition_, start_, limit_, callback_){
+exports.list = function(dbName_,condition_, start_, limit_, callback_){
 
-  var group = model();
+  var group = model(dbName_);
 
   group.find(condition_)
     .skip(start_ || 0)
@@ -477,9 +477,9 @@ exports.list = function(condition_, start_, limit_, callback_){
     });
 };
 
-exports.many = function(gids_, start_, limit_, callback_) {
+exports.many = function(dbName_, gids_, start_, limit_, callback_) {
 
-  var group = model();
+  var group = model(dbName_);
 
   group.find({"_id": {$in: gids_}})
     .skip(start_ || 0).limit(limit_ || 100)
