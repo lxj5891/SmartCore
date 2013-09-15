@@ -108,9 +108,9 @@ exports.at = function(userid_, callback_) {
  * 获取用户信息（多用户）
  * @param {String} userids_ 用户ID的数组
  */
-exports.many = function(userids_, start_, limit_, callback_) {
+exports.many = function(code_, userids_, start_, limit_, callback_) {
 
-  var user = model();
+  var user = model(code);
 
   user.find({"_id": {$in: userids_}})
     //.skip(start_ || 0).limit(limit_ || 20)
