@@ -1,7 +1,7 @@
 var apn = require('../modules/mod_apn')
   , error = require("../core/errors");
 
-exports.update = function(uid_, tocken_, owner_, callback_) {
+exports.update = function(code_, uid_, tocken_, owner_, callback_) {
 
   var date = Date.now();
   var obj = {
@@ -12,14 +12,14 @@ exports.update = function(uid_, tocken_, owner_, callback_) {
     };
 
   // 如果存在，则更新，不存在则创建
-  apn.find({devicetoken: tocken_}, function(err, result){
+  apn.find(code_, {devicetoken: tocken_}, function(err, result){
     if (err) {
       return callback_(new error.InternalServer(err), result);
     }
 
     // 更新
     if (result && result.length > 0) {
-      return apn.update(result[0]._id, obj, function(err, result){
+      return apn.update(code_, result[0]._id, obj, function(err, result){
         err = err ? new error.InternalServer(err) : null;
         callback_(err, result);
       });
@@ -28,7 +28,7 @@ exports.update = function(uid_, tocken_, owner_, callback_) {
     // 创建
     obj.createat = date;
     obj.createby = uid_;
-    return apn.create(obj, function(err, result){
+    return apn.create(code_, obj, function(err, result){
       err = err ? new error.InternalServer(err) : null;
       callback_(err, result);
     });
@@ -36,17 +36,17 @@ exports.update = function(uid_, tocken_, owner_, callback_) {
 
 };
 
-exports.find = function(owner_, callback_) {
+exports.find = function(code_, owner_, callback_) {
 
-  apn.find({deviceowner: owner_}, function(err, result){
+  apn.find(code_, {deviceowner: owner_}, function(err, result){
     err = err ? new error.InternalServer(err) : null;
     callback_(err, result);
   });
 };
 
-exports.remove = function(owner_, callback_) {
+exports.remove = function(code_, owner_, callback_) {
 
-  apn.remove(owner_, function(err, result){
+  apn.remove(code_, owner_, function(err, result){
     err = err ? new error.InternalServer(err) : null;
     callback_(err, result);
   });

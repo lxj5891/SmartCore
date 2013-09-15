@@ -24,17 +24,17 @@ var Apn = new schema({
 /**
  *
  */
-exports.create = function(apn_, callback_) {
+exports.create = function(code_, apn_, callback_) {
 
-  var apn = model();
+  var apn = model(code_);
   new apn(apn_).save(function(err, result){
     callback_(err, result);
   });
 };
 
-exports.remove = function(token_, callback_) {
+exports.remove = function(code_, token_, callback_) {
 
-  var apn = model();
+  var apn = model(code_);
 
   apn.remove({devicetoken: token_}, function(err, result){
     callback_(err, result);
@@ -42,9 +42,9 @@ exports.remove = function(token_, callback_) {
 };
 
 
-exports.find = function(condition, callback_) {
+exports.find = function(code_, condition, callback_) {
 
-  var apn = model();
+  var apn = model(code_);
 
   apn.find(condition, function(err, result){
     callback_(err, result);
@@ -55,9 +55,9 @@ exports.find = function(condition, callback_) {
 /**
  *
  */
-exports.update = function(apnid_, apn_, callback_) {
+exports.update = function(code_, apnid_, apn_, callback_) {
 
-  var apn = model();
+  var apn = model(code_);
 
   apn.update({_id: apnid_}, apn_, function(err, result) {
     callback_(err, result);
