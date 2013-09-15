@@ -108,9 +108,9 @@ exports.at = function(userid_, callback_) {
  * 获取用户信息（多用户）
  * @param {String} userids_ 用户ID的数组
  */
-exports.many = function(userids_, start_, limit_, callback_) {
+exports.many = function(code_, userids_, start_, limit_, callback_) {
 
-  var user = model();
+  var user = model(code);
 
   user.find({"_id": {$in: userids_}})
     //.skip(start_ || 0).limit(limit_ || 20)
@@ -125,9 +125,9 @@ exports.many = function(userids_, start_, limit_, callback_) {
  * Example:
  *  用名称检索{uid: "smart"}
  */
-exports.find = function(args_, callback_){
+exports.find = function(code, args_, callback_){
 
-  var user = model();
+  var user = model(code);
 
   user.find(args_, function(err, result){
     callback_(err, result);

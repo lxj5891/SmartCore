@@ -74,7 +74,7 @@ exports.getUserById = function(uid_, callback_) {
 /**
  * 给定复数个用户ID，获取用户详细信息列表
  */
-exports.listByUids = function(uids_, start_, limit_, callback_){
+exports.listByUids = function(code_, uids_, start_, limit_, callback_){
 
   // 开始
   if (start_) {
@@ -95,7 +95,7 @@ exports.listByUids = function(uids_, start_, limit_, callback_){
     limit_ = limit_ > 100 ? 100 : limit_;
   }
 
-  user.many(uids_, start_, limit_, function(err, result){
+  user.many(code_, uids_, start_, limit_, function(err, result){
     if (err) {
       return callback_(new error.InternalServer(err));
     }
@@ -707,7 +707,7 @@ function checkTel(tel){
 /**
  * 给指定的Object添加用户信息，该Object需要包User的ID
  */
-exports.appendUser = function(data, uidcolumn, callback_) {
+exports.appendUser = function(code, data, uidcolumn, callback_) {
 
   var uids = [];
 
@@ -715,7 +715,7 @@ exports.appendUser = function(data, uidcolumn, callback_) {
     uids.push(one[uidcolumn]);
   });
 
-  user.find({"_id": {$in: uids}}, function(err, users){
+  user.find(code, {"_id": {$in: uids}}, function(err, users){
    
     // 将Mongoose对象变成普通的Object
     // var result = JSON.parse(JSON.stringify(data));
