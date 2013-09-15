@@ -29,9 +29,9 @@ var DbOptions = {
 /**
  * 保存文件到GridFS
  */
-exports.save = function(filename, path, metadata, contentType, callback) {
+exports.save = function(code, filename, path, metadata, contentType, callback) {
 
-  var db = new Db(conf.dbname, new Server(conf.host, conf.port, ServerOptions), DbOptions);
+  var db = new Db(code, new Server(conf.host, conf.port, ServerOptions), DbOptions);
 
   var options = {
       "metadata": metadata
@@ -57,9 +57,9 @@ exports.save = function(filename, path, metadata, contentType, callback) {
 /**
  * 获取一个文件
  */
-exports.load = function(fileid, callback) {
+exports.load = function(code, fileid, callback) {
 
-  var db = new Db(conf.dbname, new Server(conf.host, conf.port, ServerOptions), DbOptions);
+  var db = new Db(code, new Server(conf.host, conf.port, ServerOptions), DbOptions);
   db.open(function(err, db){
 
     var gridStore = new GridStore(db, new ObjectID(fileid), 'r');
@@ -94,9 +94,9 @@ exports.load = function(fileid, callback) {
 /**
  * 获取GridFS上的文件列表
  */
-exports.all = function(condition_, start_, limit_, callback) {
+exports.all = function(code, condition_, start_, limit_, callback) {
 
-  var db = new Db(conf.dbname, new Server(conf.host, conf.port, ServerOptions), DbOptions);
+  var db = new Db(code, new Server(conf.host, conf.port, ServerOptions), DbOptions);
   db.open(function(err, db){
 
     // sort by date desc
@@ -110,8 +110,8 @@ exports.all = function(condition_, start_, limit_, callback) {
   });
 };
 
-exports.getByIds = function(fids_, callback_){
-  var db = new Db(conf.dbname, new Server(conf.host, conf.port, ServerOptions), DbOptions);
+exports.getByIds = function(code, fids_, callback_){
+  var db = new Db(code, new Server(conf.host, conf.port, ServerOptions), DbOptions);
   for (var i = 0; i < fids_.length; i++) {
     fids_[i] = ObjectID(fids_[i]);
   };
@@ -133,9 +133,9 @@ exports.getByIds = function(fids_, callback_){
 /**
  * 删除GridFS上的指定文件
  */
-exports.delete = function(id_, callback) {
+exports.delete = function(code, id_, callback) {
 
-  var db = new Db(conf.dbname, new Server(conf.host, conf.port, ServerOptions), DbOptions);
+  var db = new Db(code, new Server(conf.host, conf.port, ServerOptions), DbOptions);
   db.open(function(err, db){
 
     var gridStore = new GridStore(db, new ObjectID(id_), 'r');
