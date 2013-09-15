@@ -824,6 +824,7 @@ exports.add = function(req_, res_) {
 
     var uid = req_.session.user._id;
     var userData = req_.body;
+         userData.companycode = req_.session.user.companycode;
     var dbName = req_.session.user.companycode;
     user.addByDBName(dbName,uid, userData, function(err, result) {
         if (err) {
