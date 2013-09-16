@@ -69,8 +69,9 @@ var User = new schema({
 
   // YUKARi 用
   , authority: {
-        notice:{type:Number,description: "通知权限"}
-       ,approve:{type:Number,description: "布局承认权限"}
+        contents:{type:Number,description: "Contents作成权限,0:没有权限,1:有权限"}
+       ,notice:{type:Number,description: "通知权限,0:没有权限,1:有权限"}
+       ,approve:{type:Number,description: "布局承认权限,0:没有权限,1:有权限"}
     }
   , description: {type: String}
   , companycode:{type:String,description: "公司Code"}
