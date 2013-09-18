@@ -69,9 +69,9 @@ var User = new schema({
 
   // YUKARi 用
   , authority: {
-        contents:{type:Number,description: "Contents作成权限,0:没有权限,1:有权限"}
-       ,notice:{type:Number,description: "通知权限,0:没有权限,1:有权限"}
-       ,approve:{type:Number,description: "布局承认权限,0:没有权限,1:有权限"}
+        contents:{type:Number,default:0, description: "Contents作成权限,0:没有权限,1:有权限"}
+       ,notice:{type:Number,default:0,description: "通知权限,0:没有权限,1:有权限"}
+       ,approve:{type:Number,default:0,description: "布局承认权限,0:没有权限,1:有权限"}
     }
   , description: {type: String}
   , companycode:{type:String,description: "公司Code"}
@@ -623,5 +623,11 @@ exports.get = function(dbName_,id_,callback_){
   user.find({_id:id_},function(err,result){
     callback_(err,result[0]);
   })
+}
+exports.findOneUser = function(dbName_,uid_,callback_){
+  var user = model(dbName_);
+  user.find({uid:uid_},function(err,result){
+    callback_(err,result[0]);
+  });
 }
 
