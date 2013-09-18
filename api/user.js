@@ -7,6 +7,7 @@ var util = require("../core/util")
   , auth = require("../core/auth")
   , json = require("../core/json")
   , user = require('../controllers/ctrl_user')
+  , apn = require("../controllers/ctrl_apn")
   , dbfile = require("../controllers/ctrl_dbfile");
 
 
@@ -833,6 +834,20 @@ exports.add = function(req_, res_) {
             return res_.send(json.dataSchema(result));
         }
     });
+};
+// 更新用户密码
+exports.updatePassword = function(req_, res_) {
+  var uid = req_.session.user._id;
+  var newPass = req_.body.confirmpass;
+  var oldPass = req_.body.oldpass;
+  var dbName = req_.session.user.companycode;
+  user.changePassword(dbName,uid,newPass,oldPass,function(err,result){
+    if (err) {
+      return res_.send(err.code, json.errorSchema(err.code, err.message));
+    } else {
+      return res_.send(json.dataSchema(result));
+    }
+  })
 };
 // 更新用户
 exports.update = function(req_, res_) {

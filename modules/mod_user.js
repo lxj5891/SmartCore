@@ -153,9 +153,9 @@ exports.find = function(code_, args_, callback_){
 /**
  * 更新用户信息
  */
-exports.update = function(userid_, newvals_, callback_){
+exports.update = function(code,userid_, newvals_, callback_){
 
-  var user = model();
+  var user = model(code);
 
   user.findByIdAndUpdate(userid_, newvals_, function(err, result){
     // solr.update(result, "user", "update", function(){});
@@ -617,4 +617,11 @@ exports.userTotalByComId = function(dbName_, callback_) {
     callback_(err, count);
   });
 };
+
+exports.get = function(dbName_,id_,callback_){
+  var user = model(dbName_);
+  user.find({_id:id_},function(err,result){
+    callback_(err,result[0]);
+  })
+}
 

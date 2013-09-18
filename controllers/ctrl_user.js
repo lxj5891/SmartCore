@@ -825,6 +825,26 @@ exports.addByDBName = function (dbName,uid, userInfo, callback_) {
   });
   //exports.addByDBName(dbName, uid, userInfo, callback_);
 };
+exports.changePassword = function(dbName_,uid_,newPass_,oldPass_,callback_){
+  var newPass_ =  auth.sha256(newPass_);
+  var oldPass_ =  auth.sha256(oldPass_);
+  var query = {uid : uid_,password:oldPass_};
+  user.find(dbName_,query ,function(err,user_docs){
+    if(!err){
+      callback_(err);
+    }
+    if(!user_docs){
+      callback_(err,null);
+    }
+    var userChangePass = {
+      password : newPass_
+    }
+    user.update(dbName_,uid_,userChangePass,function(err,result){
+      callback_(err,result);
+    });
+  });
+};
+
 exports.updateByDBName = function(dbName,uid_,userInfo, callback_) {
     try {
       if (userInfo.password != undefined) {
