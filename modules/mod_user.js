@@ -488,7 +488,7 @@ exports.getTemplate = function(callback){
   callback(null, data);
 };
 exports.csvImportRow = function(exe_user, row, callback) {
-  var user = model();
+  var code = exe_user.companycode;
   var now = new Date();
   var u = {
     type:   0      // 用户类型， 默认0.   0: 普通用户, 1: 系统管理员
@@ -585,22 +585,22 @@ exports.csvImportRow = function(exe_user, row, callback) {
 //      return;
 //    }
 //  }
-  exports.find({"uid": u.uid}, function(err, result){
+  exports.findByDBName(code, {"uid": u.uid}, function(err, result){
     if(result && result.length > 0){               // Update user
-      u.editby = exe_user.uid;
+      u.editby = exe_user._id;
       u.editat = now;
 
-      exports.update(result[0]._id, u, function(err, result) {
+      exports.updateByDBName(code, result[0]._id, u, function(err, result) {
         //console.log('Update User.');
         callback(err, result);
       });
     } else {                                        // Create user
-      u.createby = exe_user.uid;
+      u.createby = exe_user._id;
       u.createat = now;
-      u.editby = exe_user.uid;
+      u.editby = exe_user._id;
       u.editat = now;
 
-      exports.create(u, function(err, result) {
+      exports.createByDBName(code, u, function(err, result) {
         //console.log('Create User.');
         callback(err, result);
       });
