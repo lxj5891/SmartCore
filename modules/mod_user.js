@@ -229,10 +229,12 @@ exports.search = function(dbName,keywords_, auth_, callback_) {
     condition = { "authority.approve" : 1};
   }
 
-  condition.$or = [
-    {"name.name_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
-  , {"name.letter_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
-  ];
+  if (keywords_) {
+    condition.$or = [
+      {"name.name_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+      , {"name.letter_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    ];
+  }
 
   user.find(condition).select('_id name photo title')//.skip(0).limit(5)
     .sort({"name.name_zh": 'asc'})
@@ -468,15 +470,9 @@ exports.updateByDBName = function(dbName_,userid_, newvals_, callback_){
     callback_(err, result);
   });
 };
-exports.removeByDBName = function(dbName_,obj, callback_){
-  var user = model(dbName_);
-  user.update(obj,{multi:true},function(err,result){
-    callback_(err, result);
-  });
-}
 exports.activeByDBName = function(dbName_,obj, callback_){
   var user = model(dbName_);
-  user.update(obj,{multi:true},function(err,result){
+  user.update({}, obj,{multi:true},function(err,result){
     callback_(err, result);
   });
 }
