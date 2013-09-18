@@ -470,15 +470,9 @@ exports.updateByDBName = function(dbName_,userid_, newvals_, callback_){
     callback_(err, result);
   });
 };
-exports.removeByDBName = function(dbName_,obj, callback_){
-  var user = model(dbName_);
-  user.update(obj,{multi:true},function(err,result){
-    callback_(err, result);
-  });
-}
 exports.activeByDBName = function(dbName_,obj, callback_){
   var user = model(dbName_);
-  user.update(obj,{multi:true},function(err,result){
+  user.update({}, obj,{multi:true},function(err,result){
     callback_(err, result);
   });
 }
