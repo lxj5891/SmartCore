@@ -142,11 +142,13 @@ exports.search = function(dbName,keywords_, callback_) {
   var group = model(dbName)
     , condition = {};
 
-  condition.$or = [
-    {"name.name_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
-  , {"name.letter_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
-  ];
-  
+  if (keywords_) {
+    condition.$or = [
+      {"name.name_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+      , {"name.letter_zh": new RegExp("^" + keywords_.toLowerCase() + ".*$", "i")}
+    ];
+  }
+
   group.find(condition).select('_id name photo description')//.skip(0).limit(5)
     .sort({"name.name_zh": 'asc'})
     .exec(function(err, groups){
