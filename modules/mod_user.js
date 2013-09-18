@@ -69,9 +69,9 @@ var User = new schema({
 
   // YUKARi 用
   , authority: {
-        contents:{type:Number,description: "Contents作成权限,0:没有权限,1:有权限"}
-       ,notice:{type:Number,description: "通知权限,0:没有权限,1:有权限"}
-       ,approve:{type:Number,description: "布局承认权限,0:没有权限,1:有权限"}
+        contents:{type:Number,default:0, description: "Contents作成权限,0:没有权限,1:有权限"}
+       ,notice:{type:Number,default:0,description: "通知权限,0:没有权限,1:有权限"}
+       ,approve:{type:Number,default:0,description: "布局承认权限,0:没有权限,1:有权限"}
     }
   , description: {type: String}
   , companycode:{type:String,description: "公司Code"}
@@ -470,15 +470,9 @@ exports.updateByDBName = function(dbName_,userid_, newvals_, callback_){
     callback_(err, result);
   });
 };
-exports.removeByDBName = function(dbName_,obj, callback_){
-  var user = model(dbName_);
-  user.update(obj,{multi:true},function(err,result){
-    callback_(err, result);
-  });
-}
 exports.activeByDBName = function(dbName_,obj, callback_){
   var user = model(dbName_);
-  user.update(obj,{multi:true},function(err,result){
+  user.update({}, obj,{multi:true},function(err,result){
     callback_(err, result);
   });
 }
@@ -494,7 +488,7 @@ exports.getTemplate = function(callback){
   callback(null, data);
 };
 exports.csvImportRow = function(exe_user, row, callback) {
-  var user = model();
+  var code = exe_user.companycode;
   var now = new Date();
   var u = {
     type:   0      // 用户类型， 默认0.   0: 普通用户, 1: 系统管理员
@@ -591,22 +585,22 @@ exports.csvImportRow = function(exe_user, row, callback) {
 //      return;
 //    }
 //  }
-  exports.find({"uid": u.uid}, function(err, result){
+  exports.findByDBName(code, {"uid": u.uid}, function(err, result){
     if(result && result.length > 0){               // Update user
-      u.editby = exe_user.uid;
+      u.editby = exe_user._id;
       u.editat = now;
 
-      exports.update(result[0]._id, u, function(err, result) {
+      exports.updateByDBName(code, result[0]._id, u, function(err, result) {
         //console.log('Update User.');
         callback(err, result);
       });
     } else {                                        // Create user
-      u.createby = exe_user.uid;
+      u.createby = exe_user._id;
       u.createat = now;
-      u.editby = exe_user.uid;
+      u.editby = exe_user._id;
       u.editat = now;
 
-      exports.create(u, function(err, result) {
+      exports.createByDBName(code, u, function(err, result) {
         //console.log('Create User.');
         callback(err, result);
       });
@@ -625,5 +619,11 @@ exports.get = function(dbName_,id_,callback_){
   user.find({_id:id_},function(err,result){
     callback_(err,result[0]);
   })
+}
+exports.findOneUser = function(dbName_,uid_,callback_){
+  var user = model(dbName_);
+  user.find({uid:uid_},function(err,result){
+    callback_(err,result[0]);
+  });
 }
 
