@@ -45,9 +45,9 @@ exports.createGroup = function (req_, res_) {
 
   group.createGroup(dbName, g, creator, function(err, result){
     if (err) {
-      return res_.send(json.errorSchema(err.code, err.message));
+      return res_.send(err.code, json.errorSchema(err.code, err.message));
     } else {
-      return res_.send(json.dataSchema({items: result}));
+      return res_.send(json.dataSchema(result));
     }
   });
 };
