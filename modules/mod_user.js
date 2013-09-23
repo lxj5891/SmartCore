@@ -224,9 +224,9 @@ exports.search = function(dbName,keywords_, auth_, callback_) {
     , condition = {valid:1,active:1};
 
   if (auth_ == "notice") {
-    condition = { "authority.notice" : 1};
+    condition["authority.notice"] = 1;
   } else if (auth_ == "approve") {
-    condition = { "authority.approve" : 1};
+    condition["authority.approve"] = 1;
   }
 
   if (keywords_) {
