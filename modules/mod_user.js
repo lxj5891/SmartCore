@@ -494,6 +494,7 @@ exports.csvImportRow = function(exe_user, row, callback) {
     type:   0      // 用户类型， 默认0.   0: 普通用户, 1: 系统管理员
     ,active: 1
     ,companyid : exe_user.companyid
+    ,companycode: code
     ,valid : 1
   };
   if(row[0]) { u.uid                                              = row[0]; }
