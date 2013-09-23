@@ -54,9 +54,9 @@ exports.user = function(dbName,condition_, callback_) {
             var groupViewable = [];
             _.each(viewable, function(g){gids.push(g._id.toString());});
             _.each(groups, function(g){
-              if(_.contains(gids,g._id.toString())){
+              //if(_.contains(gids,g._id.toString())){
                 groupViewable.push(g);
-              }
+              //}
             });
 
             if(scope_ == "1"){
