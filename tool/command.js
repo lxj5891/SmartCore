@@ -73,8 +73,7 @@ exports.runDBCommand = function(code, command, callback) {
  * @param callback
  */
 exports.insertData = function(code, collection, data, callback) {
-//  var db = new Db(code, new Server(conf.host, conf.port, ServerOptions), DbOptions);
-  var db = new Db(code, new Server("db1", conf.port, ServerOptions), DbOptions);
+  var db = new Db(code, new Server(conf.host, conf.port, ServerOptions), DbOptions);
   db.open(function(err, db){
 
     db.collection(collection).insert(data, {w: 1}, function(err, result){
