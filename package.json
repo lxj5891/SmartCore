@@ -16,7 +16,7 @@
     , "nodemailer": "0.3.42"
     , "log4js": "0.5.6"
     , "async": "0.2.5"
-    , "amqp": "0.1.4"
+    , "amqp": "0.1.7"
     , "validator": "0.4.24"
     , "underscore": "1.4.4"
     , "i18n": "0.3.7"
