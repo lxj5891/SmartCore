@@ -143,7 +143,6 @@ exports.gridfsSave = function(code_, uid_, files_, callback_) {
 
   // To save the file to GridFS
   async.forEach(files_, function(file, callback){
-
     var name = p.basename(file.name);
     var path = f.realpathSync(p.join(confapp.tmp, p.basename(file.path)));
     

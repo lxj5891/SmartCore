@@ -109,8 +109,7 @@ exports.upload = function(req_, res_) {
 exports.save = function(req_, res_){
 
   var uid = req_.session.user._id;
-  console.log(req_);
-  // Get file list from the request
+  var code = req_.session.user.companycode;
   var filearray;
   if (req_.files.files instanceof Array) {
     filearray = req_.files.files;
@@ -118,12 +117,12 @@ exports.save = function(req_, res_){
     filearray = [];
     filearray.push(req_.files.files);
   }
-  console.log(filearray);
 
-  dbfile.gridfsSave(uid, filearray, function(err, result){
+  dbfile.gridfsSave(code,uid, filearray, function(err, result){
     if (err) {
       return res_.send(err.code, json.errorSchema(err.code, err.message));
     } else {
+      console.log(result);
       return res_.send(json.dataSchema({items: result}));
     }    
   });
