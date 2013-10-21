@@ -3,7 +3,6 @@ var EventEmitter = require('events').EventEmitter
   , util = require('util')
   , domain = require('domain')
   , json = require('./json')
-  , error = require('./error')
   , log = require('./log');
 
 var Handler = module.exports = function() {
@@ -97,4 +96,3 @@ Object.defineProperty(Handler.prototype, "domain", {
     return self.theDomain;
   }
 });
-

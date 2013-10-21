@@ -52,6 +52,17 @@
     , "timeout": 30
     , "cache_control": false
   },
+
+  "log": {
+    "fluent": {
+        "enable": "true"
+      , "tag": "node"
+      , "host": "10.2.8.228"
+      , "port": 24224
+      , "timeout": 3.0
+    }
+    , "console": "true"
+  },
   
   "mq": {
       "host": "127.0.0.1"

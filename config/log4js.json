@@ -2,22 +2,27 @@
   "appenders": [
     {
         "category": "operation"
-      , "type": "file"
+      , "type": "dateFile"
       , "filename": "logs/operation.log"
+      , "pattern": "-yyyyMMdd"
     },
     {
         "category": "application"
-      , "type": "file"
+      , "type": "dateFile"
       , "filename": "logs/application.log"
+      , "pattern": "-yyyyMMdd"
     },
     {
         "category": "audit"
-      , "type": "file"
+      , "type": "dateFile"
       , "filename": "logs/audit.log"
+      , "pattern": "-yyyyMMdd"
     }
   ],
   
   "levels": {
-    "tests": "ERROR"
+      "application": "DEBUG"
+    , "audit": "INFO"
+    , "operation": "INFO"
   }
 }

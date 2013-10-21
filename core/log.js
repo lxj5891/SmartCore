@@ -1,35 +1,163 @@
 /**
  * Log:
- * Copyright (c) 2012 Author Name l_li
+ * Copyright (c) 2013 Author Name l_li
  */
+
+var log4js      = require('log4js')
+  , util        = require('util')
+  , fluent      = require('fluent-logger')
+  , os          = require('os')
+  , _           = require('underscore')
+  , context     = require('./handler')
+  , conffluent  = require('config').log.fluent;
 
 /**
- * Log Level:
- *  trace
- *  debug
- *  info
- *  warn
- *  error
- *  fatal
+ * Config:
+ *  Reads the configuration file, and initializes the fluent.
  */
-
-var log4js = require('log4js');
+if (conffluent.enable == "true") {
+  fluent.configure(conffluent.tag, {
+      host: conffluent.host
+    , port: conffluent.port
+    , timeout: conffluent.timeout
+  });
+}
 
 /**
  * Config:
  *  Reads the configuration file, and initializes the log.
  */
-log4js.configure('./config/log4js.json', {});
-log4js.loadAppender('file');
-log4js.addAppender(log4js.appenders.console());
+log4js.configure('./config/log4js.json');
+if (require('config').log.console == "true") {
+  log4js.addAppender(log4js.appenders.console());
+}
 
 /**
- * Log type:
- *  To define the type of log
+ * Log type: To define the type of log
  */
-var operation = log4js.getLogger('operation');
-var application = log4js.getLogger('application');
-var audit = log4js.getLogger('audit');
+var operation   = log4js.getLogger('operation')
+  , application = log4js.getLogger('application')
+  , audit       = log4js.getLogger('audit');
+
+// TODO: 向上兼容临时用，删除预定
+exports.out = function(level, message) {
+  exports.debug(message, "-");
+}
+
+/**
+ * debug log
+ * @param message
+ * @param user
+ */
+exports.debug = function(message, user) {
+  var body = json("application", "debug", message, user);
+
+  application.debug(space(body));
+  emit("application", body);
+};
+
+
+exports.info = function(essage, user) {
+  var body = json("application", "info", message, user);
+
+  application.info(space(body));
+  emit("application", body);
+};
+
+exports.warn = function(essage, user) {
+  var body = json("application", "warn", message, user);
+
+  application.warn(space(body));
+  emit("application", body);
+};
+
+exports.error = function(essage, user) {
+  var body = json("application", "error", message, user);
+
+  application.error(space(body));
+  emit("application", body);
+};
+
+exports.audit = function(message_, user_) {
+  var body = json("audit", "info", message_, user_);
+
+  audit.info(space(body));
+  emit("audit", body);
+};
+
+exports.operation = function(message_, user_) {
+  var body = json("operation", "info", message_, user_);
+
+  operation.info(space(body));
+  emit("operation", body);
+};
+
+function emit(type, body) {
+
+  if (conffluent.enable == "true") {
+    fluent.emit(type, body);
+  }
+}
+
+function space(body) {
+  return util.format("%s %s %s %s %s", body.message, body.user, body.host, body.file, body.line);
+}
+
+function ltsv(body) {
+
+  var result = "";
+
+  _.each(body, function(val, key){
+    result = util.format("%s%s:'%s'\t", result, key, val);
+  });
+
+  return result;
+}
+
+function json(type_, level_, message_, user_) {
+
+  var result = {
+      sec: new Date().getTime()
+    , type: type_
+    , level: level_
+    , message: message_
+    , user: user_ ? user_ : "-"
+    , host: ip()
+    , code: ""
+    , category: ""
+    , file: __pfilename
+    , line: __pline
+  };
+
+  return result;
+}
+
+/**
+ * 获取AP服务器IP地址，获取的IP地址放到global对象中缓存
+ * @returns {*}
+ */
+function ip() {
+
+  if (global.addresses) {
+    return global.addresses;
+  }
+
+  var interfaces = os.networkInterfaces()
+    , addresses = [];
+
+  for (k in interfaces) {
+    for (k2 in interfaces[k]) {
+      var address = interfaces[k][k2];
+      if (address.family == 'IPv4' && !address.internal) {
+        addresses.push(address.address)
+      }
+    }
+  }
+
+  global.addresses = addresses;
+
+  return global.addresses;
+}
 
 /**
  * __stack:
@@ -79,127 +207,3 @@ Object.defineProperty(global, '__pfilename', {
     return __stack[2].getFileName();
   }
 });
-
-/**
- * Emitter:
- *  To monitor the event log.
- */
-var EventEmitter = require('events').EventEmitter;
-var emitter = new EventEmitter();
-
-// trace
-emitter.on('trace', function(type, message, source, line){
-  if (type == 'operation') {
-    operation.trace(message + '  ' + source + ':' + line);
-  }
-  if (type == 'application') {
-    application.trace(message + '  ' + source + ':' + line);
-  }
-  if (type == 'audit') {
-    audit.trace(message + '  ' + source + ':' + line);
-  }
-});
-
-// debug
-emitter.on('debug', function(type, message, source, line){
-  if (type == 'operation') {
-    operation.debug(message + '  ' + source + ':' + line);
-  }
-  if (type == 'application') {
-    application.debug(message + '  ' + source + ':' + line);
-  }
-  if (type == 'audit') {
-    audit.debug(message + '  ' + source + ':' + line);
-  }
-});
-
-// info
-emitter.on('info', function(type, message, source, line){
-  if (type == 'operation') {
-    operation.info(message + '  ' + source + ':' + line);
-  }
-  if (type == 'application') {
-    application.info(message + '  ' + source + ':' + line);
-  }
-  if (type == 'audit') {
-    audit.info(message + '  ' + source + ':' + line);
-  }
-});
-
-// warn
-emitter.on('warn', function(type, message, source, line){
-  if (type == 'operation') {
-    operation.warn(message + '  ' + source + ':' + line);
-  }
-  if (type == 'application') {
-    application.warn(message + '  ' + source + ':' + line);
-  }
-  if (type == 'audit') {
-    audit.warn(message + '  ' + source + ':' + line);
-  }
-});
-
-// error
-emitter.on('error', function(type, message, source, line){
-  if (type == 'operation') {
-    operation.error(message + '  ' + source + ':' + line);
-  }
-  if (type == 'application') {
-    application.error(message + '  ' + source + ':' + line);
-  }
-  if (type == 'audit') {
-    audit.error(message + '  ' + source + ':' + line);
-  }
-});
-
-// fatal
-emitter.on('fatal', function(type, message, source, line){
-  if (type == 'operation') {
-    operation.fatal(message + '  ' + source + ':' + line);
-  }
-  if (type == 'application') {
-    application.fatal(message + '  ' + source + ':' + line);
-  }
-  if (type == 'audit') {
-    audit.fatal(message + '  ' + source + ':' + line);
-  }
-});
-
-/**
- * Out:
- *  Emit a log event.
- */
-function out(level, type, message, source, line){
-  emitter.emit(level, type, message, source, line);
-}
-
-/**
- * Out:
- *  Outputs the application log.
- * @param {String} level log level
- * @param {String} message log message
- */
-exports.out = function(level, message){
-  out(level, 'application', message, __pfilename, __pline);
-};
-
-/**
- * Opera:
- *  Outputs the operation log.
- * @param {String} level log level
- * @param {String} message log message
- */
-exports.opera = function(level, message){
-  out(level, 'operation', message, __pfilename, __pline);
-};
-
-/**
- * Audit:
- *  Outputs the audit log.
- * @param {String} level log level
- * @param {String} message log message
- */
-exports.audit = function(level, message){
-  out(level, 'audit', message, __pfilename, __pline);
-};
-
