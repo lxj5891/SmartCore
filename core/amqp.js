@@ -8,6 +8,10 @@ var amqp = require('amqp')
 
 exports.smartThumb = function(message){
   var connection = amqp.createConnection(thumbq);
+  var maxListeners = thumbq.maxListeners || 0;
+
+  connection.setMaxListeners(maxListeners);
+
   connection.on('ready', function () {
     
     connection.publish(thumbq.queue, message);
@@ -24,6 +28,10 @@ exports.smartThumb = function(message){
 exports.send = function(message){
   
   var connection = amqp.createConnection(mq);
+  var maxListeners = mq.maxListeners || 0;
+
+  connection.setMaxListeners(maxListeners);
+
   connection.on('ready', function () {
     connection.publish(mq.queue, message);
   });
@@ -34,6 +42,10 @@ exports.send = function(message){
  */
 exports.notice = function(message) {
   var connection = amqp.createConnection(mq);
+  var maxListeners = mq.maxListeners || 0;
+
+  connection.setMaxListeners(maxListeners);
+
   connection.on('ready', function() {
     connection.publish(mq.notification_queue, message);
   });
@@ -45,6 +57,10 @@ exports.notice = function(message) {
  */
 exports.sendPhoto = function(message){
   var connection = amqp.createConnection(mq_photo);
+  var maxListeners = mq_photo.maxListeners || 0;
+
+  connection.setMaxListeners(maxListeners);
+
   connection.on("ready", function(){
     connection.publish(mq_photo.queue, message);
   });
@@ -55,6 +71,9 @@ exports.sendPhoto = function(message){
  */
 exports.sendApn = function(message){
   var connection = amqp.createConnection(mq_apn);
+  var maxListeners = mq_apn.maxListeners || 0;
+
+  connection.setMaxListeners(maxListeners);
 
   connection.on("ready", function(){
     connection.publish(mq_apn.queue, message, { mandatory: true }, function(){
