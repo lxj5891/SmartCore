@@ -1,5 +1,5 @@
 {
-  "name": "SmartCore",
+  "name": "smartcore",
   "version": "0.0.1",
   "description": "nodejs-based smart platform",
   "main": "index.js",
