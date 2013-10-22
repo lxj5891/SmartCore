@@ -5,7 +5,6 @@
 
 var log4js      = require('log4js')
   , util        = require('util')
-  , fluent      = require('fluent-logger')
   , os          = require('os')
   , _           = require('underscore')
   , context     = require('./handler')
@@ -16,6 +15,9 @@ var log4js      = require('log4js')
  *  Reads the configuration file, and initializes the fluent.
  */
 if (conffluent.enable == "true") {
+
+  var fluent = require('fluent-logger');
+
   fluent.configure(conffluent.tag, {
       host: conffluent.host
     , port: conffluent.port
