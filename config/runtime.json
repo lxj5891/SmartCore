@@ -60,6 +60,7 @@
     , "password": "guest"
     , "queue": "smartAnalyzer"
     , "notification_queue": "SmartNotification"
+    , "maxListeners": 0
   },
   "mq_photo": {
       "host": "mq"
@@ -67,6 +68,7 @@
     , "user": "guest"
     , "password": "guest"
     , "queue": "smartPhoto"
+    , "maxListeners": 0
   },
   "mq_apn": {
       "host": "mq"
@@ -74,5 +76,6 @@
     , "user": "guest"
     , "password": "guest"
     , "queue": "smartApn"
+    , "maxListeners": 0
   }
 }

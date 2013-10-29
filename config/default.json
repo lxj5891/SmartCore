@@ -71,6 +71,7 @@
     , "password": "guest"
     , "queue": "smartAnalyzer"
     , "notification_queue": "SmartNotification"
+    , "maxListeners": 0
   },
   "mq_photo": {
       "host": "127.0.0.1"
@@ -78,6 +79,7 @@
     , "user": "guest"
     , "password": "guest"
     , "queue": "smartPhoto"
+    , "maxListeners": 0
   },
   "mq_apn": {
       "host": "127.0.0.1"
@@ -85,5 +87,6 @@
     , "user": "guest"
     , "password": "guest"
     , "queue": "smartApn"
+    , "maxListeners": 0
   }
 }
