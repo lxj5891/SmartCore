@@ -10,6 +10,7 @@ module.exports = {
     , user: require("./api/user")
     , dbfile: require("./api/dbfile")
     , apn: require("./api/apn")
+    , log: require("./api/log")
     },
     ctrl: {
       dbfile: require("./controllers/ctrl_dbfile")

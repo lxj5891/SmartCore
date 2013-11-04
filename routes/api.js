@@ -4,6 +4,7 @@ var search        = require('../api/search')
   , notification  = require('../api/notification')
   , apn           = require('../api/apn')
   , category      = require('../api/category')
+  , log           = require('../api/log')
   , groupapi      = require('./api_group')  
   , fileapi       = require('./api_file')  
   , userapi       = require('./api_user')
@@ -112,6 +113,14 @@ exports.guiding = function(app){
   app.get("/category/list.json", function(req, res){
     category.find(req, res);
   });
-  
+
+  // ---- 日志 ----
+  app.get("/log/list.json", function(req, res){
+    log.getLogList(req, res);
+  });
+
+  app.get("/log/detail.json", function(req, res){
+    log.getLogDetail(req, res);
+  });
 };
 
