@@ -1,0 +1,19 @@
+
+{
+  "testdb": {
+    "host": "mongo"
+    , "port": 27017
+    , "dbname": "developer"
+    , "pool": 5
+  },
+  "log": {
+      "console": "true"
+    , "fluent": {
+        "enable": "true"
+        , "tag": "node"
+        , "host": "10.2.8.228"
+        , "port": 24224
+        , "timeout": 3.0
+      }
+  }
+}
