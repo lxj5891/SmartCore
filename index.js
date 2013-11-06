@@ -40,5 +40,6 @@ module.exports = {
     , process: require("./core/process")
     , solr: require("./core/solr")
     , util: require("./core/util")
+    , context: require("./core/context")
     }
   };
