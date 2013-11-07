@@ -7,8 +7,34 @@
 
 "use strict";
 
-var should  = require("should")
-  , log     = require("../../coverage/core/log.js");
+/**
+ * 初始化配置文件
+ */
+process.env.NODE_CONFIG_DIR = process.cwd() + "/test/config";
+process.env.LOG4JS_CONFIG = process.cwd() + "/test/config/log4js.json";
+
+var should    = require("should")
+  , fs        = require("fs")
+  , log       = require("../../coverage/core/log.js");
+
+/**
+ * 读取文件行数
+ * @param file 文件名
+ * @param callback 返回行数的回调函数
+ */
+function lineCount(file, callback) {
+  var count = 0;
+
+  fs.createReadStream(file)
+    .on("data", function(chunk) {
+      for (var i = 0; i < chunk.length; ++i) {
+        if (chunk[i] === 10) { count++; }
+      }
+    })
+    .on("end", function() {
+      callback(count);
+    });
+}
 
 /**
  * 测试代码
@@ -18,8 +44,9 @@ describe("Log", function() {
   /**
    * 初始化测试数据
    */
-  var data = {
-  };
+  var appliLog = process.cwd() + "/logs/application.log"
+    , auditLog = process.cwd() + "/logs/audit.log"
+    , operaLog = process.cwd() + "/logs/operation.log";
 
   /**
    * 执行测试case
@@ -27,66 +54,93 @@ describe("Log", function() {
   /*****************************************************************/
   it("debug", function(done) {
 
-    company.add(data, function(err, result) {
+    log.debug("debuglog");
+    log.debug("debuglog", "uid");
 
-      should.not.exist(err);
-      should.exist(result);
-      result.path.should.equal("1");
-      result.valid.should.equal(1);
+    lineCount(appliLog, function(count) {
 
+      should.exist(count);
+      count.should.equal(2);
       done();
     });
   });
 
   /*****************************************************************/
-  it("getList", function(done) {
+  it("info", function(done) {
 
-    company.getList({}, 0, 1, function() {
+    log.info("info");
+    log.info("info", "uid");
 
+    lineCount(appliLog, function(count) {
+
+      count.should.equal(4);
       done();
     });
+  });
+
+  /*****************************************************************/
+  it("warn", function(done) {
+
+    log.warn("warn");
+    log.warn("warn", "uid");
+
+    lineCount(appliLog, function(count) {
+
+      count.should.equal(6);
+      done();
+    });
+  });
+
+  /*****************************************************************/
+  it("error", function(done) {
+
+    log.error("error");
+    log.error("error", "uid");
+
+    lineCount(appliLog, function(count) {
+
+      count.should.equal(8);
+      done();
+    });
+  });
+
+  /*****************************************************************/
+  it("audit", function(done) {
+
+    log.audit("audit");
+    log.audit("audit", "uid");
+
+    lineCount(auditLog, function(count) {
+
+      count.should.equal(2);
+      done();
+    });
+  });
+
+  /*****************************************************************/
+  it("operation", function(done) {
+
+    log.operation("operation");
+    log.operation("operation", "uid");
+
+    lineCount(operaLog, function(count) {
+
+      count.should.equal(2);
+      done();
+    });
+  });
+
+  /*****************************************************************/
+  it("clean", function(done) {
+
+    // 清除日志文件
+    fs.unlinkSync(process.cwd() + "/logs/application.log");
+    fs.unlinkSync(process.cwd() + "/logs/audit.log");
+    fs.unlinkSync(process.cwd() + "/logs/operation.log");
+
+    done();
   });
 
 });
 
 
-
-
-
-
-
-
-var log = require('../../core/log');
-
-exports.testDebug = function(test) {
-  test.equal('abc', 'abc');
-  //test.expect(1);
-  test.ok(true, "this assertion should pass")
-  test.done();
-};
-
-exports.testInfo = function(test) {
-  log.out('info', '中文');
-  test.equal(2, 2);
-  test.done();
-};
-
-exports.testGroup = {
-  setUp: function (callback) {
-    log.out('info', 'setUp');
-    this.foo = 'bar';
-    callback();
-  },
-  tearDown: function (callback) {
-    log.out('info', 'tearDown');
-    callback();
-  },
-  test1: function (test) {
-    test.equals(this.foo, 'bar');
-    test.done();
-  },
-  test2: function (test) {
-    test.equals(this.foo, 'bar');
-    test.done();
-  }
-};

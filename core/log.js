@@ -85,10 +85,8 @@ function initFluent() {
  */
 function initLog4js() {
 
-  log4js.configure("./config/log4js.json");
-  if (confLog.console === "true") {
-    log4js.addAppender(log4js.appenders.console());
-  }
+  // 环境变量里没有定义配置文件的路径，使用应用根目录下的配置文件
+  log4js.configure(process.env.LOG4JS_CONFIG || process.cwd() + "/config/log4js.json");
 }
 
 /**
