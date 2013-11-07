@@ -29,13 +29,15 @@ if (!fs.existsSync("coverage")) {
   fs.mkdirSync("coverage");
 }
 
+var rm = "Windows_NT" === os.type() ? "rd /S /Q coverage" : "rm -rf coverage";
+
 /**
  * 清除文件，生成converage代码，并执行测试case
  */
-var rm = "Windows_NT" === os.type() ? "rd /S /Q coverage" : "rm -rf coverage";
 runCommand(rm, function(err) {
   if (err) {
-    return console.log(err);
+    console.log(err);
+    return;
   }
 
   // 创建文件夹
@@ -57,10 +59,14 @@ runCommand(rm, function(err) {
   var test = "mocha -R html-cov test/*/* --coverage > coverage/coverage.html";
 
   // 在环境变量里添加测试标识，数据库连接时根据该标识切换要使用的数据库
-  process.env["TEST"] = 1;
+  process.env.TEST = 1;
+  process.env.NODE_CONFIG_DIR = process.cwd() + "/test/config";
+  process.env.LOG4JS_CONFIG = process.cwd() + "/test/config/log4js.json";
+
   runCommand(test, function(err) {
     if (err) {
-      return console.log(err);
+      console.log(err);
+      return;
     }
 
     // 执行成功

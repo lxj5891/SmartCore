@@ -6,6 +6,6 @@ process.env.LOG4JS_CONFIG = process.cwd() + "/test/config/log4js.json";
 
 var cmd   = require("./command");
 
-cmd.runCommand("plato -d reports -l .jshintrc test/core/test_log.js", function() {
+cmd.runCommand("jsdoc core/log.js -d docs", function() {
   console.log("OK!");
 });

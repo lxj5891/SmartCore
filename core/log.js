@@ -22,8 +22,8 @@ var operation   = log4js.getLogger("operation")
   , fluent      = null;
 
 /**
- * stack, Define global stack info.
- * @param self this function.
+ * Stack, Define global stack info.
+ * @param {function} self this function.
  * @returns current method stack.
  */
 function stack(self) {
@@ -43,7 +43,7 @@ function stack(self) {
 }
 
 /**
- * lineNo,
+ * LineNo,
  *  Defines the number of lines of parent source code.
  *  it is global information.
  * @returns line number.
@@ -53,7 +53,7 @@ function lineNo() {
 }
 
 /**
- * fileName,
+ * FileName,
  *  Defines the name of the parent file.
  *  it is global information.
  * @returns file name.
@@ -91,8 +91,8 @@ function initLog4js() {
 
 /**
  * 发送log到fluent
- * @param type log type
- * @param body log info
+ * @param {string} type log type
+ * @param {string} body log info
  */
 function emit(type, body) {
 
@@ -103,7 +103,7 @@ function emit(type, body) {
 
 /**
  * 为了输出文件日志，对log对象进行格式化
- * @param body 消息
+ * @param {string} body 消息
  * @returns 格式化之后的消息字符串
  */
 function formatFileLog(body) {
@@ -137,10 +137,10 @@ function ip() {
 
 /**
  * 生成json格式的log对象
- * @param logtype log的类别
- * @param loglevel log的级别
- * @param content 输出的log详细
- * @param userid 操作者
+ * @param {string} logtype log的类别
+ * @param {string} loglevel log的级别
+ * @param {string} content 输出的log详细
+ * @param {string} userid 操作者
  * @returns log对象
  */
 function toJson(logtype, loglevel, content, userid) {
@@ -161,8 +161,8 @@ function toJson(logtype, loglevel, content, userid) {
 
 /**
  * debug log
- * @param message
- * @param user
+ * @param {string} message log内容
+ * @param {string} user 用户信息
  */
 exports.debug = function(message, user) {
   var body = toJson("application", "debug", message, user);
@@ -173,8 +173,8 @@ exports.debug = function(message, user) {
 
 /**
  * info log
- * @param message
- * @param user
+ * @param {string} message log内容
+ * @param {string} user 用户信息
  */
 exports.info = function(message, user) {
   var body = toJson("application", "info", message, user);
@@ -185,8 +185,8 @@ exports.info = function(message, user) {
 
 /**
  * warning log
- * @param message
- * @param user
+ * @param {string} message log内容
+ * @param {string} user 用户信息
  */
 exports.warn = function(message, user) {
   var body = toJson("application", "warn", message, user);
@@ -197,8 +197,8 @@ exports.warn = function(message, user) {
 
 /**
  * error log
- * @param message
- * @param user
+ * @param {string} message log内容
+ * @param {string} user 用户信息
  */
 exports.error = function(message, user) {
   var body = toJson("application", "error", message, user);
@@ -209,8 +209,8 @@ exports.error = function(message, user) {
 
 /**
  * audit log
- * @param message
- * @param user
+ * @param {string} message log内容
+ * @param {string} user 用户信息
  */
 exports.audit = function(message, user) {
   var body = toJson("audit", "info", message, user);
@@ -221,8 +221,8 @@ exports.audit = function(message, user) {
 
 /**
  * operation log
- * @param message
- * @param user
+ * @param {string} message log内容
+ * @param {string} user 用户信息
  */
 exports.operation = function(message, user) {
   var body = toJson("operation", "info", message, user);

@@ -1,5 +1,6 @@
 node_modules/
 docs/
+reports/
 logs/*.log
 tmp/
 .DS_Store
