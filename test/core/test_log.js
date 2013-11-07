@@ -7,15 +7,12 @@
 
 "use strict";
 
-/**
- * 初始化配置文件
- */
+process.env.TEST = 1;
 process.env.NODE_CONFIG_DIR = process.cwd() + "/test/config";
 process.env.LOG4JS_CONFIG = process.cwd() + "/test/config/log4js.json";
 
 var should    = require("should")
-  , fs        = require("fs")
-  , log       = require("../../coverage/core/log.js");
+  , fs        = require("fs");
 
 /**
  * 读取文件行数
@@ -35,6 +32,28 @@ function lineCount(file, callback) {
       callback(count);
     });
 }
+
+/**
+ * 删除旧的日志文件
+ */
+function removeLogFile() {
+
+  var application = process.cwd() + "/logs/application.log";
+  var audit = process.cwd() + "/logs/audit.log";
+  var operation = process.cwd() + "/logs/operation.log";
+  if (fs.existsSync(application)) {
+    fs.unlinkSync(application);
+  }
+  if (fs.existsSync(audit)) {
+    fs.unlinkSync(audit);
+  }
+  if (fs.existsSync(operation)) {
+    fs.unlinkSync(operation);
+  }
+}
+
+removeLogFile();
+var log = require("../../coverage/core/log");
 
 /**
  * 测试代码
@@ -134,9 +153,7 @@ describe("Log", function() {
   it("clean", function(done) {
 
     // 清除日志文件
-    fs.unlinkSync(process.cwd() + "/logs/application.log");
-    fs.unlinkSync(process.cwd() + "/logs/audit.log");
-    fs.unlinkSync(process.cwd() + "/logs/operation.log");
+    removeLogFile();
 
     done();
   });

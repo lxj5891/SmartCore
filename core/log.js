@@ -1,5 +1,7 @@
 /**
- * @file Log处理
+ * @file 输出Log。
+ *  log在输出到文件的同时，默认还通过Fluent，输出到数据库中。
+ *  Fluent的动作可以在配置文件的log节进行设定。
  * @author r2space@gmail.com
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */

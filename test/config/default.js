@@ -12,7 +12,7 @@ module.exports = {
   // 日志
   "log": {
     "fluent": {
-      "enable": "false"
+      "enable": "true"
     , "tag": "node"
     , "host": "10.2.8.228"
     , "port": 24224

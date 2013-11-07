@@ -56,24 +56,21 @@ Handler.prototype.pitch = function(error) {
 };
 
 /**
- * 结束进程
- */
-Handler.prototype.exit = function() {
-
-  // 相应客户请求
-  this.res.send(500, json.errorSchema(500, "InternalServerError"));
-
-  // 为了等待前一步骤的处理，延迟1秒结束进程
-  setTimeout(function () { process.exit(1); }, 1000);
-};
-
-/**
  * 客户端请求参数
  * 合并了GET，POST方法的请求参数
  */
 Object.defineProperty(Handler.prototype, "params", {
   get: function () {
-    return _.union(this.req.query, this.req.body);
+    var all = {};
+    _.each(this.req.query, function(val, key) {
+      all[key] = val;
+    });
+    _.each(this.req.body, function(val, key) {
+      all[key] = val;
+    });
+
+    return all;
+    //return _.union(this.req.query, this.req.body);
   }
 });
 
@@ -118,8 +115,8 @@ Object.defineProperty(Handler.prototype, "domain", {
       self._domain = domain.create();
       self._domain.on("error", function(e) {
 
-        log.out("debug", e);
-        self.exit();
+        log.error("debug", e);
+        process.exit(1);
       });
     }
 
