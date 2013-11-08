@@ -1,11 +1,11 @@
 
-var i18n    = require('i18n')
-  , fs      = require('fs')
+var i18n    = require("i18n")
+  , fs      = require("fs")
   , confapp = require("config").app
-  , json    = require('./response')
-  , errors  = require('./errors')
-  , util    = require('./util')
-  , log     = require('./log');
+  , json    = require("./response")
+  , errors  = require("./errors")
+  , util    = require("./util")
+  , log     = require("./log");
 
 /**
  * 设定语言

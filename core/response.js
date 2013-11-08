@@ -121,7 +121,7 @@ exports.send = function(res, error, data) {
 
   // 返回错误信息
   if (error) {
-    return res.send(error.code, exports.errorSchema(error.code, error.message));
+    return res.send(error.code, createErrorSchema(error.code, error.message));
   }
 
   // 返回JSON数据
