@@ -7,10 +7,6 @@
 
 "use strict";
 
-process.env.TEST = 1;
-process.env.NODE_CONFIG_DIR = process.cwd() + "/test/config";
-process.env.LOG4JS_CONFIG = process.cwd() + "/test/config/log4js.json";
-
 var should    = require("should")
   , fs        = require("fs");
 
@@ -147,15 +143,6 @@ describe("Log", function() {
       count.should.equal(2);
       done();
     });
-  });
-
-  /*****************************************************************/
-  it("clean", function(done) {
-
-    // 清除日志文件
-    removeLogFile();
-
-    done();
   });
 
 });

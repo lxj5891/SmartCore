@@ -8,6 +8,17 @@ var fs        = require("fs")
   , home      = path.resolve(__dirname , "..");
 
 /**
+ * 测试对象代码
+ *  注意！由于log的测试会删除日志文件，所以必须先与其他测试代码执行
+ * @type {Array}
+ */
+var target = [
+    "test/core/test_log.js"
+  , "test/core/test_context.js"
+  , "test/core/test_errors.js"
+  ];
+
+/**
  * 执行sh命令
  * @param command 命令
  * @param callback 执行完命令后的回调函数
@@ -56,7 +67,7 @@ runCommand(rm, function(err) {
   runCommand(core, function() {});
 
   // 执行测试代码，生成报告
-  var test = "mocha -R html-cov test/*/* --coverage > coverage/coverage.html";
+  var test = "mocha " + target.join(" ") + " -R html-cov > coverage/coverage.html";
 
   // 在环境变量里添加测试标识，数据库连接时根据该标识切换要使用的数据库
   process.env.TEST = 1;

@@ -19,7 +19,16 @@ describe("Context", function() {
   /**
    * 初始化测试数据
    */
-  var res = {}
+  var RequestMock = function() {};
+  RequestMock.prototype.send = function(code, content) {
+    log.debug(code);
+    log.debug(content);
+  };
+  RequestMock.prototype.contentType = function(type) {
+    log.debug(type);
+  };
+
+  var res = new RequestMock()
     , req = {
       session: {
         user: {
@@ -38,11 +47,6 @@ describe("Context", function() {
       , args6: "6"
       }
     };
-
-  res.send = function(code, content) {
-    log.debug(code);
-    log.debug(content);
-  };
 
   /**
    * 执行测试case

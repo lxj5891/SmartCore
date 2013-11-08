@@ -12,8 +12,7 @@ var os          = require("os")
   , util        = require("util")
   , log4js      = require("log4js")
   , _           = require("underscore")
-  , confLog     = require("config").log
-  , confFluent  = confLog.fluent;
+  , confFluent  = require("config").log.fluent;
 
 /**
  * Log type: To define the type of log

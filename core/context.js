@@ -41,7 +41,7 @@ Handler.prototype.bind = function(req, res) {
 
   // 将异常转换为响应，并通过res送出
   this.on("error", function(error){
-    response.sendError(error.code, error.message);
+    response.sendError(res, error);
   });
 
   return this;
