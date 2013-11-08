@@ -2,7 +2,7 @@
 var i18n    = require('i18n')
   , fs      = require('fs')
   , confapp = require("config").app
-  , json    = require('./json')
+  , json    = require('./response')
   , errors  = require('./errors')
   , util    = require('./util')
   , log     = require('./log');

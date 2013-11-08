@@ -1,6 +1,6 @@
 
 var category = require('../controllers/ctrl_category')
-  , json = require("../core/json");
+  , json = require("../core/response");
 
 /**
  *

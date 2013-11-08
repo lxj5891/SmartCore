@@ -3,7 +3,7 @@
  * Copyright (c) 2012 Author Name dd_dai
  */
 
-var json = require("../core/json")
+var json = require("../core/response")
   , apn = require("../controllers/ctrl_apn");
   
 /**

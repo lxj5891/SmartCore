@@ -1,6 +1,6 @@
 var amqp = require('../core/amqp')
   , util = require("../core/util")
-  , json = require("../core/json")
+  , json = require("../core/response")
   , notification = require('../controllers/ctrl_notification');
 
 

@@ -4,7 +4,7 @@
  */
 
 var util = require("../core/util")
-  , json    = require("../core/json")
+  , json    = require("../core/response")
   , apperr  = require("../core/errors")
   , solr      = require('../core/solr')
   , search  = require("../controllers/ctrl_search")

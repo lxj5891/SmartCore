@@ -33,7 +33,7 @@ module.exports = {
     , auth: require("./core/auth")
     , authorityChecker: require("./core/authorityChecker")
     , errors: require("./core/errors")
-    , json: require("./core/json")
+    , response: require("./core/response")
     , log: require("./core/log")
     , mail: require("./core/mail")
     , middleware: require("./core/middleware")

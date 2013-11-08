@@ -5,7 +5,7 @@
 
 var util = require("../core/util")
   , auth = require("../core/auth")
-  , json = require("../core/json")
+  , json = require("../core/response")
   , user = require('../controllers/ctrl_user')
   , apn = require("../controllers/ctrl_apn")
   , dbfile = require("../controllers/ctrl_dbfile");

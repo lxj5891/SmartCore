@@ -13,7 +13,7 @@ var _         = require("underscore")
   , async     = require("async")
   , mail      = require("../core/mail")
   , csv       = require('csv')
-  , json      = require('../core/json')
+  , json      = require('../core/response')
   , util      = require('../core/util')
   , fs        = require('fs');
 

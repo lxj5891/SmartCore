@@ -16,7 +16,7 @@ var _             = require("underscore")
   , util          = require("util")
   , domain        = require("domain")
   , emitter       = require("events").EventEmitter
-  , json          = require("./json")
+  , response      = require("./response")
   , log           = require("./log");
 
 /**
@@ -41,7 +41,7 @@ Handler.prototype.bind = function(req, res) {
 
   // 将异常转换为响应，并通过res送出
   this.on("error", function(error){
-    this.res.send(error.code, json.errorSchema(error.code, error.message));
+    response.sendError(error.code, error.message);
   });
 
   return this;

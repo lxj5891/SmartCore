@@ -4,7 +4,7 @@
  */
 
 var util = require("../core/util")
-  , json = require("../core/json")
+  , json = require("../core/response")
   , group = require("../controllers/ctrl_group")
   , dbfile = require("../controllers/ctrl_dbfile");
   

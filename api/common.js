@@ -1,4 +1,4 @@
-var json = require("../core/json")
+var json = require("../core/response")
   , dbfile = require('../controllers/ctrl_dbfile');
 
 exports.image = function(req, res) {

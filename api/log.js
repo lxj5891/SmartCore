@@ -4,7 +4,7 @@
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
-var json = require("../core/json")
+var json = require("../core/response")
   , log = require("../controllers/ctrl_log");
 
 /**

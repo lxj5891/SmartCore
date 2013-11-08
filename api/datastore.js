@@ -1,6 +1,6 @@
 
 var datastore = require('../controllers/ctrl_datastore')
-  , json = require("../core/json");
+  , json = require("../core/response");
 
 /**
  *
