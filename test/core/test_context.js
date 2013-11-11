@@ -71,6 +71,35 @@ describe("Context", function() {
   });
 
   /*****************************************************************/
+  it("addParams", function(done) {
+
+    var instance = new context().bind(req, res);
+
+    instance.addParams("attr1key", "attr1key");
+    instance.params.should.include({attr1key: "attr1key"});
+
+    instance.addParams("attr2key", "attr2key");
+    instance.params.should.include({attr1key: "attr1key"});
+    instance.params.should.include({attr2key: "attr2key"});
+
+    done();
+  });
+
+  /*****************************************************************/
+  it("removeParams", function(done) {
+
+    var instance = new context().bind(req, res);
+
+    instance.addParams("attr1key", "attr1key");
+    instance.addParams("attr2key", "attr2key");
+    instance.removeParams("attr1key");
+    instance.params.should.not.include({attr1key: "attr1key"});
+    instance.params.should.include({attr2key: "attr2key"});
+
+    done();
+  });
+
+  /*****************************************************************/
   it("params", function(done) {
 
     var instance = new context().bind(req, res);

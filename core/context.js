@@ -38,6 +38,16 @@ Handler.prototype.bind = function(req, res) {
 
   this.req = req;
   this.res = res;
+  this.attributes = {};
+
+  // 缓存参数
+  var self = this;
+  _.each(this.req.query, function(val, key) {
+    self.attributes[key] = val;
+  });
+  _.each(this.req.body, function(val, key) {
+    self.attributes[key] = val;
+  });
 
   // 将异常转换为响应，并通过res送出
   this.on("error", function(error){
@@ -56,21 +66,29 @@ Handler.prototype.pitch = function(error) {
 };
 
 /**
+ * 添加附加属性
+ * @param key 附加属性的名称
+ * @param val 保存的值
+ */
+Handler.prototype.addParams = function(key, val) {
+  this.attributes[key] = val;
+};
+
+/**
+ * 删除附加属性
+ * @param key 附加属性的名称
+ */
+Handler.prototype.removeParams = function(key) {
+  delete this.attributes[key];
+};
+
+/**
  * 客户端请求参数
  * 合并了GET，POST方法的请求参数
  */
 Object.defineProperty(Handler.prototype, "params", {
   get: function () {
-    var all = {};
-    _.each(this.req.query, function(val, key) {
-      all[key] = val;
-    });
-    _.each(this.req.body, function(val, key) {
-      all[key] = val;
-    });
-
-    return all;
-    //return _.union(this.req.query, this.req.body);
+    return this.attributes;
   }
 });
 
