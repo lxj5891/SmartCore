@@ -29,5 +29,7 @@ function initI18n(defaultLang) {
  * 调用初始化函数
  */
 exports.initialize = function() {
+
   initI18n("ja");
+
 };
