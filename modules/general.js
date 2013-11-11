@@ -20,7 +20,7 @@ exports.select = function(table, field, success) {
     target[key] = 1;
   }
 
-  log.out("debug", target);
+  log.debug(target);
   conn().db.collection(table, function(err, collection){
 
     collection.find(

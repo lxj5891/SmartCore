@@ -54,7 +54,7 @@ exports.update = function(doc_, callback_){
 
       if (mode === "document" && doc_.value) {
 
-        log.out("debug", "update document");
+        log.debug("update document");
         doc.update(doc_.value._id, doc_.value, function() {
           callback(null, "ok");
         });
@@ -67,7 +67,7 @@ exports.update = function(doc_, callback_){
 
       if (mode === "template") {
 
-        log.out("debug", "update template");
+        log.debug("update template");
         tmpl.update(tmplid, doc_, function() {
           callback(null, "ok");
         });
@@ -77,7 +77,7 @@ exports.update = function(doc_, callback_){
     }
   },
   function(err, results) {
-    log.out("debug", "update success");
+    log.debug("update success");
     callback_(null, {result: "ok", method: "update"});
   });
 

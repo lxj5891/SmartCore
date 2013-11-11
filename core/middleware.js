@@ -40,7 +40,7 @@ exports.lang = function(req, res, next) {
  * 未捕获的异常
  */
 exports.parseError = function(err, req, res, next) {
-  log.out("debug", err);
+  console.log(err);
   json.send(res, new errors.InternalServer());
 }
 
@@ -54,7 +54,7 @@ exports.authenticate = function(req, res, next) {
   log.debug("middleware : authenticate");
 
   // 不需要验证的页面（TODO: 将list移到配置文件里）
-  var safety = false;
+  var safety = true;
 
   // Static
   safety = safety || req.url.match(/^\/stylesheets/i);

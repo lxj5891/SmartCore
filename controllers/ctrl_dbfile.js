@@ -247,7 +247,7 @@ exports.ipaFile = function(code_, fileId, res, success){
     }
     gridfs.load(code_, fileId, function(err, doc, info){
         if(!info) {
-            log.out("info", "Image is not found. fileid:" + fileid);
+            log.info("Image is not found. fileid:" + fileid);
             return success(new error.NotFound(__("file.err.ImageIsNotFound") + fileid));
         }
 
@@ -260,7 +260,7 @@ exports.ipaFile = function(code_, fileId, res, success){
             res.send(doc);
             return;
         } else {
-            log.out("error","filename is null");
+            log.error("filename is null");
             //TODO：未知错误  需要验证
             res.send(0);
             return;
@@ -280,7 +280,7 @@ exports.image = function(req, res, success) {
 
   gridfs.load(code, fileid, function(err, doc, info){
     if(!info) {
-        log.out("info", "Image is not found. fileid:" + fileid);
+        log.info("Image is not found. fileid:" + fileid);
         return success(new error.NotFound(__("file.err.ImageIsNotFound") + fileid));
     }
 
@@ -296,7 +296,7 @@ exports.image = function(req, res, success) {
       res.contentType(info.filename);
       success(err, doc, info);
     } else {
-      log.out("error","filename is null");
+      log.error("filename is null");
     }
   });
   

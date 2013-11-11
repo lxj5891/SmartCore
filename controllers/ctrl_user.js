@@ -435,6 +435,10 @@ exports.updateUser = function(currentuser, obj, callback_){
  */
 exports.approved = function (userid_, passwd_, dbname_, callback_) {
 
+  log.debug("userid : " + userid_);
+  log.debug("passwd : " + passwd_);
+  log.debug("dbname : " + dbname_);
+
   if (!userid_ || !passwd_) {
     return callback_(new error.BadRequest(__("user.error.ThereIsNoUserNameOrBadPassword")));
   }
@@ -453,19 +457,20 @@ exports.approved = function (userid_, passwd_, dbname_, callback_) {
       return callback_(new error.NotFound(__("user.error.TheUserDoesNotExist")));
     }
 
+    console.log(auth.sha256(passwd_));
     // 用户密码不正确
     if (result[0].password !== auth.sha256(passwd_)) {
       return callback_(new error.BadRequest(__("user.error.ThePasswordIsIncorrect")));
     }
 
     return callback_(null, result[0]);
-    return callback_(null, {status:32});
+//    return callback_(null, {status:32});
   });
 
 };
 
 exports.uploadPhoto = function(uid_, fid_, callback_){
-  log.out("debug", "user photo start upload");
+  log.debug("user photo start upload");
 
   user.update(uid_, {"photo": {big: fid_}, "editby": uid_, "editat": new Date()}, function(err, result){
     if (err) {

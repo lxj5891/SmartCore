@@ -25,7 +25,7 @@ function initI18n(defaultLang) {
   // TODO: 语言可以自由追加
   i18n.configure({"locales": ["en", "ja", "zh"]
     , "register": global
-    , "updateFiles": false
+    , "updateFiles": true
   });
   i18n.setLocale(defaultLang);
 }
