@@ -17,20 +17,18 @@ describe("Company Module", function() {
   /**
    * 初始化测试数据
    */
-  var data = {
-      path        : "1"
-    , companyType : "2"
-    , mail        : "3"
-    , name        : "4"
-    , kana        : "5"
-    , address     : "6"
-    , tel         : "7"
-    , active      : 1
+  var id = ""
+    , code = ""
+    , data = {
+      name        : "4"
+    , domain      : "1"
+    , type        : "2"
+    , extend      : { mail: "test@dac.com", kana: "かな" }
     , valid       : 1
-    , createat    : new Date()
-    , createby    : "8"
-    , editat      : new Date()
-    , editby      : "9"
+    , createAt    : new Date()
+    , creator     : "8"
+    , updateAt    : new Date()
+    , updater     : "9"
     };
 
   /**
@@ -43,9 +41,21 @@ describe("Company Module", function() {
 
       should.not.exist(err);
       should.exist(result);
-      result.path.should.equal("1");
-      result.valid.should.equal(1);
 
+      should.exist(result._id);
+      should.exist(result.code);
+      result.name.should.equal("4");
+      result.domain.should.equal("1");
+      result.type.should.equal("2");
+      result.extend.mail.should.equal("test@dac.com");
+      result.valid.should.equal(1);
+      result.creator.should.equal("8");
+      should.exist(result.createAt);
+      result.updater.should.equal("9");
+      should.exist(result.updateAt);
+
+      id = result._id;
+      code = result.code;
       done();
     });
   });
@@ -53,17 +63,25 @@ describe("Company Module", function() {
   /*****************************************************************/
   it("getList", function(done) {
 
-    company.getList({}, 0, 1, function() {
+    company.getList({name: "4"}, 0, 10, function(err, result) {
 
+      should.not.exist(err);
+      should.exist(result);
+
+      result.length.should.above(1);
       done();
     });
   });
 
   /*****************************************************************/
-  it("getByPath", function(done) {
+  it("getByDomain", function(done) {
 
-    company.getByPath("", function() {
+    company.getByDomain("1", function(err, result) {
 
+      should.not.exist(err);
+      should.exist(result);
+
+      result.domain.should.equal("1");
       done();
     });
   });
@@ -71,8 +89,12 @@ describe("Company Module", function() {
   /*****************************************************************/
   it("getByCode", function(done) {
 
-    company.getByCode("", function() {
+    company.getByCode(code, function(err, result) {
 
+      should.not.exist(err);
+      should.exist(result);
+
+      result.domain.should.equal("1");
       done();
     });
   });
@@ -80,8 +102,12 @@ describe("Company Module", function() {
   /*****************************************************************/
   it("get", function(done) {
 
-    company.get("", function() {
+    company.get(id, function(err, result) {
 
+      should.not.exist(err);
+      should.exist(result);
+
+      result.domain.should.equal("1");
       done();
     });
   });
@@ -89,8 +115,12 @@ describe("Company Module", function() {
   /*****************************************************************/
   it("update", function(done) {
 
-    company.update("", {}, function() {
+    company.update(id, {domain: "11"}, function(err, result) {
 
+      should.not.exist(err);
+      should.exist(result);
+
+      result.domain.should.equal("11");
       done();
     });
   });
@@ -98,8 +128,12 @@ describe("Company Module", function() {
   /*****************************************************************/
   it("total", function(done) {
 
-    company.total({}, function() {
+    company.total({"code": code}, function(err, result) {
 
+      should.not.exist(err);
+      should.exist(result);
+
+      result.should.equal(1);
       done();
     });
   });
