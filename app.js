@@ -78,6 +78,7 @@ app.configure(function(){
 //  app.use(middleware.parseError);   // ?常?理
 //  app.use(middleware.timeout);      // ?定超?
 
+  app.use(express.static(__dirname + "/app"));
   // 端口
   app.set("port", process.env.PORT || 3000);
   app.set("views", path.join(process.cwd(), "app/admin/views"));
