@@ -37,7 +37,7 @@ describe("File Module", function() {
   /*****************************************************************/
   describe("addFile", function() {
     it("should return OK", function(done) {
-      file.addFile("yukari", fileName, filePath, options, newFile, function(err, result) {
+      file.addFile("yukari", "", "", function(err, result) {
 //        console.log(err);
 //        console.log(result);
         done();

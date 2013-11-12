@@ -7,7 +7,7 @@
 "use strict";
 
 var should  = require("should")
-  , file    = require("../../modules/mod_file");
+  , file    = require("../../coverage/modules/mod_file");
 /**
  * 测试代码
  */
@@ -49,8 +49,8 @@ describe("File Module", function() {
   describe("getFileInfo", function() {
     it("should return OK", function(done) {
       file.getFileInfo("yukari", "", function(err, result) {
-        console.log(err);
-        console.log(result);
+//        console.log(err);
+//        console.log(result);
         done();
       });
     });
@@ -59,11 +59,14 @@ describe("File Module", function() {
   /*****************************************************************/
   describe("getFile", function() {
     it("should return OK", function(done) {
-      file.getFile("yukari", "", function(err, result) {
-        console.log(err);
-        console.log(result);
+      file.addFile("yukari", fileName, filePath, options, newFile, function(err, result) {
+        file.getFile("yukari", result.fileId, function(err, result) {
+//          console.log(err);
+//          console.log(result);
+        });
         done();
       });
+
     });
   });
 
@@ -71,8 +74,8 @@ describe("File Module", function() {
   describe("getFileInfoList", function() {
     it("should return OK", function(done) {
       file.getFileInfoList("yukari", "", function(err, result) {
-        console.log(err);
-        console.log(result);
+//        console.log(err);
+//        console.log(result);
         done();
       });
     });
@@ -82,8 +85,8 @@ describe("File Module", function() {
   describe("updateFileInfo", function() {
     it("should return OK", function(done) {
       file.updateFileInfo("yukari", "", "", function(err, result) {
-        console.log(err);
-        console.log(result);
+//        console.log(err);
+//        console.log(result);
         done();
       });
     });
@@ -92,9 +95,11 @@ describe("File Module", function() {
   /*****************************************************************/
   describe("removeFile", function() {
     it("should return OK", function(done) {
-      file.removeFile("yukari", "", function(err, result) {
-        console.log(err);
-        console.log(result);
+      file.addFile("yukari", fileName, filePath, options, newFile, function(err, result) {
+        file.removeFile("yukari", result.fileId, function(err, result) {
+//          console.log(err);
+//          console.log(result);
+        });
         done();
       });
     });
@@ -104,8 +109,8 @@ describe("File Module", function() {
   describe("total", function() {
     it("should return OK", function(done) {
       file.total("yukari", "", function(err, result) {
-        console.log(err);
-        console.log(result);
+//        console.log(err);
+//        console.log(result);
         done();
       });
     });

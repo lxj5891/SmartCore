@@ -142,35 +142,37 @@ exports.getFile = function (dbCode, fileid, callback) {
   var fileId = new ObjectID(fileid);
   var db = new Db(dbCode, new Server(conf.host, conf.port, serverConfig), dbOptions);
 
-  GridStore.exist(db, fileId, function(err, exists) {
+  db.open(function(err, db) {
+    GridStore.exist(db, fileId, function(err, exists) {
 
-    if(err) {
-      return callback(err, null);
-    }
+      if(err) {
+        return callback(err, null);
+      }
 
-    if(exists === true) {
-      var gridStore = new GridStore(db, fileId, "r");
-      gridStore.open(function(err, gs) {
+      if(exists === true) {
+        var gridStore = new GridStore(db, fileId, "r");
+        gridStore.open(function(err, gs) {
 
-        if (err) {
-          return callback(err,null);
-        }
-        // Set the pointer of the read head to the start of the gridstored file
-        gs.seek(0, function(err, gridS){
-
-          if(err){
-            return callback(err, null);
+          if (err) {
+            return callback(err,null);
           }
-          // Read the entire file
-          gridS.read(function(err, fileData){
-            db.close();
-            callback(err, fileData);
+          // Set the pointer of the read head to the start of the gridstored file
+          gs.seek(0, function(err, gridS){
+
+            if(err){
+              return callback(err, null);
+            }
+            // Read the entire file
+            gridS.read(function(err, fileData){
+              db.close();
+              callback(err, fileData);
+            });
           });
         });
-      });
-    } else {
-      callback(err, null);
-    }
+      } else {
+        callback(err, null);
+      }
+    });
   });
 };
 
@@ -259,7 +261,7 @@ exports.removeFile = function(dbCode, fileInfoId, callback) {
  */
 exports.total = function(dbCode, condition, callback) {
 
-  var file = model(code);
+  var file = model(dbCode);
 
   file.count(condition).exec(function(err, count) {
     callback(err, count);
