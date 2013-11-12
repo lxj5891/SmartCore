@@ -8,11 +8,20 @@
   "user.error.emptyLang": "",
   "user.error.notSupportedLang": "",
   "user.error.emptyTimezone": "",
+  "user.error.invalidExtProperty": ""
   "user.error.uidConflict": "",
   "user.error.notExist": "",
   "user.error.emptySearchCondition": "",
   "--------------------------------------------": "",
   "group.error.notExist": "",
-  "group.error.emptyGroupId": "",
-  "group.error.emptyGroupType": ""
+  "group.error.emptyId": "",
+  "group.error.emptyName": "",
+  "group.error.emptyType": "",
+  "group.error.emptyParent": "",
+  "group.error.invalidType": "",
+  "group.error.emptyPublic": "",
+  "group.error.invalidPublic": "",
+  "group.error.invalidExtProperty": "",
+  "group.error.parentNotExist": "",
+  "group.error.ownerNotExist": "",
 }
