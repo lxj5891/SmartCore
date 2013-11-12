@@ -40,7 +40,7 @@ exports.lang = function(req, res, next) {
  * 未捕获的异常
  */
 exports.parseError = function(err, req, res, next) {
-  log.out("debug", err);
+  console.log(err);
   json.send(res, new errors.InternalServer());
 }
 
@@ -50,9 +50,11 @@ exports.parseError = function(err, req, res, next) {
  *  The configure of app.js, the handle has been registered.
  */
 exports.authenticate = function(req, res, next) {
-  
+
+  log.debug("middleware : authenticate");
+
   // 不需要验证的页面（TODO: 将list移到配置文件里）
-  var safety = false;
+  var safety = true;
 
   // Static
   safety = safety || req.url.match(/^\/stylesheets/i);
@@ -69,6 +71,8 @@ exports.authenticate = function(req, res, next) {
 
   // Register
   safety = safety || req.url.match(/^\/register.*/i);
+  safety = safety || req.url.match(/^\/download.*/i);
+  safety = safety || req.url.match(/^\/device\/register\.json.*/i);
 
   if (safety) {
     return next();
@@ -76,6 +80,15 @@ exports.authenticate = function(req, res, next) {
 
   // 确认Session里是否有用户情报
   if (req.session.user) {
+//    var user = req.session.user;
+//    var code = req.params ? req.params.code: undefined;
+//    if(user.type == 0 || user.type == 1) { // Company's general user  and system user
+//      var company_code = user.company ? user.company.code : undefined;
+//       if(!code || code != company_code) {
+//         return next(new errors.InternalServer("没有权限登陆"));
+//       }
+//    }
+
     return next();
   }
 
@@ -92,7 +105,7 @@ exports.authenticate = function(req, res, next) {
 
   // TODO: 在API内，不应该有迁移控制，应该拿到客户端实现。和Oauth一起实现
   if (util.isBrowser(req)) {
-   return res.redirect("/login");
+    return res.redirect("/login");
   }
 
   // 401 Unauthorized
@@ -105,7 +118,9 @@ exports.authenticate = function(req, res, next) {
  *  The configure of app.js, the handle has been registered.
  */
 exports.csrftoken = function(req, res, next) {
-  
+
+  log.debug("middleware : csrftoken");
+
   // 设定token的全局变量
   res.setHeader("csrftoken", req.session._csrf);
   res.locals({"csrftoken": req.session._csrf});

@@ -1,556 +1,1000 @@
-/**
- * @file 存取用户信息的controller
- * @author r2space@gmail.com
- * @copyright Dreamarts Corporation. All Rights Reserved.
- */
+var _         = require("underscore")
+  , check     = require("validator").check
+  , sanitize  = require("validator").sanitize
+  , ctrl_notification = require("../controllers/ctrl_notification")
+  , user      = require('../modules/mod_user')
+  , group     = require("../modules/mod_group")
+  , regi      = require('../modules/mod_register')
+  , util      = require("../core/util")
+  , amqp      = require('../core/amqp')
+  , log       = require('../core/log')
+  , error     = require('../core/errors')
+  , auth      = require('../core/auth')
+  , async     = require("async")
+  , mail      = require("../core/mail")
+  , csv       = require('csv')
+  , json      = require('../core/response')
+  , util      = require('../core/util')
+  , fs        = require('fs');
 
-"use strict";
-
-var smart     = require("smartcore")
-  , _         = smart.util.underscore
-  , check     = smart.util.validator.check
-  , async     = smart.util.async
-  , errors    = smart.framework.errors
-  , auth      = smart.framework.auth
-  , util      = smart.framework.util
-  , modUser   = require("../modules/mod_user2")
-  , ctrlGroup   = require("../controllers/ctrl_group2");
-
-var Supportedlangs = ["en", "ja", "zh"];
-var extendPropertyPrefix = "ext_";
-var groupDelimiter = ":";
 
 /**
- * 检查是否是有效的扩展属性
- * @param {String} key 键
- * @param {String} value 值
- * @param {Boolean} true|false
+ * find user list by q
  */
-function isValidExtendProperty(key, value) {
-  // TODO : 查询 Masetr 配置
-  return true;
-}
+exports.findUserList = function(q_, callback_){
 
-/**
- * 检查是否包含部门组
- * @param {String} key 键
- * @param {String} value 值
- * @param {Boolean} true|false
- */
-function containsDeptGroup(groups) {
-  for(var i = 0; i < groups.length; i++) {
-    if(groups[i].split(groupDelimiter)[0] === ctrlGroup.GroupType_Dept) {
-      return true;
+  user.find(q_, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
     }
-  }
 
-  return false;
-}
+    if (!result) {
+      return callback_(new error.NotFound(__("user.error.notFound")));
+    }
 
-/**
- * 检查用户是否已存在
- * @param {String} uid 用户标识
- * @param {Function} callback(err, boolean)
- */
-function isUserExist(uid, callback) {
-  modUser.count({"uid": uid, "valid": 1}, function(err, count) {
-    return callback(err, count > 0);
+    return callback_(err, result);
   });
-}
+};
 
 /**
- * 创建或更新用户（完整）
- * @param {Object} handler 上下文对象
- * @param {Boolean} isInsert true：创建用户，false：更新用户
- * @param {Function} callback(err) 回调函数，返回异常信息
+ * 获取用户信息
  */
-function updateCompletely(handler, isInsert, callback) {
+exports.getUser = function(uid_, callback_){
 
-  var params = handler.params;
-  var updator = handler.uid;
-
-  var user = {};
-
-  // 校验参数
-  try {
-    // 用户标识
-    user.uid = params.uid;
-    check(user.uid, __("user.error.emptyUid")).notEmpty();
-
-    // 用户名
-    user.first = params.first;
-    user.middle = params.middle;
-    user.last = params.last;
-
-    // 密码
-    user.password = params.password;
-    check(user.password, __("user.error.emptyPwd")).notEmpty();
-    user.password = auth.sha256(user.password);
-
-    // 所属组一览
-    user.group = params.group;
-    if(user.group) {
-      if(!util.isArray(user.group)) {
-        user.group = [user.group];
-      }
-      if(!containsDeptGroup(user.group)) {
-        throw __("user.error.noDeptGroup");
-      }
-    } else {
-      throw __("user.error.emptyGroup");
+  user.at(uid_, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
     }
 
-    // 电子邮件地址
-    user.email = params.email;
-    check(user.email, __("user.error.emptyEmail")).notEmpty();
-    check(user.email, __("user.error.invalidEmail")).len(6,64).isEmail();
-
-    // 语言
-    user.lang = params.lang;
-    check(user.lang, __("user.error.emptyLang")).notEmpty();
-    check(user.lang, __("user.error.notSupportedLang")).isIn(Supportedlangs);
-
-    // 时区 TODO : 检查时区有效性
-    user.timezone = params.timezone;
-    check(user.timezone, __("user.error.emptyTimezone")).notEmpty();
-
-    // 状态
-    user.status = params.status;
-
-    // 扩展属性
-    user.extend = {};
-    _.each(params, function(val, key) {
-      if(key.indexOf(extendPropertyPrefix) === 0) {
-        if(isValidExtendProperty(key, val)) {
-          user.extend[key] = val;
-        } else {
-          throw _.template(__("user.error.invalidExtProperty"), {"key": key, "val": val});
-        }
-      }
-    });
-
-    // Common
-    if(isInsert) {
-      user.valid = 1;
-      user.createAt = new Date().getTime();
-      user.creator = updator;
+    if (!result) {
+      return callback_(new error.NotFound(__("user.error.notFound")));
     }
-    user.updateAt = new Date().getTime();
-    user.updater = updator;
 
-    var tasks = [];
+    //result.password = undefined;
+    user.followerIds(uid_, function(err, followerIds){
+      var json = result.toJSON();
+      json.follower = followerIds;      
+      return callback_(err, json);
+    });
+  });
+};
 
-    // 检查用户存在性
-    tasks.push(function(cb) {
-      isUserExist(user.uid, function(err, exist) {
-        if(isInsert) { // 添加用户
-          if(exist === true) {
-            return cb(new errors.BadRequest(__("user.error.uidConflict")));
-          }
-        } else { // 更新用户
-          if(exist === false) {
-            return cb(new errors.BadRequest(__("user.error.notExist")));
-          }
-        }
+exports.getUserById = function(uid_, callback_) {
 
-        return cb(err);
-      });
-    });
+  user.at(uid_, function(err, result) {
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
 
-    // 检查所属组是否有效
-    _.each(user.group, function(group) {
-      var arr = group.split(groupDelimiter);
-      var groupType = arr[0];
-      var groupId = arr[1];
-      tasks.push(function(cb) {
-        ctrlGroup.isGroupExist(groupId, groupType, function(err, exist) {
-          if(exist === false) {
-            return cb(new errors.BadRequest(__("group.error.notExist")));
-          } else {
-            return cb(err);
-          }
-        });
-      });
-    });
+    result.password = undefined;
+    callback_(err, result);
+  });
+};
 
-    async.waterfall(tasks, function(err) {
-      if(err) {
-        if(err instanceof errors.BadRequest) {
-          return callback(err);
-        } else {
-          return handler.pitch(err);
-        }
-      } else {
-        if(isInsert) { // 添加用户
-          return modUser.add(user, callback);
-        } else { // 更新用户
-          return modUser.update(user.uid, user, callback);
-        }
-      }
-    });
+/**
+ * 给定复数个用户ID，获取用户详细信息列表
+ */
+exports.listByUids = function(code_, uids_, start_, limit_, callback_){
 
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
+  // 开始
+  if (start_) {
+    if (isNaN(start_)){
+      return callback_(new error.BadRequest(__("user.error.wrongStart")));
+    }
+    start_ = start_ < 0 ? 0 : start_;
   }
 
-}
+  // 件数
+  if (limit_) {
+    if (isNaN(limit_)){
+      return callback_(new error.BadRequest(__("user.error.wrongCount")));
+    }
+
+    // limit = 0默认获取所有数据，添加限制
+    limit_ = limit_ < 1 ? 1 : limit_;
+    limit_ = limit_ > 100 ? 100 : limit_;
+  }
+
+  user.many(code_, uids_, start_, limit_, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+
+    // 过滤密码
+    _.each(result, function(item){
+      item.password = undefined;
+    });
+
+    callback_(err, result);
+  });
+};
 
 /**
- * 查询某个组下的用户（直下，非递归）
- * @param {String} groupId 组标识
- * @param {String} groupType 组类型
- * @param {Boolean} recursive 是否递归查找
- * @param {Boolean} fields 查询的字段
- * @param {Boolean} order 排序字段
- * @param {Function} callback(err, users) 返回用户列表
+ * 获取用户一览
  */
-function getUsersDirectlyInGroup(groupId, groupType, fields, order, callback) {
-  modUser.getList({"group": (groupType + groupDelimiter + groupId), "valid":1},
-    fields, 0, Number.MAX_VALUE, order, callback);
-}
+exports.getUserList = function(condition_, callback_){
+  var kind_ = condition_.kind;
+  var firstLetter_ = condition_.firstLetter;
+  var uid_ = condition_.uid;
+  var start_ = condition_.start;
+  var limit_ = condition_.limit;
+  var keywords_ = condition_.keywords;
+
+
+  // 开始
+  if (start_) {
+    if (isNaN(start_)){
+      return callback_(new error.BadRequest(__("user.error.wrongStart")));
+    }
+    start_ = start_ < 0 ? 0 : start_;
+  }
+
+  // 件数
+  if (limit_) {
+    if (isNaN(limit_)){
+      return callback_(new error.BadRequest(__("user.error.wrongCount")));
+    }
+
+    // limit = 0默认获取所有数据，添加限制
+    limit_ = limit_ < 1 ? 1 : limit_;
+    limit_ = limit_ > 100 ? 100 : limit_;
+  }
+
+  // 首字母过滤
+  if (firstLetter_) {
+    firstLetter_ = sanitize(firstLetter_).xss();
+  }
+
+  if(!kind_){
+    kind_ = "all";
+  }
+
+  // 获取所有用户
+  if (kind_ == "all") {
+    user.at(uid_, function(err, follower) {
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+
+      user.headMatch(firstLetter_, keywords_, start_, limit_, function(err, result){
+        if (err) {
+          return callback_(new error.InternalServer(err));
+        }
+
+        // 过滤密码, 标记是否已经关注
+        _.each(result, function(item){
+          if (follower) {
+            item._doc.followed = _.some(follower.following, function(u){return u == item._id;});
+          }
+          item._doc.password = undefined;
+        });
+
+        exports._setUserDepartment(result, callback_);
+      });
+    });
+  }
+
+  // 获取关注我的人
+  if (kind_ == "follower") {
+    user.follower(firstLetter_, keywords_, uid_, start_, limit_, function(err, result){
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+
+      // 过滤密码
+      _.each(result, function(item){
+        item.password = undefined;
+      });
+
+      exports._setUserDepartment(result, callback_);
+    });
+  }
+
+  // 获取我关注的人
+  if (kind_ == "following") {
+    user.at(uid_, function(err, result) {
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+
+      if (!result) {
+        return callback_(new error.NotFound(__("user.error.notFound")));
+      }
+
+      var uids = result.following;
+      user.following(firstLetter_, keywords_, uids, start_, limit_, function(err, result){
+        if (err) {
+          return callback_(new error.InternalServer(err));
+        }
+
+        // 过滤密码
+        _.each(result, function(item){
+          item.password = undefined;
+        });
+
+        exports._setUserDepartment(result, callback_);
+      });
+
+    });
+  }
+
+  if(kind_ == "group") {
+    var gid = condition_.gid;
+    group.at(gid, function(err, result){
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+
+      var uids = result.member;
+
+      user.headMatchByUids(firstLetter_, keywords_, uids, start_, limit_, function(err, result){
+        if (err) {
+          return callback_(new error.InternalServer(err));
+        }
+        // callback_(err, result);
+        exports._setUserDepartment(result, callback_);
+      });
+    });
+  }
+
+};
+
+
+exports._setUserDepartment = function(users, callback){
+  async.forEach(users, function(user, cb){
+    var condition = {};
+    condition.type = 2;
+    condition.uid = user._id;
+    condition.joined = true;
+    group.headMatch(condition, function(err,groups){
+      if(groups && groups.length > 0){
+        user._doc.department = groups[0];
+      }
+      cb(err);
+    });
+  }, function(err){
+    callback(err, users);
+  });
+};
 
 /**
  * 创建用户
- * @param {Object} handler 上下文对象
- * @param {Function} callback(err) 回调函数，返回异常信息
  */
-exports.addUser = function(handler, callback) {
+exports.createUser = function(userid_, userinfo_, callback_) {
 
-  updateCompletely(handler, true, callback);
-};
+  var pass = util.checkString(userinfo_.password);
+  var pass2 = util.checkString(userinfo_.password2);
+  var username = util.checkObject(userinfo_.uname);
+  var useremail = util.checkObject(userinfo_.email);
+  // var usertel = util.checkObject(userinfo_.tel);
+  var date = Date.now();
 
-/**
- * 更新用户
- * @param {Object} handler 上下文对象
- * @param {Function} callback(err) 回调函数，返回异常信息
- */
-exports.updateUser = function(handler, callback) {
-
-  updateCompletely(handler, false, callback);
-};
-
-/**
- * 删除用户
- * @param {Object} handler 上下文对象
- * @param {Function} callback(err) 回调函数，返回异常信息
- */
-exports.deleteUser = function(handler, callback) {
-
-  try {
-    check(handler.params.uid, __("user.error.emptyUid")).notEmpty();
-
-    var newUser = {"valid": 0, "updateAt": (new Date().getTime()), "updater": handler.uid};
-
-    modUser.update(handler.params.uid, newUser, callback);
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
-  }
-};
-
-/**
- * 查询用户信息
- * @param {Object} handler 上下文对象
- * @param {Function} callback(err, user) 返回用户信息
- */
-exports.getUserDetails = function(handler, callback) {
-
-  try {
-    check(handler.params.uid, __("user.error.emptyUid")).notEmpty();
-
-    modUser.get(handler.params.uid, callback);
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
-  }
-};
-
-/**
- * 更新用户（按需）
- * @param {Object} handler 上下文对象
- * @param {Function} callback(err) 回调函数，返回异常信息
- */
-exports.updateUserOnDemand = function(handler, callback) {
-
-  var params = handler.params;
-  var updator = handler.uid;
-
-  var user = {};
-
-  // 校验参数
-  try {
-    // 用户标识
-    user.uid = params.uid;
-    check(user.uid, __("user.error.emptyUid")).notEmpty();
-
-    // 用户名
-    if(params.first) {
-      user.first = params.first;
+  var info = {"uid": username
+    , "name": {"name_zh": username}
+    , "password": auth.sha256(pass)
+    , "email": {
+      "email1": useremail
     }
-    if(params.middle) {
-      user.middle = params.middle;
-    }
-    if(params.last) {
-      user.last = params.last;
-    }
+    , createat: date
+    , createby: userid_
+    , updateat: date
+    , updateby: userid_
+  };
 
-    // 密码
-    if(params.password) {
-      user.password = params.password;
-      check(user.password, __("user.error.emptyPwd")).notEmpty();
-      user.password = auth.sha256(user.password);
-    }
-
-    // 所属组一览
-    if(params.group) {
-      user.group = params.group;
-      if(!util.isArray(user.group)) {
-        user.group = [user.group];
-      }
-      if(!containsDeptGroup(user.group)) {
-        throw __("user.error.noDeptGroup");
-      }
-    }
-
-    // 电子邮件地址
-    if(params.email) {
-      user.email = params.email;
-      check(user.email, __("user.error.emptyEmail")).notEmpty();
-      check(user.email, __("user.error.invalidEmail")).len(6,64).isEmail();
-    }
-
-    // 语言
-    if(params.lang) {
-      user.lang = params.lang;
-      check(user.lang, __("user.error.emptyLang")).notEmpty();
-      check(user.lang, __("user.error.notSupportedLang")).isIn(Supportedlangs);
-    }
-
-    // 时区 TODO : 检查时区有效性
-    if(params.timezone) {
-      user.timezone = params.timezone;
-      check(user.timezone, __("user.error.emptyTimezone")).notEmpty();
-    }
-
-    // 状态
-    if(params.status) {
-      user.status = params.status;
-    }
-
-    // 扩展属性
-    user.extend = {};
-    _.each(params, function(val, key) {
-      if(key.indexOf(extendPropertyPrefix) === 0) {
-        if(isValidExtendProperty(key, val)) {
-          user.extend[key] = val;
-        } else {
-          throw _.template(__("user.error.invalidExtProperty"), {"key": key, "val": val});
-        }
-      }
-    });
-    if(Object.keys(user.extend).length === 0) {
-      user.extend = undefined;
-    }
-
-    // Common
-    user.updateAt = new Date().getTime();
-    user.updater = updator;
-
-    var tasks = [];
-
-    // 检查用户存在性
-    tasks.push(function(cb) {
-      isUserExist(user.uid, function(err, exist) {
-        if(exist === false) {
-          return cb(new errors.BadRequest(__("user.error.notExist")));
-        }
-
-        return cb(err);
-      });
-    });
-
-    // 检查所属组是否有效
-    _.each(user.group, function(group) {
-      var arr = group.split(groupDelimiter);
-      var groupType = arr[0];
-      var groupId = arr[1];
-      tasks.push(function(cb) {
-        ctrlGroup.isGroupExist(groupId, groupType, function(err, exist) {
-          if(exist === false) {
-            return cb(new errors.BadRequest(__("group.error.notExist")));
-          } else {
-            return cb(err);
-          }
-        });
-      });
-    });
-
-    async.waterfall(tasks, function(err) {
-      if(err) {
-        if(err instanceof errors.BadRequest) {
-          return callback(err);
-        } else {
-          return handler.pitch(err);
-        }
-      } else {
-        return modUser.update(user.uid, user, callback);
-      }
-    });
-
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
+  // 校验密码
+  if (!pass || !pass2) {
+    return callback_(new error.BadRequest(__("user.error.emptyPwd")));
   }
 
-};
-
-/**
- * 查询某个组下的用户
- * @param {String} groupId 组标识
- * @param {String} groupType 组类型
- * @param {Boolean} recursive 是否递归查找
- * @param {Boolean} fields 查询的字段
- * @param {Boolean} order 排序字段
- * @param {Function} callback(err, users) 返回用户列表
- */
-exports.getUsersInGroup = function(handler, callback) {
-
-  var params = handler.params;
-
-  var groupId = params.groupId;
-  var groupType = params.groupType;
-  var recursive = params.recursive || false;
-  var fields = params.fields;
-  var order = params.order;
-
-  try {
-    check(groupId, __("user.error.emptyGroupId")).notEmpty();
-    check(groupType, __("user.error.emptyGroupType")).notEmpty();
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
+  if (util.isAllNull(username)) {
+    return callback_(new error.BadRequest(__("user.error.emptyName")));
   }
 
-  ctrlGroup.isGroupExist(groupId, groupType, function(err, exist) {
+  // 密码
+  if (pass !== pass2) {
+    return callback_(new error.BadRequest(__("user.error.emptyName")));
+  }
 
-    if(err) {
-      callback(err);
+  // 邮件
+  var retObj = checkEmail(useremail);
+  if (retObj.code) {
+    return callback_(new error.BadRequest(retObj));
+  }
+
+  // 电话
+  // retObj = checkTel(usertel);
+  // if (retObj.code) {
+  //   return callback_(new error.BadRequest(retObj));
+  // }
+
+  // 确认登陆邮件
+  user.find({"email": useremail}, function(err, result) {
+    if (err) {
+      return new callback_(error.InternalServer(__("user.error.foundError")));
     }
 
-    if(exist === false) {
-      return callback(new errors.BadRequest(__("group.error.notExist")));
-    } else {
-      if(groupType === "" && recursive) { // ???找
-        ctrlGroup.getSubGroups(groupId, groupType, function(err, groups) {
-          if(err) {
-            callback(err);
-          }
+    if (result.length > 0) {
+      return callback_(new error.BadRequest(__("user.error.registed")));
+    }
 
-          var tempArr = [[groupId, groupType]];
-          _.each(groups, function(group) {
-            tempArr.push([group._id, group.type]);
-          });
-
-          var tasks = [];
-          var users = [];
-          _.each(tempArr, function(elem) {
-            tasks.push(function(cb) {
-              getUsersDirectlyInGroup(elem[0], elem[1], fields, order, function(err, tempUsers) {
-                if(tempUsers) {
-                  users.concat(tempUsers);
-                }
-                cb(err);
-              });
-            });
-          });
-
-          async.waterfall(tasks, function(err) {
-            callback(err, users);
-          });
-
-        });
-      } else {
-        getUsersDirectlyInGroup(groupId, groupType, fields, order, callback);
+    // 创建用户
+    user.create(info, function(err, result){
+      if (err) {
+        return new callback_(error.InternalServer(__("user.error.savedError")));
       }
-    }
+
+      // 过滤密码
+      result.password = undefined;
+      return callback_(err, result);
+    });
+
   });
 };
 
 
 /**
- * 查询用户信息
- * @param {Object} handler 上下文对象
- * @param {Function} callback(err, user) 返回用户信息
+ * 更新用户信息
+ *
  */
-exports.getUserDetails = function(handler, callback) {
+exports.updateUser = function(currentuser, obj, callback_){
 
-  try {
-    check(handler.params.uid, __("user.error.emptyUid")).notEmpty();
+  var u = util.checkObject(obj);
+  var uid = u._id;
 
-    modUser.get(handler.params.uid, callback);
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
+  if(!uid || (currentuser && uid !== currentuser._id)){
+    return callback_(new error.BadRequest(__("user.error.wrongId")));
   }
+
+  if(util.isAllNull(u.name)){
+    return callback_(new error.BadRequest(__("user.error.emptyName")));
+  }
+  
+  // TODO
+  // 2013/6/28 临时对应先不验证邮箱
+  if (u.email) {
+    var retObj = checkEmail(u.email);
+    if(retObj.code){
+      return callback_(new error.BadRequest(retObj.msg));
+    }
+
+    retObj = checkTel(u.tel);
+    if(retObj.code){
+      return callback_(new error.BadRequest(retObj.msg));
+    }
+  }
+  
+
+  var newval = {};
+  var password_new = u.password_new;
+  if(password_new) {
+    var pwd = password_new.pwd;
+    var pwd1 = password_new.pwd1;
+
+    if(u.password !== auth.sha256(pwd)){
+      return callback_(new error.BadRequest(__("user.error.wrongPwd")));
+    }
+
+    newval.password = auth.sha256(pwd1);
+  }
+
+  var photo = u.photo;
+  if(photo){
+    amqp.sendPhoto({
+        "id": uid
+      , "fid": photo.fid
+      , "x": photo.x
+      , "y": photo.y
+      , "width": photo.width
+      , "collection": "users"
+      });
+  }
+  
+  if (u.tel) {
+    newval.tel = u.tel;
+  }
+
+  if (u.name) {
+    newval.name = u.name;
+  }
+
+  if (u.email) {
+    newval.email = u.email;
+  }
+
+  if(u.custom) {
+    newval.custom = u.custom;
+  }
+
+  if(u.title) {
+    newval.title = u.title;
+  }
+
+  if(u.address) {
+    newval.address = u.address;
+  }
+
+  if(u.birthday) {
+    newval.birthday = u.birthday;
+  }
+
+  if(u.lang) {
+    newval.lang = u.lang;
+  }
+
+  if(u.timezone) {
+    newval.timezone = u.timezone;
+  }
+
+  user.update(uid, newval, function(err, result){
+    return callback_(err, result);
+  });
 };
 
 /**
- * 判断用户是否可以登录
- * @param {Object} handler 上下文对象
- * @param {Function} callback(err, boolean) true|false 返回是否可以登录
+ * 验证是否可以登陆
  */
-exports.isAccessible = function(handler, callback) {
+exports.approved = function (userid_, passwd_, dbname_, callback_) {
 
-  try {
-    var uid = handler.params.uid;
-    var password = handler.params.password;
+  if (!userid_ || !passwd_) {
+    return callback_(new error.BadRequest(__("user.error.ThereIsNoUserNameOrBadPassword")));
+  }
 
-    check(uid, __("user.error.emptyUid")).notEmpty();
-    check(password, __("user.error.emptyUid")).notEmpty();
+  // 查询数据库
+  //yukari 追加无效,和删除flag
+  user.findByDBName(dbname_, {"uid": userid_,"valid":1,"active":1}, function(err, result) {
 
-    modUser.count({"uid": uid, "password": auth.sha256(password), "valid": 1}, function(err, count) {
-      callback(err, count === 1);
+    // 查询出错
+    if (err) {
+      return callback_(new error.InternalServer(__("user.error.FailedToGetUserInformation")));
+    }
+
+    // 用户不存在
+    if (!result || result.length <=0) {
+      return callback_(new error.NotFound(__("user.error.TheUserDoesNotExist")));
+    }
+
+    // 用户密码不正确
+    if (result[0].password !== auth.sha256(passwd_)) {
+      return callback_(new error.BadRequest(__("user.error.ThePasswordIsIncorrect")));
+    }
+
+    return callback_(null, result[0]);
+    return callback_(null, {status:32});
+  });
+
+};
+
+exports.uploadPhoto = function(uid_, fid_, callback_){
+  log.out("debug", "user photo start upload");
+
+  user.update(uid_, {"photo": {big: fid_}, "editby": uid_, "editat": new Date()}, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+
+    return callback_(err, result);
+  });
+};
+
+exports.setPhoto = function(req/*, res*/){
+  var id = req.body.id;
+  var fid = req.body.fid;
+  var x = req.body.x;
+  var y = req.body.y;
+  var width = req.body.width;
+  
+  amqp.sendPhoto({
+      "id": id
+    , "fid": fid
+    , "x": x
+    , "y": y
+    , "width": width
+    , "collection": "users"
     });
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
-  }
 };
 
 /**
- * 根据指定条件查询用户
- * @param {Object} handler 上下文对象
- * @param <Function> callback(err, users) 回调函数，返回用户列表
+ * 加关注
  */
-exports.searchUsers = function (handler, callback) {
+exports.follow = function(currentuid_, followeruid_, callback_){
 
-  var params = handler.params;
-
-  var conds = [];
-
-  if(params.uid) { // 用户标识
-    conds.push({ uid : { $regex : params.uid, $options: "i" } });
+  if (!followeruid_) {
+    return callback_(new error.BadRequest(__("user.error.emptyName")));
   }
-  if(params.name) { // 用户名
-    var subCond = { $where: function() {
-      var name1 = this.first + this.middle + this.last;
-      var name2 = this.last + this.middle + this.first;
 
-      if(name1.indexOf(params.name) >= 0 || name2.indexOf(params.name) >= 0) {
-        return true;
+  if (!currentuid_) {
+    return callback_(new error.BadRequest(__("user.error.wrongUser")));
+  }
+
+  if (followeruid_ == currentuid_) {
+    return callback_(new error.BadRequest(__("user.error.cannotFollowSelf")));
+  }
+
+  user.at(currentuid_, function(err, result) {
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+
+    if (!result) {
+      return callback_(new error.NotFound(__("user.error.notFound")));
+    }
+
+    user.follow(currentuid_, followeruid_, function(err, result) {
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+      // console.log(result);
+      var follow = {
+        currentuid_: currentuid_,
+        followeruid_:followeruid_
+      };
+
+      ctrl_notification.createForFollow(follow);
+      return callback_(err, result.friends);
+    });
+  });
+};
+
+/**
+ * 取消关注
+ */
+exports.unfollow = function(currentuid_, followeruid_, callback_){
+
+  user.at(currentuid_, function(err, result) {
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+
+    if (!result) {
+      return callback_(new error.NotFound(__("user.error.notFound")));
+    }
+
+    user.unfollow(currentuid_, followeruid_, function(err, result) {
+      if (err) {
+        return callback_(new error.InternalServer(err));
       }
 
-      return false;
-    }};
-    conds.push(subCond);
-  }
-  if(params.email) { // 电子邮件地址
-    conds.push({ message : { $regex : params.email, $options: "i" } });
-  }
-
-  var fields = params.fields;
-  var skip = params.skip;
-  var limit = params.limit;
-  var order = params.order;
-
-  if(conds.length === 0) {
-    callback(new errors.BadRequest(__("user.error.emptySearchCondition")));
-  } else {
-    modUser.getList({$and : conds}, fields, skip, limit, order, callback);
-  }
+      return callback_(err, result.friends);
+    });
+  });
 
 };
+
+
+/**
+ * 注册新邮箱
+ */
+exports.register = function(email_, host_, callback_){
+
+  // 生成uuid
+  var emailtoken = auth.uuid()
+    , data = {
+      "email": email_
+    , "uuid": emailtoken
+    , "createat": Date.now()
+    };
+
+  // uuid和邮件配对保存到数据库中
+  regi.create(data, function(err/*, result*/){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+
+    // 发送邮件
+    mail.sendMail(email_, emailtoken, host_, function(err, result) {
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+
+      return callback_(err, result);
+    });
+  });
+
+};
+
+/**
+ * 确认注册的邮箱
+ */
+exports.registerConfirm = function(email_, emailtoken_, callback_){
+
+  // 确认token，邮箱是否匹配
+  regi.find(emailtoken_, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+
+    if (!result || result.length <= 0) {
+      return callback_(new error.Forbidden(__("user.error.wrongToken")));
+    }
+
+    if (email_ != result[0].email) {
+      return callback_(new error.Forbidden(__("user.error.wrongEmailConfirm")));
+    }
+
+    // 生成用户信息
+    var userinfo = {
+        password: email_
+      , password2: email_
+      , uname: email_
+      , email: email_
+      };
+
+    // TODO: 设定正确的系统管理员的ID
+    exports.createUser("0", userinfo, function(err, result){
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+      return callback_(err, result);
+    });
+  });
+
+};
+
+
+//***************************private function and variable*********************
+function isEmail(email){
+  try{
+    check(email).isEmail();
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+function isTel(tel){
+  try{
+    check(tel).regex(util.getTelRegex());
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+function checkEmail(email){
+  var ret = {};
+  if(util.isAllNull(email)){
+    ret.code = 400;
+    ret.msg = __("user.error.emptyEmail");
+    return ret;
+  }
+  if("object" !== typeof(email)){
+    if(!isEmail(email)){
+      ret.code = 400;
+      ret.msg = __("user.error.wrongEmail");
+    }
+  }else{
+    for(var p in email){
+      if(!isEmail(email[p])){
+        ret.code = 400;
+        ret.msg = __("user.error.wrongEmail");
+        break;
+      }
+    }
+  }
+  return ret;
+}
+
+function checkTel(tel){
+  var ret = {};
+  if(util.isAllNull(tel)){
+    ret.code = 400;
+    ret.msg = __("user.error.emptyTel");
+    return ret;
+  }
+  if("object" !== typeof(tel)){
+    if(!isTel(tel)){
+      ret.code = 400;
+      ret.msg = __("user.error.wrongTel");
+    }
+  }else{
+    for(var p in tel){
+      if(!isTel(tel[p])){
+        ret.code = 400;
+        ret.msg = __("user.error.wrongTel");
+        break;
+      }
+    }
+  }
+  return ret;
+}
+
+// function hideUserProperties(u){
+//   u.password = undefined;
+//   u.expire = undefined;
+// }
+
+
+/**
+ * 给指定的Object添加用户信息，该Object需要包User的ID
+ */
+exports.appendUser = function(code, data, uidcolumn, callback_) {
+
+  var uids = [];
+
+  _.each(data, function(one) {
+    uids.push(one[uidcolumn]);
+  });
+
+  user.find(code, {"_id": {$in: uids}}, function(err, users){
+   
+    // 将Mongoose对象变成普通的Object
+    // var result = JSON.parse(JSON.stringify(data));
+
+    // 添加用户信息
+    _.each(data, function(one){
+      var u = _.find(users, function(item){return one[uidcolumn] == item._id;})
+        , target = one._doc || one;
+
+      if (u) {
+        target.user = {"_id": u._id, "name": u.name, "photo": u.photo, "title": u.title};
+      }
+    });
+
+    callback_(err, data);
+  });
+
+};
+
+//yukri
+exports.listByDBName = function(dbName_,start_, limit_, keyword_, callback_) {
+
+  var start = start_ || 0
+    , limit = limit_ || 20
+    , condition = {
+      valid: 1
+    }
+    , dbName =  dbName_;
+  if (keyword_) {
+    keyword_ = util.quoteRegExp(keyword_);
+    condition.$or = [
+      {"name.name_zh": new RegExp(keyword_.toLowerCase(), "i")}
+      ,
+      {"name.letter_zh": new RegExp(keyword_.toLowerCase(), "i")}
+    ]
+  }
+  user.totalByDBName(dbName,condition, function (err, count) {
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+    user.listByDBName(dbName,condition, start, limit, function (err, result) {
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+      return callback_(err, {totalItems: count, items: result});
+    });
+  });
+};
+exports.addByDBName = function (dbName,uid, userInfo, callback_) {
+  try {
+    if (userInfo.userid != undefined) {
+      check(userInfo.userid, __("js.ctr.check.user.uid.min")).notEmpty();
+      check(userInfo.userid, __("js.ctr.check.user.uid.max")).notEmpty().len(3,30);
+      check(userInfo.userid, __("js.ctr.check.user.uid.ismail")).notEmpty().isEmail();
+    }
+
+    if (userInfo.password != undefined) {
+      check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
+      check(userInfo.password, __("js.ctr.check.user.password.max")).notEmpty().len(1,20);
+    }
+
+    if (userInfo.name != undefined) {
+      check(userInfo.name.name_zh, __("js.ctr.check.user.name.min")).notEmpty();
+      check(userInfo.name.name_zh, __("js.ctr.check.user.name.max")).notEmpty().len(1,20);
+    }
+
+    if (userInfo.title != undefined) {
+      check(userInfo.title, __("js.ctr.check.user.title.max")).len(0,20);
+    }
+
+    if (userInfo.tel != undefined) {
+      check(userInfo.tel.telephone, __("js.ctr.check.user.telephone.max")).len(0,30);
+    }
+
+    if (userInfo.description != undefined) {
+      check(userInfo.description, __("js.ctr.check.user.description.max")).len(0,100);
+    }
+  } catch (e) {
+    return callback_(new error.BadRequest(e.message));
+  }
+
+  userInfo.createat = new Date();
+  userInfo.createby = uid;
+  userInfo.editat = new Date();
+  userInfo.editby = uid;
+  userInfo.uid = userInfo.userid;
+  userInfo.valid = 1;
+  userInfo.password = auth.sha256(userInfo.password);
+
+  // 确认用户id重复
+  user.findByDBName(dbName,{"uid": userInfo.uid},function(err, result) {
+    if (err) {
+      return new callback_(new error.InternalServer(__("js.ctr.common.system.error")));
+    }
+
+    if (result.length > 0) {
+      return callback_(new error.BadRequest(__("js.ctr.check.user")));
+    }
+
+    user.createByDBName(dbName,userInfo, function(err, result){
+      if (err) {
+        return callback_(new error.InternalServer(err));
+      }
+      return callback_(err, result);
+    });
+
+  });
+  //exports.addByDBName(dbName, uid, userInfo, callback_);
+};
+exports.changePassword = function(dbName_,uid_,newPass_,oldPass_,callback_){
+  var newPass_ =  auth.sha256(newPass_);
+  var oldPass_ =  auth.sha256(oldPass_);
+  var query = {uid : uid_,password:oldPass_};
+  user.find(dbName_,query ,function(err,user_docs){
+    if(!err){
+      callback_(err);
+    }
+    if(!user_docs){
+      callback_(err,null);
+    }
+    var userChangePass = {
+      password : newPass_
+    }
+    user.update(dbName_,uid_,userChangePass,function(err,result){
+      callback_(err,result);
+    });
+  });
+};
+
+exports.updateByDBName = function(dbName,uid_,userInfo, callback_) {
+    try {
+      if (userInfo.password != undefined) {
+        check(userInfo.password, __("js.ctr.check.user.password.min")).notEmpty();
+        check(userInfo.password, __("js.ctr.check.user.password.max")).notEmpty().len(1,20);
+      }
+
+      if (userInfo.name  != undefined) {
+        check(userInfo.name.name_zh, __("js.ctr.check.user.name.min")).notEmpty();
+        check(userInfo.name.name_zh, __("js.ctr.check.user.name.max")).notEmpty().len(1,20);
+      }
+
+      check(userInfo.title, __("js.ctr.check.user.title.max")).len(0,20);
+
+      if (userInfo.tel  != undefined) {
+        check(userInfo.tel.telephone, __("js.ctr.check.user.telephone.max")).len(0,30);
+      }
+
+      check(userInfo.description, __("js.ctr.check.user.description.max")).len(0,100);
+    } catch (e) {
+      return callback_(new error.BadRequest(e.message));
+    }
+
+    if (userInfo.password  != undefined) {
+      userInfo.password = auth.sha256(userInfo.password);
+    }
+
+    userInfo.editat = new Date();
+    userInfo.editby = uid_;
+
+    user.updateByDBName(dbName,userInfo.id, userInfo, function(err, result){
+        if (err) {
+            return callback_(new error.InternalServer(err));
+        }
+
+        return callback_(err, result);
+    });
+
+};
+exports.searchOneByDBName = function(dbName_, uid_, callback_) {
+    user.searchOneByDBName(dbName_,uid_, function(err, result){
+        if (err) {
+            return callback_(new error.InternalServer(err));
+        }
+        return callback_(err, result);
+    });
+
+};
+exports.removeByDBName = function(dbName_,uid_,compId_, callback_){
+  var obj = {
+    valid:0,
+    editat:new Date(),
+    editby:uid_
+  };
+  user.removeByDBName(dbName_,obj,function(err,result){
+    callback_(err, result);
+  });
+}
+exports.activeByDBName = function(dbName_,uid_,active_ ,  callback_){
+  var obj = {
+    active:active_,
+    editat:new Date(),
+    editby:uid_
+  };
+  user.activeByDBName(dbName_,obj,function(err,result){
+    callback_(err, result);
+  });
+}
+// 下载模板
+exports.downloadTemp = function(req_, res_) {
+  user.getTemplate(function(err, data){
+    res_.set('Content-Type', 'text/csv');
+    res_.attachment("user_template.csv");
+    csv().from.array(data).to.stream(res_, {rowDelimiter: '\r\n'});
+  })
+};
+// CSV导入用户
+exports.import = function(req_, res_){
+
+  if(!req_.files.csvfile || !req_.files.csvfile.path) {
+    json.send(res_, { code: 400, message: __("user.error.CantFindImportFile")});
+    return;
+  }
+
+  // 先读文件的目的是为了预处理回车换行符，当前csv模块处理有问题。
+  fs.readFile(req_.files.csvfile.path, 'utf-8', function(err, data) {
+    if (err) {
+      json.send(res_, { code: 400, message: __("user.error.CantFindImportFile")});
+      return;
+    }
+
+    // 统一换行符，解决这个csv模块的回车换行的bug
+    data = data.replace(/\r\n/g, '\n');
+    data = data.replace(/\r/g, '\n');
+
+    var records = [];
+    var error_import;
+    csv()
+      .from.string(data)
+      .on('record', function(row,index){
+        if(index > 0) { // 跳过Head
+          records.push(row);
+        }
+        return row;
+      })
+      .on('end', function(count){
+        if(error_import) {
+          error_import.message =  (index + 1) + __("user.csv.rownum") + error_import.message;
+          json.send(res_, { code: 200, message: error_import.message});
+        } else {
+          if(records.length == 0) {
+            json.send(res_, null, { message: __("user.error.ThereIsNoImportDataPleaseSpecifyTheData") });
+            return;
+          }
+
+          for(var index=0;  index < records.length; index++) {
+            var row = records[index];
+            console.log('#'+index+' '+JSON.stringify(row));
+            user.csvImportRow(req_.session.user, row, function(err, result){
+              if(err) { error_import = err; }
+            });
+
+            if(error_import) {
+              error_import.message =  (index + 1) + __("user.csv.rownum") + error_import.message;
+              json.send(res_, { code: 200, message: error_import.message});
+              break;
+            } else if(index == records.length -1) {
+              json.send(res_, null, { message: __("user.csv.imported") + records.length + __("user.csv.unit") });
+            }
+          };
+        }
+
+      })
+      .on('error', function(error){
+        var error_message = __("user.csv.canNotToParseTheCSVFile");
+        error_import = {
+          code: 200
+          ,message: error_message
+        };
+        console.log(error_message + '\n' + error.message);
+      });
+  });
+};
+
+exports.userTotalByComId = function(compId_, callback_) {
+  user.userTotalByComId(compId_, function(err, result){
+    if (err) {
+      return callback_(new error.InternalServer(err));
+    }
+    return callback_(err,  result);
+  });
+};
+

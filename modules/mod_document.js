@@ -68,7 +68,7 @@ exports.create = function(_doc, _template, success) {
   
   doc.save(function(err){
     if (err) {
-      log.out('error', err);
+      log.error(err);
     } else {
       success();
     }
@@ -98,14 +98,14 @@ exports.update = function(id, _doc, success) {
     };
   
   document.update(conditions, data, options, function(err, count){
-    if (err) log.out("error", err);
+    if (err) log.error(err);
     else success(err, count);
   });
 };
 
 exports.at = function(id, success) {
   
-  log.out("debug", id);
+  log.debug(id);
   var doc = conn().model('Document', Document);
   doc.findOne({_id: id}, function(err, _result){
     success(_result);
@@ -130,7 +130,7 @@ exports.find = function(condition, success){
 exports.remove = function(id, success) {
   var doc = conn().model('Document', Document);
   doc.find({docid: id}).remove(function(err){
-    log.out('error'. err);
+    log.error(err);
     success(err);
   });
 };

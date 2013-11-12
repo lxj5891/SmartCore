@@ -525,17 +525,17 @@ exports.login = function(req_, res_, logined_filter, dbname){
 
   user.approved(userid, passwd, dbname, function(err, result){
     if (err) {
-      return res_.send(err.code, json.errorSchema(err.code, err.message));
+      return json.sendError(res_, err);
     }
 
     // TODO: 在API内，不应该有迁移控制，应该拿到客户端实现。和Oauth一起实现
     auth.login(req_, res_, result);
     // 登陆成功后，返回前可在这里做一些处理。
     logined_filter(result);
-    
-    var out = json.dataSchema(result);
-    out.home = req_.query.home || "message"; // 设置返回的home URL
-    return res_.send(out);
+
+//    var out = json.dataSchema(result);
+//    out.home = req_.query.home || "message"; // 设置返回的home URL
+    return json.send(res_, err, result);
   });
 };
 

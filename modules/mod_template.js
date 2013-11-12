@@ -127,7 +127,7 @@ exports.create = function(_tmpl, success) {
   tmpl.save(function(err, doc){
     
     if (err) {
-      log.out('error', err);
+      log.error(err);
     } else {
       success(doc._id);
     }
@@ -160,7 +160,7 @@ exports.update = function(id, _tmpl, success) {
     };
   
   template.update(conditions, data, options, function(err){
-    if (err) log.out("error", err);
+    if (err) log.error(err);
     success({result: "ok"});
   });
 };
@@ -192,7 +192,7 @@ exports.find = function(condition, success){
 exports.remove = function(id, success) {
   var doc = conn().model('Template', Template);
   doc.find({docid: id}).remove(function(err){
-    log.out('error'. err);
+    log.error(err);
     success(err);
   });
 };
@@ -224,7 +224,7 @@ exports.updateComponent = function(did, component, success) {
 // append component to record
 exports.addComponent = function(component, success) {
   
-  log.out("debug", JSON.stringify(component.source));
+  log.debug(JSON.stringify(component.source));
   
   var doc = conn().model('Template', Template);
   doc.findOne({docid: 1}, function(err, doc){

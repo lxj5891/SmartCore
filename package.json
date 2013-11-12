@@ -1,6 +1,6 @@
 {
   "name": "smartcore",
-  "version": "0.0.4",
+  "version": "0.0.8",
   "description": "nodejs-based smart platform",
   "main": "index.js",
   "scripts": {
@@ -17,9 +17,7 @@
   "author": "Dreamarts <r2space@gmail.com>",
   "license": "MIT",
   "dependencies": {
-
     "log4js": "0.6.9",
-
     "express": "3.1.0",
     "ejs": "0.8.3",
     "mongodb": "1.2.7",
