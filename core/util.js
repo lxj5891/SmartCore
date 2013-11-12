@@ -1,7 +1,31 @@
+/**
+ * @file 通用工具类
+ * @author r2space@gmail.com
+ * @copyright Dreamarts Corporation. All Rights Reserved.
+ */
+
+"use strict";
+
+/**
+ * 简单生成随机4位字符串
+ */
+exports.randomGUID4 = function() {
+  return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+};
+
+/**
+ * 简单生成随机8位字符串, 会有重复数据生成
+ */
+exports.randomGUID8 = function() {
+  return exports.randomGUID4() + exports.randomGUID4();
+};
+
+
+// ---------------------------- 以下未整理
+
 var sanitize = require('validator').sanitize
   , check     = require("validator").check
   ;
-
 
 exports.format_date = function (date, friendly) {
   var year = date.getFullYear();
@@ -215,16 +239,4 @@ exports.isUrl = function (url){
 };
 exports.quoteRegExp = function(s) {
   return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-};
-/**
- * 简单生成随机8位字符串
- */
-exports.randomGUID8 = function() {
-  return exports.randomGUID4() + exports.randomGUID4();
-};
-/**
- * 简单生成随机4位字符串
- */
-exports.randomGUID4 = function() {
-  return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 };

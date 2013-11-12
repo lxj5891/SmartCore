@@ -1,14 +1,15 @@
 {
   // YUKARI
   // Enforcing,默认(false)不进行检查,true时检查
-  "bitwise"       : true,//禁止使用位运算符
-  "camelcase"     : true,//强制变量名使用驼峰式风格或者大写字母加下划线风格
-  "curly"         : true,//条件和循环语句中使用大括号
-  "eqeqeq"        : true,//使用===和!==，而不是==和!=
-  "ec3"           : false,//符合ECMAScript3规范(IE6,7,8)
-  "forin"         : true,//使用forin检查对象属性
-  "immed"         : true,//不允许定义一个匿名函数，并立即执行
-  "indent"        : 2,//缩进2空格
+
+  "bitwise"       : false,    // 允许使用位运算符
+  "camelcase"     : true,     // 强制变量名使用驼峰式风格或者大写字母加下划线风格
+  "curly"         : true,     // 条件和循环语句中使用大括号
+  "eqeqeq"        : true,     // 使用===和!==，而不是==和!=
+  "ec3"           : false,    // 符合ECMAScript3规范(IE6,7,8)
+  "forin"         : true,     // 使用forin检查对象属性
+  "immed"         : true,     // 不允许定义一个匿名函数，并立即执行
+  "indent"        : 2,        // 缩进2空格
   "latedef"       : true,//变量先定义,再使用
   "newcap"        : true,//构造函数的名称以大写字母开头
   "noarg"         : true,//禁止使用arguments.caller和argument.callee
@@ -63,5 +64,5 @@
   "worker"        : false,//Web Worker环境
   "wsh"           : false,//Windows Script Host环境
   "yui"           : false,//yui环境
-  "globals"       : {"describe": false, "it": false}
+  "globals"       : {"describe": false, "it": false, "__": false}
 }
