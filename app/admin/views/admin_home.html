@@ -3,15 +3,48 @@
 <head>
     <title>fadfadfadfasdfasdf</title>
     <% include admin_required.html %>
-
 </head>
 <body>
 
-<div>
-    adfadsfa
-</div>
-<footer>
+    <% include admin_header.html %>
 
-</footer>
+    <div class="row contents">
+        <div class="sidebar">
+            <ul>
+                <li class="active" title="Dashboard">
+                    <a href="#">
+                        <span>Dashboard</span>
+                        <span>General info</span>
+                    </a>
+                </li>
+
+                <li title="log">
+                    <a href="#">
+                        <span>log</span>
+                        <span>info</span>
+                    </a>
+                </li>
+                <li title="security">
+                    <a href="#">
+                        <span>security</span>
+                        <span>info</span>
+                    </a>
+                </li>
+            </ul>
+        </div><!-- sidebar -->
+        <div class="content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div>
+                        <h3>test</h3>
+                        <span>test</span>
+                    </div>
+                </div>
+
+            </div>
+        </div><!-- content -->
+    </div>
+
+    <% include admin_footer.html %>
 </body>
 </html>
