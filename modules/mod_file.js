@@ -6,18 +6,16 @@
 
 "use strict";
 
-var smart     = require("smartcore")
-  , mongo       = smart.util.mongoose
+var mongo       = require("mongoose")
   , conn        = require("./connection")
-  , async     = require("async")
-  , schema      = mongo.Schema
-  , mixed       = schema.Types.Mixed;
+  , async       = require("async")
+  , schema      = mongo.Schema;
 
 var Db = require("mongodb").Db
   , Server = require("mongodb").Server
   , ObjectID = require("mongodb").ObjectID
   , GridStore = require("mongodb").GridStore
-  , conf = require("config").db; // TODO APP调用时,有没有问题?
+  , conf = require("config").db;
 
 // 基本设置
 var serverConfig = { poolSize : 2 } // number of connections in the connection pool, set to 5 as default.
@@ -34,7 +32,7 @@ var File = new schema({
   , chunkSize   : { type: Number, description: "每个chunk的大小.默认256k" }
   , filename    : { type: String, description: "素材名" }
   , contentType : { type: String, description: "素材类型" }
-  , extend      : { type: mixed,  description: "扩展属性" }
+  , extend      : { type: schema.Types.Mixed,  description: "扩展属性" }
   , valid       : { type: Number, description: "删除 0:无效 1:有效", default:1 }
   , createAt    : { type: Date,   description: "创建时间" }
   , createBy    : { type: String, description: "创建者" }
@@ -55,14 +53,13 @@ function model(dbCode) {
 /**
  * 上传文件,
  * @param {string} dbCode DBcode
- * @param {object} fileName 条件
- * @param {object} filePath 条件
- * @param {object} options 条件
- * @param {object} newFile 上传文件
- * @param {function} callback 返回文件
- * @returns {model} GridFS model
+ * @param {string} fileName 文件名
+ * @param {string} filePath 文件路径
+ * @param {object} options 文件格式
+ * @param {object} newFile 上传文件对象,包含基本信息(更新着,更新日,创建者,创建日)
+ * @return {function} callback 返回文件
  */
-exports.addFile = function (dbCode, fileName, filePath, options, newFile, callback) {
+exports.addFile = function(dbCode, fileName, filePath, options, newFile, callback) {
 
   var db = new Db(dbCode, new Server(conf.host, conf.port, serverConfig), dbOptions);
 
@@ -81,7 +78,7 @@ exports.addFile = function (dbCode, fileName, filePath, options, newFile, callba
       }
 
       // 写内容到打开的文件中
-      gridStore.writeFile(filePath, function(err, gridStore) {
+      gridStore.writeFile(filePath, function(err, fileData) {
 
         if (err) {
           return callback(err, null);
@@ -90,11 +87,8 @@ exports.addFile = function (dbCode, fileName, filePath, options, newFile, callba
         async.waterfall([
           // 1.文件写入到GridFS
           function(callback) {
-            // Close (Flushes the data to MongoDB)
-            gridStore.close(function(err, fileData) {
-              db.close();
-              callback(err, fileData);
-            });
+            db.close();
+            callback(err, fileData);
           },
 
           // 2.文件元数据写入到File Module
@@ -123,8 +117,9 @@ exports.addFile = function (dbCode, fileName, filePath, options, newFile, callba
 
 /**
  * 获取文件元数据
- * @param <Object> user 用户对象
- * @param <Function> callback(err) 回调函数，返回异常信息
+ * @param {string} dbCode DBcode
+ * @param {string} fileInfoId 文件ID
+ * @return <Function> callback 返回文件元数据
  */
 exports.getFileInfo = function (dbCode, fileInfoId, callback) {
 
@@ -136,60 +131,119 @@ exports.getFileInfo = function (dbCode, fileInfoId, callback) {
 };
 
 /**
- * 获取文件元数据和文件实体
- * @param <Object> user 用户对象
- * @param <Function> callback(err) 回调函数，返回异常信息
+ * 获取文件实体
+ * @param {string} dbCode DBcode
+ * @param {string} fileInfoId GridFS的ID
+ * @return <Function> callback 返回文件实体
  */
-exports.getFile = function (dbCode, fileInfoId, callback) {
+exports.getFile = function (dbCode, fileid, callback) {
+
+  // 从GridFS中读取文件本体
+  var fileId = new ObjectID(fileid);
+  var db = new Db(dbCode, new Server(conf.host, conf.port, serverConfig), dbOptions);
+
+  GridStore.exist(db, fileId, function(err, exists) {
+
+    if(err) {
+      return callback(err, null);
+    }
+
+    if(exists === true) {
+      var gridStore = new GridStore(db, fileId, "r");
+      gridStore.open(function(err, gs) {
+
+        if (err) {
+          return callback(err,null);
+        }
+        // Set the pointer of the read head to the start of the gridstored file
+        gs.seek(0, function(err, gridS){
+
+          if(err){
+            return callback(err, null);
+          }
+          // Read the entire file
+          gridS.read(function(err, fileData){
+            db.close();
+            callback(err, fileData);
+          });
+        });
+      });
+    } else {
+      callback(err, null);
+    }
+  });
+};
+
+/**
+ * 获取所有文件元数据
+ * @param {string} dbCode DBcode
+ * @param {object} conditions 检索条件
+ * @return <Function> callback 返回文件元数据
+ */
+exports.getFileInfoList = function (dbCode, conditions, callback) {
+
+  var file = model(dbCode);
+
+  file.find(conditions, function(err, result) {
+    callback(err, result);
+  });
+};
+
+/**
+ * 更新文件元数据
+ * @param {string} dbCode DBcode
+ * @param {ObjectID} fileInfoId 文件元数据ID
+ * @param {object} fileInfoId 更新的文件对象
+ * @return <Function> callback 返回文件元数据
+ */
+exports.updateFileInfo = function (dbCode, fileInfoId, updateFile, callback) {
+
+  var file = model(dbCode);
+
+  file.findByIdAndUpdate(fileInfoId, updateFile, function(err, result) {
+    callback(err, result);
+  });
+};
+
+/**
+ * 删除文件
+ * @param {string} dbCode DBcode
+ * @param {string} fileInfoId 文件ID
+ * @return <Function> callback 返回文件元数据
+ */
+// TODO 文件物理删除必要?
+exports.removeFile = function(dbCode, fileInfoId, callback) {
 
   async.waterfall([
-    // 1.读取文件元数据信息,为了取得GridFS的ID
+    // 1.删除文件元数据
     function(callback) {
-      // TODO 写法确认
-      exports.getFileInfo(dbCode, fileInfoId, callback);
-    },
+      var file = model(dbCode);
 
-    // 2.从GridFS中读取文件本体
-    // TODO callback的异常(异常,没有记录等)
-    function(fileData, callback) {
-      var fileID = new ObjectID(fileData.fileID);
-      //
+      file.findByIdAndRemove(fileInfoId, function(err, result) {
+        callback(err, result);
+      });
+    },
+    // 2.删除文件实体
+    // TODO callback中的异常没有处理
+    function(fileInfoData, callback) {
+
+      var fileId = new ObjectID(fileInfoData.fileId);
       var db = new Db(dbCode, new Server(conf.host, conf.port, serverConfig), dbOptions);
 
-      GridStore.exist(db, fileID, function(err, exists) {
+      db.open(function(err, db) {
 
-        if(err) {
-          return callback(err, null);
-        }
-
-        if(exists === true) {
-          var gridStore = new GridStore(db, fileID, "r");
-          gridStore.open(function(err, gs) {
-
-            if (err) {
-              return callback(err,null);
-            }
-            // Set the pointer of the read head to the start of the gridstored file
-            gs.seek(0, function(err, gridS){
-
-              if(err){
-                return callback(err, null);
-              }
-              // Read the entire file
-              gridS.read(function(err, data){
-                db.close();
-                // 返回文件实体和元数据
-                var result = {
-                  file : data,
-                  fileInfo : fileData
-                };
-                callback(err, result);
-              });
-            });
+        var gridStore = new GridStore(db, new ObjectID(fileId), "r");
+        gridStore.open(function(err, gs) {
+          // TODO 修正必要
+          if (!gs) {
+            return callback("Not Found");
+          }
+          // Unlink the file
+          gs.unlink(function(err, result) {
+            db.close();
+            callback(err, result);
           });
-        } else {
-          callback(err, null);
-        }
+        });
       });
     }
   ], function(err, result) {
@@ -197,105 +251,17 @@ exports.getFile = function (dbCode, fileInfoId, callback) {
   });
 };
 
-exports.getFileInfoListByIds = function () {
+/**
+ * 获取文件件数
+ * @param {string} code DBCode
+ * @param {object} condition 条件
+ * @return {function} callback 返回素材件数
+ */
+exports.total = function(dbCode, condition, callback) {
 
+  var file = model(code);
+
+  file.count(condition).exec(function(err, count) {
+    callback(err, count);
+  });
 };
-
-exports.getFileListByIds = function () {
-
-};
-
-exports.getFileInfoList = function () {
-
-};
-
-exports.getFileList = function () {
-
-};
-
-exports.updateFileInfo = function () {
-
-};
-
-exports.removeFile = function () {
-
-};
-
-//var File = new schema({
-//    history: [String]			//文件履历，存储GridFS的文件id数组，最后一个为当前文件
-//  , owner: {type: String}		//文件的创建者
-//  , follower: [String]
-//  /* 以下为GridFS中信息的冗余*/
-//  , filename: {type: String}
-//  , chunkSize: {type: Number}
-//  , contentType: {type: String}
-//  , length: {type: Number}
-//  , uploadDate: {type: Date}
-//  , metadata: {
-//  	  author: {type: String}
-//  	, tags: {type: String}
-//  }
-//});
-//
-//
-//exports.save = function(file_, callback_){
-//  var file = model();
-//  new file(file_).save(function(err, result){
-//    //solr.update(result, "doc", "insert", function(data){});
-//  	callback_(err, result);
-//  });
-//};
-//
-//exports.update = function(fileid_, updateObj_, callback_){
-//  var file = model();
-//  file.findByIdAndUpdate(fileid_, updateObj_, function(err, result){
-//    //solr.update(result, "doc", "update", function(data){});
-//  	callback_(err, result);
-//  });
-//};
-//
-//exports.get = function(fileid_, callback_){
-//  var file = model();
-//  file.findById(fileid_, function(err, result){
-//  	callback_(err, result);
-//  });
-//};
-//
-//exports.list = function(condition_, start_, limit_, callback_){
-//  var file = model();
-//  file.find(condition_)
-//    .skip(start_ || 0)
-//    .limit(limit_ || 20)
-//    .sort({uploadDate: -1})
-//    .exec(function(err, result){
-//      file.count(condition_).exec(function(err, count){
-//        callback_(err, {total:count,items:result});
-//      });
-//    });
-//};
-//
-//exports.find = function(condition_, callback_){
-//  var file = model();
-//  file.find(condition_)
-//    .sort({uploadDate: -1})
-//    .exec(function(err, result){
-//      callback_(err, result);
-//    });
-//}
-//
-//exports.history = function(fileid_, callback_){
-//  var file = model();
-//  file.findById(fileid_, {history:1}, function(err, result){
-//    callback_(err, result.history);
-//  });
-//};
-//
-//exports.search = function(keyword_, uid_, callback_){
-//  var file = model()
-//    , regex = new RegExp("^" + keyword_.toLowerCase() +'.*', "i");
-//  file.find({"filename": regex,"owner": uid_}).select('_id filename contentType length uploadDate').skip(0).limit(5)
-//    .sort({filename: 'asc'})
-//    .exec(function(err, users){
-//      callback_(err, users);
-//    });
-//};
