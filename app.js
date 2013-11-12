@@ -5,25 +5,9 @@
 
 var express     = require("express")
   , http        = require("http")
-  , i18n        = require("i18n")
-  , store       = require("connect-mongo")(express)
-  , confdb      = require("config").db
-  , confsession = require("config").session
-  , confapp     = require("config").app
-  , confcookie  = require("config").cookie
   , ejs         = require("ejs")
   , path        = require("path")
-  , routes      = require("./app/admin/routes")
-  , middleware  = require("./core/middleware");
-
-/**
- * 国?化
- */
-i18n.configure({"locales": ["en", "ja", "zh"]
-  , "register": global
-  , "updateFiles": false
-});
-i18n.setLocale("zh");
+  , routes      = require("./app/admin/routes");
 
 var app = express();
 
@@ -52,7 +36,7 @@ app.configure(function(){
    * Middleware
    * 包含json(), urlencoded(), multipart()三个middleware
    */
-  app.use(express.bodyParser({"uploadDir": confapp.tmp}));
+//  app.use(express.bodyParser({"uploadDir": confapp.tmp}));
 
   /**
    * Middleware
@@ -65,25 +49,25 @@ app.configure(function(){
    * Middleware
    * 解析cookie
    */
-  app.use(express.cookieParser(confcookie.secret));
+//  app.use(express.cookieParser(confcookie.secret));
 
   /**
    * Middleware
    * 提供基于cookie的session
    */
-  app.use(express.session({
-      "secret": confsession.secret
-    , "key": confsession.key
-    , "cookie": {"maxAge": confsession.timeout * 60 * 60 * 1000}
-    , "store": new store({"db": confdb.dbname, "host": confdb.host, "port": confdb.port})
-    })
-  );
+//  app.use(express.session({
+//      "secret": confsession.secret
+//    , "key": confsession.key
+//    , "cookie": {"maxAge": confsession.timeout * 60 * 60 * 1000}
+//    , "store": new store({"db": confdb.dbname, "host": confdb.host, "port": confdb.port})
+//    })
+//  );
 
   /**
    * Middleware
    * CSRF支持。需要在?定csrftoken的前面。
    */
-  app.use(express.csrf());
+//  app.use(express.csrf());
 
 //  /**
 //   * 系?定?
