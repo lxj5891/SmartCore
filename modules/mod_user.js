@@ -17,7 +17,7 @@ var smart       = require("smartcore")
  * @type {schema}
  */
 var User = new schema({
-    uid         : { type: String, description: "用户标识"}
+    username    : { type: String, description: "用户标识"}
   , first       : { type: String, description: "名"}
   , middle      : { type: String, description: "中间名"}
   , last        : { type: String, description: "姓"}
@@ -47,14 +47,14 @@ function model() {
 /**
  * 创建用户
  * @param {Object} user 用户对象
- * @param {Function} callback(err) 回调函数，返回异常信息
+ * @param {Function} callback(err, user) 回调函数，返回新插入的用户
  */
 exports.add = function(user, callback) {
 
   var UserModel = model();
 
-  new UserModel(user).save(function(err){
-    callback(err);
+  new UserModel(user).save(function(err, result){
+    callback(err, result);
   });
 };
 
@@ -67,13 +67,13 @@ exports.get = function (uid, callback) {
 
   var userModel = model();
 
-  userModel.findOne({"uid": uid, "valid": 1}, function (err, result) {
+  userModel.findOne({"_id": uid, "valid": 1}, function (err, result) {
     callback(err, result);
   });
 };
 
 /**
- * 查询符合条件的用户数目
+ * 查询符合条件的有效用户的数目
  * @param {Object} condition 查询条件
  * @param {Function} callback(err, count) 回调函数，返回用户数目
  */
@@ -89,10 +89,10 @@ exports.total = function (condition, callback) {
 /**
  * 根据指定条件查询用户
  * @param {Object} condition 查询条件
- * @param {String} fields 查询的字段，例如："uid first email"
+ * @param {String} fields 查询的字段，例如："_id first email"
  * @param {Number} skip 跳过的文书数，默认为0
  * @param {Number} limit 返回的文书的上限数目，默认为20
- * @param {String} order 排序，例如："uid -first"
+ * @param {String} order 排序，例如："first email"
  * @param {Function} callback(err, users) 回调函数，返回用户列表
  */
 exports.getList = function (condition, fields, skip, limit, order, callback) {
@@ -112,15 +112,15 @@ exports.getList = function (condition, fields, skip, limit, order, callback) {
 /**
  * 根据用户标识更新用户
  * @param {String} uid 用户标识
- * @param {Object} newUser 更新命令
- * @param {Function} callback(err) 回调函数，返回异常信息
+ * @param {Object} command 更新命令
+ * @param {Function} callback(err, user) 回调函数，返回更新后的用户
  */
-exports.update = function (uid, newUser, callback) {
+exports.update = function (uid, command, callback) {
 
   var userModel = model();
 
-  userModel.findOneAndUpdate({"uid": uid}, newUser, function (err) {
-    callback(err);
+  userModel.findOneAndUpdate({"_id": uid, "valid": 1}, command, function (err, result) {
+    callback(err, result);
   });
 };
 
