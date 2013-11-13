@@ -15,7 +15,7 @@ var Db = require("mongodb").Db
   , Server = require("mongodb").Server
   , ObjectID = require("mongodb").ObjectID
   , GridStore = require("mongodb").GridStore
-  , conf = require("config").db;
+  , conf = require("config").db;// TODO 配置不合理,有依赖性
 
 // 基本设置
 var serverConfig = { poolSize : 2 } // number of connections in the connection pool, set to 5 as default.
@@ -27,7 +27,7 @@ var serverConfig = { poolSize : 2 } // number of connections in the connection p
  * 由于GridFS无法更新文件的元数据,File Schema用于存储更新用的文件元数据.
  */
 var File = new schema({
-    fileId      : { type: String, description: "GridFS的ID" }
+    fileId      : { type: schema.Types.ObjectId, description: "GridFS的ID" }
   , length      : { type: Number, description: "素材大小" }
   , chunkSize   : { type: Number, description: "每个chunk的大小.默认256k" }
   , filename    : { type: String, description: "素材名" }
@@ -118,7 +118,7 @@ exports.addFile = function(dbCode, fileName, filePath, options, newFile, callbac
 /**
  * 获取文件元数据
  * @param {string} dbCode DBcode
- * @param {string} fileInfoId 文件ID
+ * @param {ObjectID} fileInfoId 文件ID
  * @return <Function> callback 返回文件元数据
  */
 exports.getFileInfo = function (dbCode, fileInfoId, callback) {
@@ -133,13 +133,12 @@ exports.getFileInfo = function (dbCode, fileInfoId, callback) {
 /**
  * 获取文件实体
  * @param {string} dbCode DBcode
- * @param {string} fileInfoId GridFS的ID
+ * @param {ObjectID} fileInfoId GridFS的ID
  * @return <Function> callback 返回文件实体
  */
-exports.getFile = function (dbCode, fileid, callback) {
+exports.getFile = function (dbCode, fileId, callback) {
 
   // 从GridFS中读取文件本体
-  var fileId = new ObjectID(fileid);
   var db = new Db(dbCode, new Server(conf.host, conf.port, serverConfig), dbOptions);
 
   db.open(function(err, db) {
@@ -210,12 +209,11 @@ exports.updateFileInfo = function (dbCode, fileInfoId, updateFile, callback) {
 /**
  * 删除文件
  * @param {string} dbCode DBcode
- * @param {string} fileInfoId 文件ID
+ * @param {ObjectID} fileInfoId 文件ID
  * @return <Function> callback 返回文件元数据
  */
 // TODO 文件物理删除必要?
 exports.removeFile = function(dbCode, fileInfoId, callback) {
-
   async.waterfall([
     // 1.删除文件元数据
     function(callback) {
@@ -227,14 +225,12 @@ exports.removeFile = function(dbCode, fileInfoId, callback) {
     },
     // 2.删除文件实体
     // TODO callback中的异常没有处理
-    function(fileInfoData, callback) {
-
-      var fileId = new ObjectID(fileInfoData.fileId);
+    function(result, callback) {
       var db = new Db(dbCode, new Server(conf.host, conf.port, serverConfig), dbOptions);
 
       db.open(function(err, db) {
 
-        var gridStore = new GridStore(db, new ObjectID(fileId), "r");
+        var gridStore = new GridStore(db, result.fileId, "r");
         gridStore.open(function(err, gs) {
           // TODO 修正必要
           if (!gs) {
