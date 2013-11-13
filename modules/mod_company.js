@@ -17,9 +17,9 @@ var mongo       = require("mongoose")
  * @type {schema}
  */
 var Company = new schema({
-    code          : {type: String, description: "公司CODE"}
+    code          : {type: String, description: "公司CODE", unique: true}
   , name          : {type: String, description: "名称"}
-  , domain        : {type: String, description: "登陆url用的domain，对应顾客编集画面的公司ID"}
+  , domain        : {type: String, description: "登陆url用的domain，对应顾客编集画面的公司ID", unique: true}
   , type          : {type: String, description: "0:提案客户 1:委托客户 2:自营客户等"}
   , extend        : {type: Mixed,  description: "扩展属性" }
   , valid         : {type: Number, description: "删除 0:无效 1:有效", default:1}
