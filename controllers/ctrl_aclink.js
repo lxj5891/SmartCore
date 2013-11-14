@@ -11,7 +11,7 @@ var modAclink   = require("../modules/mod_aclink");
 /**
  * 检查关联是否存在
  * @param {Object} handler 上下文对象
- * @param {Function} callback(err, boolean) 返回关联是否存在
+ * @param {Function} callback 返回关联是否存在
  */
 exports.exist = function(handler, callback) {
 
@@ -27,7 +27,7 @@ exports.exist = function(handler, callback) {
 /**
  * 添加关联（关联记录存在，则将给定的子对象追加到列表中；不存在，则插入）
  * @param {Object} handler 上下文对象
- * @param {Function} callback(err) 返回异常信息
+ * @param {Function} callback 返回异常信息
  */
 exports.add = function(handler, callback) {
 
@@ -43,7 +43,7 @@ exports.add = function(handler, callback) {
 /**
  * 更新关联（使用新的的子对象列表完全替换原有的列表）
  * @param {Object} handler 上下文对象
- * @param {Function} callback(err) 返回异常信息
+ * @param {Function} callback 返回异常信息
  */
 exports.update = function(handler, callback) {
 
@@ -59,7 +59,7 @@ exports.update = function(handler, callback) {
 /**
  * 删除关联(并不是删除该条数据，只是从子对象列表中删除对应的子对象)
  * @param {Object} handler 上下文对象
- * @param {Function} callback(err) 返回异常信息
+ * @param {Function} callback 返回异常信息
  */
 exports.remove = function(handler, callback){
 
@@ -75,7 +75,7 @@ exports.remove = function(handler, callback){
 /**
  * 查询关联
  * @param {Object} handler 上下文对象
- * @param {Function} callback(err, link) 返回关联
+ * @param {Function} callback 返回关联
  */
 exports.get = function(handler, callback) {
 
@@ -90,7 +90,7 @@ exports.get = function(handler, callback) {
 /**
  * 检查用户是否有某种权限
  * @param {Object} handler 上下文对象
- * @param {Function} callback(err, boolean) 返回是否有某种权限
+ * @param {Function} callback 返回是否有某种权限
  */
 exports.hasPermission = function(handler, callback) {
 
