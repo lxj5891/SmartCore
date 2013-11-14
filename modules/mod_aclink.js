@@ -7,7 +7,7 @@
 "use strict";
 
 var mongo       = require("mongoose")
-  , conn        = require("./connection")
+  , conn        = require("../core/connection")
   , schema      = mongo.Schema;
 
 /**
@@ -22,11 +22,12 @@ var ACLink = new schema({
 
 /**
  * 使用定义好的Schema，生成ACLink的model
+ * @params {String} code DbCode
  * @returns {*} ACLink model
  */
-function model() {
+function model(code) {
 
-  return conn().model("ACLink", ACLink);
+  return conn().model(code, "ACLink", ACLink);
 }
 
 /**

@@ -7,8 +7,8 @@
 "use strict";
 
 var mongo       = require("mongoose")
+  , conn        = require("../core/connection")
   , constant    = require("../core/constant")
-  , conn        = require("./connection")
   , schema      = mongo.Schema
   , mixed       = schema.Types.Mixed;
 
@@ -37,11 +37,12 @@ var User = new schema({
 
 /**
  * 使用定义好的Schema，生成User的model
+ * @params {String} code DbCode
  * @returns {Object} User model
  */
-function model() {
+function model(code) {
 
-  return conn().model("User", User);
+  return conn.model(code, "User", User);
 }
 
 /**
