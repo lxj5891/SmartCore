@@ -6,66 +6,91 @@
 
 "use strict";
 
-var file     = require("../modules/mod_file.js")
-  , async     = require("async");
+var sync        = require("async")
+  , constant    = require("../core/constant")
+  , errors      = require("../core/errors")
+  , log         = require("../core/log")
+  , file        = require("../modules/mod_file.js");
+
 
 /**
  * 上传文件
- * @param {string} dbCode DBcode
- * @param {string} uid 创建者ID
- * @param {object} files 文件集合
- * @return <Function> callback 返回文件
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 返回追加的文件结果
  */
-exports.addFile = function(dbCode, uid, files, callback) {
+exports.add = function(handler, callback) {
+
+  var params = handler.params
+    , uid = handler.uid
+    , code = params.code
+    , files = params.files;
+
+  log.debug("begin: add file.", uid);
+  log.debug("DB code: ", code);
+  log.debug("file set: ", files);
 
   var result = [];
 
-  async.forEach(files, function(fileIndex, callback){
+  sync.forEach(files, function(fileIndex, callback) {
 
     var filePath = fileIndex.path;
     var fileName = fileIndex.name;
-    // TODO 日期,在那层赋值
+    var date = new Date();
     var newFile = {
-        valid : 1
-      , createAt : new Date().getTime()
-      , createBy : uid
-      , updateAt : new Date().getTime()
-      , updateBy : uid
+        valid: constant.VALID
+      , createAt: date
+      , createBy: uid
+      , updateAt: date
+      , updateBy: uid
       };
-    // TODO 未确定参数
+
     // root chunk_size  metadata readPreference wtimeout fsync journal
     var options = {
-      content_type : fileIndex.type
+      "content_type": fileIndex.type
     };
 
     // To save the file to GridFS
-    file.addFile(dbCode, fileName, filePath, options, newFile, function(err, fileData){
+    file.add(code, fileName, filePath, options, newFile, function(err, fileData) {
+
       if (err) {
-        // TODO 错误信息? 回调函数能不能统一
-        callback("new error.InternalServer(err)");
+        log.error(err, uid);
+        callback(new errors.InternalServer(__("js.ctr.common.system.error")));
       } else {
-        result.push(fileData)
+        result.push(fileData);
+        log.debug(fileData, uid);
         callback(err);
       }
     });
   }, function(err) {
+
+    log.debug("finished: add file.", uid);
     return callback(err, result);
   });
 };
 
 /**
  * 获取文件元数据
- * @param {string} dbCode DBcode
- * @param {string} fileInfoId 文件ID
- * @return <Function> callback 返回文件
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 返回文件元数据
  */
-exports.getFileInfo = function(dbCode, fileInfoId, callback) {
+exports.get = function(handler, callback) {
 
-  file.getFileInfo(dbCode, fileInfoId, function(err, result) {
+  var params = handler.params
+    , uid = handler.uid
+    , code = params.code
+    , fileInfoId = params.fileInfoId;
+
+  log.debug("begin: get fileInfo.", uid);
+  log.debug("DB code: ", code);
+  log.debug("fileInfo id: ", fileInfoId);
+
+  file.get(code, fileInfoId, function(err, result) {
     if (err) {
-      // TODO 错误信息?
-      return callback("new error.InternalServer(err)",null);
+      log.error(err, uid);
+      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
+      log.debug(result, uid);
+      log.debug("finished: get fileInfo.", uid);
       return callback(err, result);
     }
   });
@@ -73,17 +98,28 @@ exports.getFileInfo = function(dbCode, fileInfoId, callback) {
 
 /**
  * 获取文件实体
- * @param {string} dbCode DBcode
- * @param {string} fileInfoId GridFS的ID
- * @return <Function> callback 返回文件实体
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 返回文件实体
  */
-exports.getFile = function(dbCode, fileid, callback) {
+exports.getFile = function(handler, callback) {
 
-  file.getFile(dbCode, fileid, function(err, result) {
+  var params = handler.params
+    , uid = handler.uid
+    , code = params.code
+    , fileId = params.fileId;
+
+  log.debug("begin: get file.", uid);
+  log.debug("DB code: ", code);
+  log.debug("file id: ", fileId);
+
+  file.getFile(code, fileId, function(err, result) {
+    // TODO 404错误
     if (err) {
-      // TODO 错误信息?
-      return callback("new error.InternalServer(err)");
+      log.error(err, uid);
+      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
+      log.debug(result, uid);
+      log.debug("finished: get file.", uid);
       return callback(err, result);
     }
   });
@@ -91,37 +127,115 @@ exports.getFile = function(dbCode, fileid, callback) {
 
 /**
  * 获取所有文件元数据
- * @param {string} dbCode DBcode
- * @param {object} conditions 检索条件
- * @return <Function> callback 返回文件元数据
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 返回文件元数据
  */
-// TODO 条件怎么定义
-exports.getFileInfoList = function(dbCode, conditions, callback) {
+exports.getList = function(handler, callback) {
 
-  file.getFileInfoList(dbCode, conditions, function(err, result) {
+  var params = handler.params
+    , uid = handler.uid
+    , code = params.code
+    , start = params.start
+    , limit = params.limit
+    , condition = params.condition
+    , order = params.order;
+
+  log.debug("begin: get file list.", uid);
+  log.debug("DB code: ", code);
+  log.debug("start: ", start);
+  log.debug("limit: ", limit);
+  log.debug("condition: ", condition);
+  log.debug("order: ", order);
+
+  // 获取件数
+  file.total(code, condition, function(err, count) {
     if (err) {
-      // TODO
-      return callback("new error.InternalServer(err)");
+      log.error(err, uid);
+      callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+      return;
+    }
+
+    // 获取一览
+    file.getList(code, condition, start, limit, order, function(err, result) {
+      if (err) {
+        log.error(err, uid);
+        return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+      }
+      log.debug("result:" + result, uid);
+      log.debug("count:" + count, uid);
+      log.debug("finished: get file list.", uid);
+      return callback(err,  { totalItems: count, items: result });
+    });
+  });
+};
+
+/**
+ * 更新文件元数据
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 返回文件元数据
+ */
+exports.update = function(handler, callback) {
+
+  var params = handler.params
+    , uid = handler.uid
+    , code = params.code
+    , fileInfoId = params.fileInfoId
+    , updateFile = params.updateFile;
+
+  updateFile.updateAt = new Date();
+  updateFile.updateBy = uid;
+
+  log.debug("begin: update fileInfo.", uid);
+  log.debug("DB code: ", code);
+  log.debug("fileInfo Id: ", fileInfoId);
+  log.debug("update File: ", updateFile);
+
+  file.update(code, fileInfoId, updateFile,  function(err, result) {
+    if (err) {
+      log.error(err, uid);
+      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
+      log.debug(result, uid);
+      log.debug("finished: update fileInfo.", uid);
       return callback(err, result);
     }
   });
 };
 
 /**
- * 更新文件元数据
- * @param {string} dbCode DBcode
- * @param {ObjectID} fileInfoId 文件元数据ID
- * @param {object} fileInfoId 更新的文件对象
- * @return <Function> callback 返回文件元数据
+ * 更新文件元数据和实体
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 返回文件元数据和实体
  */
-exports.updateFileInfo = function(dbCode, fileInfoId, updateFile, callback) {
+exports.updateFile = function(handler, callback) {
 
-  file.updateFileInfo(dbCode, fileInfoId, updateFile,  function(err, result) {
+  var params = handler.params
+    , uid = handler.uid
+    , code = params.code
+    , fileInfoId = params.fileInfoId
+    , updateFile = params.updateFile
+    , fileName = params.fileName
+    , filePath = params.filePath
+    , options = params.options;
+
+  updateFile.updateAt = new Date();
+  updateFile.updateBy = uid;
+
+  log.debug("begin: update file.", uid);
+  log.debug("DB code: ", code);
+  log.debug("fileInfo Id: ", fileInfoId);
+  log.debug("update file: ", updateFile);
+  log.debug("file name: ", fileName);
+  log.debug("file path: ", filePath);
+  log.debug("file options: ", options);
+
+  file.updateFile(code, fileInfoId, updateFile, fileName, filePath, options, function(err, result) {
     if (err) {
-      // TODO
-      return callback("new error.InternalServer(err)");
+      log.error(err, uid);
+      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
+      log.debug(result, uid);
+      log.debug("finished: update file.", uid);
       return callback(err, result);
     }
   });
@@ -129,17 +243,32 @@ exports.updateFileInfo = function(dbCode, fileInfoId, updateFile, callback) {
 
 /**
  * 删除文件
- * @param {string} dbCode DBcode
- * @param {string} fileInfoId 文件ID
- * @return <Function> callback 返回文件元数据
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 返回删除后的文件元数据
  */
-exports.removeFile = function(dbCode, fileInfoId, callback) {
+exports.remove = function(handler, callback) {
 
-  file.removeFile(dbCode, fileInfoId, function(err, result) {
+  var params = handler.params
+    , uid = handler.uid
+    , code = params.code
+    , fileInfoId = params.fileInfoId
+    , updateFile = params.updateFile;
+
+  updateFile.updateAt = new Date();
+  updateFile.updateBy = uid;
+
+  log.debug("begin: remove fileInfo.", uid);
+  log.debug("DB code: ", code);
+  log.debug("fileInfo Id: ", fileInfoId);
+  log.debug("update file: ", updateFile);
+
+  file.remove(code, fileInfoId, updateFile, function(err, result) {
     if (err) {
-      // TODO
-      return callback("new error.InternalServer(err)");
+      log.error(err, uid);
+      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
+      log.debug(result, uid);
+      log.debug("finished: remove fileInfo.", uid);
       return callback(err, result);
     }
   });
@@ -147,17 +276,27 @@ exports.removeFile = function(dbCode, fileInfoId, callback) {
 
 /**
  * 获取文件件数
- * @param {string} code DBCode
- * @param {object} condition 条件
- * @return {function} callback 返回素材件数
+ * @param {Object} handler 上下文对象
+ * @param {function} callback 返回文件件数
  */
-exports.total = function(dbCode, condition, callback) {
+exports.total = function(handler, callback) {
 
-  file.total(dbCode, condition,  function(err, result) {
+  var params = handler.params
+    , uid = handler.uid
+    , code = params.code
+    , condition = params.condition;
+
+  log.debug("begin: total.", uid);
+  log.debug("DB code: ", code);
+  log.debug("condition: ", condition);
+
+  file.total(code, condition, function(err, result) {
     if (err) {
-      // TODO
-      return callback("new error.InternalServer(err)");
+      log.error(err, uid);
+      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
+      log.debug(result, uid);
+      log.debug("finished: total.", uid);
       return callback(err, result);
     }
   });

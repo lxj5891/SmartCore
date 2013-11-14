@@ -18,7 +18,7 @@ describe("controllers/ctrl_file.js", function() {
 
   var newFile = {
       name : "test_file"
-    , path : "../SmartCore/test/data/test_file.txt"
+    , path : "./test/data/test_file.txt"
     , type : "text/plain"
     };
 
@@ -36,7 +36,7 @@ describe("controllers/ctrl_file.js", function() {
    * 执行测试case
    */
   /*****************************************************************/
-  describe("addFile()", function() {
+  describe("add()", function() {
     var newFile = {
         name : "test_file"
       , path : "aaaaaaaaaaaaaaaaaaaa.txt"
@@ -46,7 +46,7 @@ describe("controllers/ctrl_file.js", function() {
     var files = [];
     files.push(newFile);
     it("should return err when file not exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, result) {
+      file.add(dbCode, uid, files, function(err, result) {
         should.exist(err);
         should(result).eql([]);
         done();
@@ -54,7 +54,7 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK", function(done) {
-      file.addFile(dbCode, uid, files, function(err, result) {
+      file.add(dbCode, uid, files, function(err, result) {
         should.not.exist(err);
         should(result).not.eql(null);
         result.length.should.eql(4);
@@ -64,9 +64,9 @@ describe("controllers/ctrl_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("getFileInfo()", function() {
+  describe("get()", function() {
     it("should return err when fileInfoid not exists", function(done) {
-      file.getFileInfo(dbCode, "", function(err, result) {
+      file.get(dbCode, "", function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -74,8 +74,8 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
-        file.getFileInfo(dbCode, fileList[0]._id, function(err, result) {
+      file.add(dbCode, uid, files, function(err, fileList) {
+        file.get(dbCode, fileList[0]._id, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.should.have.property("_id").and.eql(fileList[0]._id);
@@ -96,7 +96,7 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
+      file.add(dbCode, uid, files, function(err, fileList) {
         file.getFile(dbCode, fileList[0].fileId, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
@@ -107,9 +107,9 @@ describe("controllers/ctrl_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("getFileInfoList()", function() {
+  describe("getList()", function() {
     it("should return err", function(done) {
-      file.getFileInfoList(dbCode, { 1 : 1 }, function(err, result) {
+      file.getList(dbCode, { 1 : 1 }, function(err, result) {
         should.not.exist(err);
         should(result).eql([]);
         done();
@@ -117,8 +117,8 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
-        file.getFileInfoList(dbCode, { valid : 1 }, function(err, result) {
+      file.add(dbCode, uid, files, function(err, fileList) {
+        file.getList(dbCode, { valid : 1 }, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.length.should.be.above(3);
@@ -129,9 +129,9 @@ describe("controllers/ctrl_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("updateFileInfo()", function() {
+  describe("update()", function() {
     it("should return err when fileInfoid not exists", function(done) {
-      file.updateFileInfo(dbCode, "", "", function(err, result) {
+      file.update(dbCode, "", "", function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -139,11 +139,11 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
+      file.add(dbCode, uid, files, function(err, fileList) {
         var updateFile = {
           filename : "updated File"
         };
-        file.updateFileInfo(dbCode, fileList[0]._id, updateFile, function(err, result) {
+        file.update(dbCode, fileList[0]._id, updateFile, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.should.have.property("_id").and.eql(fileList[0]._id);
@@ -155,9 +155,9 @@ describe("controllers/ctrl_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("removeFile()", function() {
+  describe("remove()", function() {
     it("should return err when fileInfoid not exists", function(done) {
-      file.removeFile(dbCode, "", function(err, result) {
+      file.remove(dbCode, "", function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -165,8 +165,8 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
-        file.removeFile(dbCode, fileList[0]._id, function(err, result) {
+      file.add(dbCode, uid, files, function(err, fileList) {
+        file.remove(dbCode, fileList[0]._id, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.should.have.property("fileId").and.eql(fileList[0].fileId);
@@ -187,7 +187,7 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
+      file.add(dbCode, uid, files, function(err, fileList) {
         file.total(dbCode, { fileName : fileList[0].fileName }, function(err, result) {
           should.not.exist(err);
           result.should.be.above(3);
