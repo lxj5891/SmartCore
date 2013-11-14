@@ -8,6 +8,7 @@
 
 var mongo       = require("mongoose")
   , util        = require("../core/util")
+  , constant    = require("../core/constant")
   , conn        = require("./connection")
   , schema      = mongo.Schema
   , Mixed       = mongo.Schema.Types.Mixed;
@@ -17,16 +18,16 @@ var mongo       = require("mongoose")
  * @type {schema}
  */
 var Company = new schema({
-    code          : {type: String, description: "公司CODE", unique: true}
-  , name          : {type: String, description: "名称"}
-  , domain        : {type: String, description: "登陆url用的domain，对应顾客编集画面的公司ID", unique: true}
-  , type          : {type: String, description: "0:提案客户 1:委托客户 2:自营客户等"}
-  , extend        : {type: Mixed,  description: "扩展属性" }
-  , valid         : {type: Number, description: "删除 0:无效 1:有效", default:1}
-  , createAt      : {type: Date,   description: "创建时间"}
-  , creator       : {type: String, description: "创建者"}
-  , updateAt      : {type: Date,   description: "最终修改时间"}
-  , updater       : {type: String, description: "最终修改者"}
+    code          : { type: String, description: "公司CODE", unique: true }
+  , name          : { type: String, description: "名称" }
+  , domain        : { type: String, description: "登陆url用的domain，对应顾客编集画面的公司ID", unique: true }
+  , type          : { type: String, description: "0:提案客户 1:委托客户 2:自营客户等" }
+  , extend        : { type: Mixed,  description: "扩展属性" }
+  , valid         : { type: Number, description: "删除 0:无效 1:有效", default:constant.VALID }
+  , createAt      : { type: Date,   description: "创建时间" }
+  , createBy      : { type: String, description: "创建者" }
+  , updateAt      : { type: Date,   description: "最终修改时间" }
+  , updateBy      : { type: String, description: "最终修改者" }
   });
 
 /**
@@ -41,7 +42,7 @@ function model() {
 /**
  * 取得唯一的Code（系统内部使用）
  * 先生成随机的ID，由于改ID不能确保是唯一的，所以要在数据库中查询是否已经存在来确保获取唯一的ID。
- * @param {function} callback 回调函数，返回生成的内部用公司code
+ * @param {Function} callback 回调函数，返回生成的内部用公司code
  */
 function createCode(callback) {
 
@@ -55,7 +56,7 @@ function createCode(callback) {
     }
 
     if (count > 0) {
-      createCode(comp, callback);
+      createCode(callback);
     } else {
       callback(err, guid);
     }
@@ -64,19 +65,20 @@ function createCode(callback) {
 
 /**
  * 获取公司一览
- * @param {object} condition 条件
- * @param {integer} start 数据开始位置
- * @param {integer} limit 数据件数
- * @param {function} callback 回调函数，返回公司一览
+ * @param {Object} condition 条件
+ * @param {Number} start 数据开始位置
+ * @param {Number} limit 数据件数
+ * @param {Number} order 排序
+ * @param {Function} callback 回调函数，返回公司一览
  */
-exports.getList = function(condition, start, limit, callback){
+exports.getList = function(condition, start, limit, order, callback){
 
   var comp = model();
 
   comp.find(condition)
     .skip(start || 0)
-    .limit(limit || 20)
-    .sort({ "updateAt": "desc" })
+    .limit(limit || constant.MOD_DEFAULT_LIMIT)
+    .sort(order)
     .exec(function(err, result) {
       return callback(err, result);
     });
@@ -84,8 +86,8 @@ exports.getList = function(condition, start, limit, callback){
 
 /**
  * 通过公司ID获取一个公司
- * @param {string} domain 公司的域名，一般是邮箱域名，也可以设计成与域名无关
- * @param {function} callback 回调函数，返回公司对象
+ * @param {String} domain 公司的域名，一般是邮箱域名，也可以设计成与域名无关
+ * @param {Function} callback 回调函数，返回公司对象
  */
 exports.getByDomain = function(domain, callback) {
 
@@ -98,8 +100,8 @@ exports.getByDomain = function(domain, callback) {
 
 /**
  * 通过公司Code获取一个公司
- * @param {string} code 内部用公司号
- * @param {function} callback 回调函数，返回公司对象
+ * @param {String} code 内部用公司号
+ * @param {Function} callback 回调函数，返回公司对象
  */
 exports.getByCode = function(code, callback) {
 
@@ -112,8 +114,8 @@ exports.getByCode = function(code, callback) {
 
 /**
  * 获取指定公司
- * @param {string} compid 公司ID
- * @param {function} callback 回调函数，返回公司对象
+ * @param {String} compid 公司ID
+ * @param {Function} callback 回调函数，返回公司对象
  */
 exports.get = function(compid, callback) {
 
@@ -126,8 +128,8 @@ exports.get = function(compid, callback) {
 
 /**
  * 添加公司
- * @param {object} newComp 新的公司对象
- * @param {function} callback 回调函数，返回添加的公司对象
+ * @param {Object} newComp 新的公司对象
+ * @param {Function} callback 回调函数，返回添加的公司对象
  */
 exports.add = function(newComp, callback){
 
@@ -148,13 +150,12 @@ exports.add = function(newComp, callback){
 
 /**
  * 更新指定公司
- * @param {string} compid 公司ID
- * @param {object} newComp 更新用公司对象
- * @param {function} callback 回调函数，返回更新结果
+ * @param {String} compid 公司ID
+ * @param {Object} newComp 更新用公司对象
+ * @param {Function} callback 回调函数，返回更新结果
  */
 exports.update = function(compid, newComp, callback) {
 
-  // 当code存在
   var comp = model();
 
   comp.findByIdAndUpdate(compid, newComp, function(err, result) {
@@ -164,14 +165,13 @@ exports.update = function(compid, newComp, callback) {
 
 /**
  * 获取公司有效件数
- * @param {object} condition 检索条件
- * @param {function} callback 回调函数，返回件数
+ * @param {Object} condition 检索条件
+ * @param {Function} callback 回调函数，返回件数
  */
 exports.total = function(condition, callback) {
 
   var comp = model();
 
-  condition.valid = 1;
   comp.count(condition).exec(function(err, count) {
     return callback(err, count);
   });

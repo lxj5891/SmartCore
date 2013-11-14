@@ -55,10 +55,10 @@ exports.add = function(handler, callback) {
   comp.domain = params.domain;
   comp.type = params.type;
   comp.extend = params.extend;
-  comp.createAt = new Date();
-  comp.creator = params.creator || uid;
+  comp.createAt = params.createAt || new Date();
+  comp.createBy = params.creator || uid;
   comp.updateAt = comp.createAt;
-  comp.updater = params.updater || uid;
+  comp.updateBy = params.updater || uid;
 
   sync.waterfall([
 
