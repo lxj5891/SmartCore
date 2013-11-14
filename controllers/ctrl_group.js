@@ -43,6 +43,7 @@ function updateCompletely(handler, isInsert, callback) {
       // 类型, 1:部门（公司组织结构）, 2:组（自由创建）, 3:职位组
       group.type = params.type;
       check(group.type, __("group.error.emptyType")).notEmpty();
+
       check(group.type, __("group.error.invalidType")).isIn(
         [constant.GROUP_TYPE_DEPARTMENT, constant.GROUP_TYPE_GROUP, constant.GROUP_TYPE_OFFICIAL]);
     } else {
@@ -169,8 +170,10 @@ exports.updateGroup = function(handler, callback) {
  */
 exports.removeGroup = function(handler, callback) {
 
-  // TODO 如何删除组？ 只要组下面还有用户，就不允许删除？
-  // TODO 删除时下面的组一起全部删除？
+  // TODO 如何删除组？
+  // 部门 刪除組及下位所有組，用戶怎么处理？（前提：一个用户可能属于多个部门组）
+  // 自由创建 刪除組，不刪除用戶
+  // 职位组 刪除組，不刪除用戶
 };
 
 /**
