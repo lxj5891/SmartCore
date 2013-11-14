@@ -34,8 +34,9 @@ describe("controllers/ctrl_company.js", function() {
     })
     , handler = new context().bind(req, res);
 
-  /*****************************************************************/
   describe("add()", function() {
+
+    /*****************************************************************/
     it("add", function(done) {
       company.add(handler, function(err, result) {
 
