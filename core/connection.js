@@ -1,5 +1,10 @@
 /**
  * @file 管理数据库连接
+ *  默认的collection名称前面会自动添加prefix
+ *  如果需要指定自定义的名称，则可以在schema里明确指出（为了对应多个应用共享一个数据库而设计）
+ *  prefix与schema在config文件里定义.
+ *  code是用来指定数据库实例的，当多个公司公用一个数据库是，每个公司的使用自己独立的数据库实例
+ *  此时，数据库实例的名字即为coede（code是随机生成的8为数）.
  * @author r2space@gmail.com
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
@@ -64,7 +69,7 @@ function getMongoConnection(code) {
     return createConnection(host, port, code, poolSize);
   }
 
-  // 连接被断开, 重新建立连接
+  // 如果连接被断开, 重新建立连接
   if (conn.readyState === 0) {
 
     log.info("Re-new the connection.");
@@ -87,7 +92,7 @@ exports.model = function(code, name, schema) {
   var conn = getMongoConnection(code)
     , collection = "";
 
-  // 没有特别指定的collection名，同意添加前缀
+  // 没有特别指定的collection名，统一添加前缀
   if (conf.schema && _.has(conf.schema, name)) {
     collection = conf.schema[name];
   } else {
@@ -97,13 +102,3 @@ exports.model = function(code, name, schema) {
   log.debug("Collection name: " + collection);
   return conn.model(collection, schema);
 };
-
-
-/**
- * 获取连接字符串
- * @param {String} code 数据库标识符
- * @returns {Object} 数据库连接对象
- */
-//module.exports = function(code) {
-//  return getMongoConnection(code);
-//};

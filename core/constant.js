@@ -22,13 +22,13 @@ exports.MOD_GRIDSTORE_MODE_WRITE = "w";
 exports.MOD_GRIDSTORE_MODE_READ = "r";
 
 /** 组类型 */
-exports.GROUP_TYPE_DEPARTMENT = 1; // 部门（公司组织结构）
-exports.GROUP_TYPE_GROUP = 2; // 组（自由创建）
-exports.GROUP_TYPE_OFFICIAL = 3; // 职位组
+exports.GROUP_TYPE_DEPARTMENT = "1"; // 部门（公司组织结构）
+exports.GROUP_TYPE_GROUP = "2"; // 组（自由创建）
+exports.GROUP_TYPE_OFFICIAL = "3"; // 职位组
 
 /** 组公开性 */
-exports.GROUP_PRIVATE = 1; // 私密
-exports.GROUP_PUBLIC = 2; // 公开
+exports.GROUP_PRIVATE = "1"; // 私密
+exports.GROUP_PUBLIC = "2"; // 公开
 
 exports.MODULES_NAME_FILE = "File";
 
