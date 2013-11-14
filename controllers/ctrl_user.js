@@ -9,7 +9,6 @@
 var async       = require("async")
   , _           = require("underscore")
   , check       = require("validator").check
-  , auth        = require("../core/auth")
   , constant    = require("../core/constant")
   , errors      = require("../core/errors")
   , util        = require("../core/util")
@@ -58,7 +57,6 @@ function updateCompletely(handler, isInsert, callback) {
     if(isInsert) {
       user.password = params.password;
       check(user.password, __("user.error.emptyPwd")).notEmpty();
-      user.password = auth.sha256(user.password);
     } else {
       user.password = undefined;
     }
@@ -301,21 +299,6 @@ exports.getUsersInGroup = function(handler, callback) {
         getUsersDirectlyInGroup(gid, fields, order, callback);
       }
     }
-  });
-};
-
-/**
- * 判断用户是否可以登录(用户名和密码是否匹配)
- * @param {Object} handler 上下文对象
- * @param {Function} callback 回调函数，返回是否可以登录
- */
-exports.canLogin = function(handler, callback) {
-
-  var userName = handler.params.userName;
-  var password = handler.params.password;
-
-  modUser.total({"userName": userName, "password": auth.sha256(password), "valid": constant.VALID}, function(err, count) {
-    callback(err, count === 1);
   });
 };
 
