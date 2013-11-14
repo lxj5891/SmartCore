@@ -69,7 +69,7 @@ exports.add = function(handler, callback) {
       company.getByDomain(comp.domain, function(err, result) {
         if (err) {
           log.error(err, uid);
-          return  done(new errors.InternalServer(__("js.ctr.common.system.error")));
+          return done(new errors.InternalServer(__("js.ctr.common.system.error")));
         }
 
         if (result) {
@@ -97,6 +97,57 @@ exports.add = function(handler, callback) {
   ], function(err, result) {
 
     log.debug("finished: add company.", uid);
-    callback(err, result);
+    return callback(err, result);
   });
+};
+
+/**
+ * 获取公司一览
+ * @param handler
+ * @param callback
+ */
+exports.getList = function(handler ,callback) {
+
+  var params = handler.params
+    , uid = handler.uid
+    , start = params.start
+    , limit = params.limit
+    , condition = params.condition
+    , order = params.order;
+
+  // 获取件数
+  company.total(condition, function(err, count) {
+    if (err) {
+      log.error(err, uid);
+      callback(new errors.InternalServer(err));
+      return;
+    }
+
+    // 获取一览
+    company.getList(condition, start, limit, order, function(err, result) {
+      if (err) {
+        log.error(err, uid);
+        return callback(new errors.InternalServer(err));
+      }
+
+      return callback(err,  { totalItems: count, items: result });
+    });
+  });
+};
+
+/**
+ * 获取公司一览, 用关键字模糊检索
+ * @param handler
+ * @param callback
+ */
+exports.getListByKeyword = function(handler ,callback) {
+
+  var params = handler.params
+    , keyword = params.keyword;
+
+  if (keyword) {
+    params.addParams("$or", [{ "name": new RegExp(keyword.toLowerCase(), "i") }]);
+  }
+
+  exports.getList(handler, callback);
 };
