@@ -9,7 +9,7 @@
 var mongo       = require("mongoose")
   , util        = require("../core/util")
   , constant    = require("../core/constant")
-  , conn        = require("./connection")
+  , conn        = require("../core/connection")
   , schema      = mongo.Schema
   , Mixed       = mongo.Schema.Types.Mixed;
 
@@ -32,11 +32,10 @@ var Company = new schema({
 
 /**
  * 使用定义好的Schema，生成Company的model
- * @returns {*} company model
+ * @returns {Object} company model
  */
 function model() {
-
-  return conn().model("Company", Company);
+  return conn.model(undefined, "Company", Company);
 }
 
 /**
