@@ -18,10 +18,12 @@ var file     = require("../modules/mod_file.js")
  */
 exports.addFile = function(dbCode, uid, files, callback) {
 
-  async.forEach(files, function(file, callback){
+  var result = [];
 
-    var filePath = file.path;
-    var fileName = file.name;
+  async.forEach(files, function(fileIndex, callback){
+
+    var filePath = fileIndex.path;
+    var fileName = fileIndex.name;
     // TODO 日期,在那层赋值
     var newFile = {
         valid : 1
@@ -33,19 +35,20 @@ exports.addFile = function(dbCode, uid, files, callback) {
     // TODO 未确定参数
     // root chunk_size  metadata readPreference wtimeout fsync journal
     var options = {
-      content_type : file.type
+      content_type : fileIndex.type
     };
 
     // To save the file to GridFS
-    file.addFile(dbCode, fileName, filePath, options, newFile, function(err, result){
+    file.addFile(dbCode, fileName, filePath, options, newFile, function(err, fileData){
       if (err) {
         // TODO 错误信息? 回调函数能不能统一
-        return callback("new error.InternalServer(err)", null);
+        callback("new error.InternalServer(err)");
       } else {
-        return callback(err, result);
+        result.push(fileData)
+        callback(err);
       }
     });
-  }, function(err, result) {
+  }, function(err) {
     return callback(err, result);
   });
 };
@@ -61,7 +64,7 @@ exports.getFileInfo = function(dbCode, fileInfoId, callback) {
   file.getFileInfo(dbCode, fileInfoId, function(err, result) {
     if (err) {
       // TODO 错误信息?
-      return callback("new error.InternalServer(err)");
+      return callback("new error.InternalServer(err)",null);
     } else {
       return callback(err, result);
     }

@@ -5,6 +5,7 @@ var fs        = require("fs")
   , os        = require("os")
   , path      = require("path")
   , exec      = require("child_process").exec
+  , test      = require("../core/test")
   , home      = path.resolve(__dirname , "..");
 
 /**
@@ -16,7 +17,10 @@ var target = [
     "test/core/test_log.js"
   , "test/core/test_context.js"
   , "test/core/test_errors.js"
+
   , "test/modules/test_mod_company.js"
+
+  , "test/controllers/test_ctrl_company.js"
   ];
 
 /**
@@ -68,14 +72,12 @@ runCommand(rm, function(err) {
   runCommand(core, function() {});
 
   // 执行测试代码，生成报告
-  var test = "mocha " + target.join(" ") + " -R html-cov > coverage/coverage.html";
+  var mocha = "mocha " + target.join(" ") + " -R html-cov > coverage/coverage.html";
 
   // 在环境变量里添加测试标识，数据库连接时根据该标识切换要使用的数据库
-  process.env.TEST = 1;
-  process.env.NODE_CONFIG_DIR = process.cwd() + "/test/config";
-  process.env.LOG4JS_CONFIG = process.cwd() + "/test/config/log4js.json";
+  test.befor();
 
-  runCommand(test, function(err) {
+  runCommand(mocha, function(err) {
     if (err) {
       console.log(err);
       return;

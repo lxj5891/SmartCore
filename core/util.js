@@ -15,6 +15,7 @@ exports.randomGUID4 = function() {
 
 /**
  * 简单生成随机8位字符串, 会有重复数据生成
+ * GUID : Global Unique Identifier
  */
 exports.randomGUID8 = function() {
   return exports.randomGUID4() + exports.randomGUID4();

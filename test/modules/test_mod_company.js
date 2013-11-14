@@ -12,7 +12,7 @@ var should  = require("should")
 /**
  * 测试代码
  */
-describe("Company Module", function() {
+describe("modules/mod_company.js", function() {
 
   /**
    * 初始化测试数据
@@ -23,118 +23,133 @@ describe("Company Module", function() {
       name        : "4"
     , domain      : "1"
     , type        : "2"
-    , extend      : { mail: "test@dac.com", kana: "かな" }
+    , extend      : { mail: "test@dac.com", kana: "kana" }
     , valid       : 1
     , createAt    : new Date()
-    , creator     : "8"
+    , createBy    : "8"
     , updateAt    : new Date()
-    , updater     : "9"
+    , updateBy    : "9"
     };
 
   /**
    * 执行测试case
    */
   /*****************************************************************/
-  it("add", function(done) {
+  describe("add()", function() {
+    it("correct create new company", function(done) {
 
-    company.add(data, function(err, result) {
+      company.add(data, function(err, result) {
 
-      should.not.exist(err);
-      should.exist(result);
+        should.not.exist(err);
+        should.exist(result);
 
-      should.exist(result._id);
-      should.exist(result.code);
-      result.name.should.equal("4");
-      result.domain.should.equal("1");
-      result.type.should.equal("2");
-      result.extend.mail.should.equal("test@dac.com");
-      result.valid.should.equal(1);
-      result.creator.should.equal("8");
-      should.exist(result.createAt);
-      result.updater.should.equal("9");
-      should.exist(result.updateAt);
+        should.exist(result._id);
+        should.exist(result.code);
+        result.should.have.property("name").and.equal("4");
+        result.should.have.property("domain").and.equal("1");
+        result.should.have.property("type").and.equal("2");
+        result.should.have.property("extend");
+        result.should.have.property("valid").and.equal(1);
+        result.should.have.property("createBy").and.equal("8");
+        result.should.have.property("createAt");
+        result.should.have.property("updateBy").and.equal("9");
+        result.should.have.property("updateAt");
+        result.extend.mail.should.equal("test@dac.com");
 
-      id = result._id;
-      code = result.code;
-      done();
+        id = result._id;
+        code = result.code;
+        done();
+      });
     });
   });
 
   /*****************************************************************/
-  it("getList", function(done) {
+  describe("getList()", function() {
+    it("correct get list", function(done) {
 
-    company.getList({name: "4"}, 0, 10, function(err, result) {
+      company.getList({name: "4"}, 0, 10, {updateAt: "desc"}, function(err, result) {
 
-      should.not.exist(err);
-      should.exist(result);
+        should.not.exist(err);
+        should.exist(result);
 
-      result.length.should.above(1);
-      done();
+        result.length.should.above(1);
+        done();
+      });
     });
   });
 
   /*****************************************************************/
-  it("getByDomain", function(done) {
+  describe("getByDomain()", function() {
+    it("correct getByDomain", function(done) {
 
-    company.getByDomain("1", function(err, result) {
+      company.getByDomain("1", function(err, result) {
 
-      should.not.exist(err);
-      should.exist(result);
+        should.not.exist(err);
+        should.exist(result);
 
-      result.domain.should.equal("1");
-      done();
+        result.domain.should.equal("1");
+        done();
+      });
     });
   });
 
   /*****************************************************************/
-  it("getByCode", function(done) {
+  describe("getByCode()", function() {
+    it("correct getByCode", function(done) {
 
-    company.getByCode(code, function(err, result) {
+      company.getByCode(code, function(err, result) {
 
-      should.not.exist(err);
-      should.exist(result);
+        should.not.exist(err);
+        should.exist(result);
 
-      result.domain.should.equal("1");
-      done();
+        result.domain.should.equal("1");
+        done();
+      });
     });
   });
 
   /*****************************************************************/
-  it("get", function(done) {
+  describe("get()", function() {
+    it("correct get", function(done) {
 
-    company.get(id, function(err, result) {
+      company.get(id, function(err, result) {
 
-      should.not.exist(err);
-      should.exist(result);
+        should.not.exist(err);
+        should.exist(result);
 
-      result.domain.should.equal("1");
-      done();
+        result.domain.should.equal("1");
+        done();
+      });
     });
   });
 
   /*****************************************************************/
-  it("update", function(done) {
+  describe("update()", function() {
+    it("correct update", function(done) {
 
-    company.update(id, {domain: "11"}, function(err, result) {
+      company.update(id, {domain: "11"}, function(err, result) {
 
-      should.not.exist(err);
-      should.exist(result);
+        should.not.exist(err);
+        should.exist(result);
 
-      result.domain.should.equal("11");
-      done();
+        result.domain.should.equal("11");
+        done();
+      });
     });
   });
 
   /*****************************************************************/
-  it("total", function(done) {
+  describe("total()", function() {
+    it("correct total", function(done) {
 
-    company.total({"code": code}, function(err, result) {
+      company.total({"code": code}, function(err, result) {
 
-      should.not.exist(err);
-      should.exist(result);
+        should.not.exist(err);
+        should.exist(result);
 
-      result.should.equal(1);
-      done();
+        result.should.equal(1);
+        done();
+      });
     });
   });
 
