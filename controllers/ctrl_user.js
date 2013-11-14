@@ -46,7 +46,7 @@ function updateCompletely(handler, isInsert, callback) {
       user.userName = params.userName;
       check(user.userName, __("user.error.emptyUserName")).notEmpty();
     } else {
-      user.userName = null;
+      user.userName = undefined;
     }
 
     // 真实名
@@ -55,9 +55,13 @@ function updateCompletely(handler, isInsert, callback) {
     user.last = params.last;
 
     // 密码
-    user.password = params.password;
-    check(user.password, __("user.error.emptyPwd")).notEmpty();
-    user.password = auth.sha256(user.password);
+    if(isInsert) {
+      user.password = params.password;
+      check(user.password, __("user.error.emptyPwd")).notEmpty();
+      user.password = auth.sha256(user.password);
+    } else {
+      user.password = undefined;
+    }
 
     // 所属组一览
     user.groups = params.groups || [];
@@ -95,6 +99,10 @@ function updateCompletely(handler, isInsert, callback) {
       user.valid = constant.VALID;
       user.createAt = curDate;
       user.createBy = updateBy;
+    } else {
+      user.valid = undefined;
+      user.createAt = undefined;
+      user.createBy = undefined;
     }
     user.updateAt = curDate;
     user.updateBy = updateBy;

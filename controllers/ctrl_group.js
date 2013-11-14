@@ -15,21 +15,6 @@ var _            = require("underscore")
   , modGroup     = require("../modules/mod_group")
   , modUser      = require("../modules/mod_user");
 
-// 类型常量
-exports.GroupType = {
-  Dept: "1", // 部门（公司组织结构）
-  Group: "2", // 组（自由创建）
-  Manage: "3" // 职位组
-};
-
-// 公开性常量
-exports.PublicType = {
-  Private: "1", // 私密
-  Public: "2" // 公开
-};
-
-var rootParent = "0";
-
 /**
  * 创建或更新组（完整）
  * @param {Object} handler 上下文对象
@@ -60,6 +45,8 @@ function updateCompletely(handler, isInsert, callback) {
       check(group.type, __("group.error.emptyType")).notEmpty();
       check(group.type, __("group.error.invalidType")).isIn(
         [constant.GROUP_TYPE_DEPARTMENT, constant.GROUP_TYPE_GROUP, constant.GROUP_TYPE_OFFICIAL]);
+    } else {
+      group.type = undefined;
     }
 
     // 父组标识
@@ -92,6 +79,10 @@ function updateCompletely(handler, isInsert, callback) {
       group.valid = constant.VALID;
       group.createAt = curDate;
       group.createBy = createBy;
+    } else {
+      group.valid = undefined;
+      group.createAt = undefined;
+      group.createBy = undefined;
     }
     group.updateAt = curDate;
     group.updateBy = createBy;
@@ -289,7 +280,7 @@ exports.getParentGroups = function(handler, callback) {
               cb(err);
             } else {
               resultGroups.push(g);
-              if(g.parent !== rootParent) {
+              if(g.parent) {
                 fetch(g.parent, cb);
               } else {
                 cb(err);
