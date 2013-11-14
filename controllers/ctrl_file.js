@@ -140,7 +140,7 @@ exports.getList = function(handler, callback) {
     , condition = params.condition
     , order = params.order;
 
-  log.debug("begin: get file list.", uid);
+  log.debug("begin: get fileInfo list.", uid);
   log.debug("DB code: ", code);
   log.debug("start: ", start);
   log.debug("limit: ", limit);
@@ -163,7 +163,7 @@ exports.getList = function(handler, callback) {
       }
       log.debug("result:" + result, uid);
       log.debug("count:" + count, uid);
-      log.debug("finished: get file list.", uid);
+      log.debug("finished: get fileInfo list.", uid);
       return callback(err,  { totalItems: count, items: result });
     });
   });
@@ -221,7 +221,7 @@ exports.updateFile = function(handler, callback) {
   updateFile.updateAt = new Date();
   updateFile.updateBy = uid;
 
-  log.debug("begin: update file.", uid);
+  log.debug("begin: update fileInfo.", uid);
   log.debug("DB code: ", code);
   log.debug("fileInfo Id: ", fileInfoId);
   log.debug("update file: ", updateFile);
@@ -235,7 +235,7 @@ exports.updateFile = function(handler, callback) {
       return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
       log.debug(result, uid);
-      log.debug("finished: update file.", uid);
+      log.debug("finished: update fileInfo.", uid);
       return callback(err, result);
     }
   });

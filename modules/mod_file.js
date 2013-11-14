@@ -6,7 +6,7 @@
 
 "use strict";
 
-var sync       = require("async")
+var sync        = require("async")
   , mongo       = require("mongoose")
   , schema      = mongo.Schema
   , Mixed       = mongo.Schema.Types.Mixed
@@ -190,7 +190,7 @@ exports.getList = function(code, conditions, start, limit, order, callback) {
   var file = model(code);
 
   file.find(conditions)
-    .skip(start || 0)
+    .skip(start || constant.MOD_DEFAULT_START)
     .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)
     .exec(function(err, result) {
@@ -283,7 +283,7 @@ exports.updateFile = function(code, fileInfoId, updateFile, fileName, filePath, 
  * 删除文件
  * @param {String} code 公司code
  * @param {String} fileInfoId 文件元数据ID
- * @param {Object} updateFile 删除的文件元数据对象
+ * @param {Object} updateFile 要删除的文件元数据对象
  * @param {Function} callback 返回删除后的文件元数据
  */
 exports.remove = function(code, fileInfoId, updateFile, callback) {
