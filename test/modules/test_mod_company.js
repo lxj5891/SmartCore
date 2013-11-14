@@ -6,8 +6,10 @@
 
 "use strict";
 
+require("../../core/test").befor();
+
 var should  = require("should")
-  , company = require("../../coverage/modules/mod_company");
+  , company = require("../../modules/mod_company");
 
 /**
  * 测试代码
@@ -19,9 +21,10 @@ describe("modules/mod_company.js", function() {
    */
   var id = ""
     , code = ""
+    , now = Date.now().toString()
     , data = {
       name        : "4"
-    , domain      : "1"
+    , domain      : now
     , type        : "2"
     , extend      : { mail: "test@dac.com", kana: "kana" }
     , valid       : 1
@@ -46,7 +49,7 @@ describe("modules/mod_company.js", function() {
         should.exist(result._id);
         should.exist(result.code);
         result.should.have.property("name").and.equal("4");
-        result.should.have.property("domain").and.equal("1");
+        result.should.have.property("domain").and.equal(now);
         result.should.have.property("type").and.equal("2");
         result.should.have.property("extend");
         result.should.have.property("valid").and.equal(1);
@@ -72,7 +75,7 @@ describe("modules/mod_company.js", function() {
         should.not.exist(err);
         should.exist(result);
 
-        result.length.should.above(1);
+        result.length.should.not.be.below(1);
         done();
       });
     });
@@ -82,12 +85,12 @@ describe("modules/mod_company.js", function() {
   describe("getByDomain()", function() {
     it("correct getByDomain", function(done) {
 
-      company.getByDomain("1", function(err, result) {
+      company.getByDomain(now, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
-        result.domain.should.equal("1");
+        result.domain.should.equal(now);
         done();
       });
     });
@@ -102,7 +105,7 @@ describe("modules/mod_company.js", function() {
         should.not.exist(err);
         should.exist(result);
 
-        result.domain.should.equal("1");
+        result.domain.should.equal(now);
         done();
       });
     });
@@ -117,7 +120,7 @@ describe("modules/mod_company.js", function() {
         should.not.exist(err);
         should.exist(result);
 
-        result.domain.should.equal("1");
+        result.domain.should.equal(now);
         done();
       });
     });
@@ -127,12 +130,12 @@ describe("modules/mod_company.js", function() {
   describe("update()", function() {
     it("correct update", function(done) {
 
-      company.update(id, {domain: "11"}, function(err, result) {
+      company.update(id, {domain: now + "1"}, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
-        result.domain.should.equal("11");
+        result.domain.should.equal(now + "1");
         done();
       });
     });

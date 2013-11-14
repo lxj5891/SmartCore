@@ -17,6 +17,7 @@ var target = [
     "test/core/test_log.js"
   , "test/core/test_context.js"
   , "test/core/test_errors.js"
+  , "test/core/test_connection.js"
 
   , "test/modules/test_mod_company.js"
 

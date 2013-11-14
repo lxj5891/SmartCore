@@ -37,7 +37,7 @@ describe("controllers/ctrl_company.js", function() {
   describe("add()", function() {
 
     /*****************************************************************/
-    it("add", function(done) {
+    it("add new company", function(done) {
       company.add(handler, function(err, result) {
 
         should.not.exist(err);
@@ -62,7 +62,7 @@ describe("controllers/ctrl_company.js", function() {
     });
 
     /*****************************************************************/
-    it("add : code not empty", function(done) {
+    it("code not empty", function(done) {
 
       handler.params.code = "code";
       company.add(handler, function(err, result) {
@@ -74,7 +74,7 @@ describe("controllers/ctrl_company.js", function() {
     });
 
     /*****************************************************************/
-    it("add : name notEmpty", function(done) {
+    it("name notEmpty", function(done) {
 
       handler.params.code = "";
       handler.params.name = "";
@@ -87,7 +87,7 @@ describe("controllers/ctrl_company.js", function() {
     });
 
     /*****************************************************************/
-    it("add : name len", function(done) {
+    it("name len", function(done) {
 
       handler.params.name = "" +
         "123456789012345678901234567890" +
@@ -115,7 +115,7 @@ describe("controllers/ctrl_company.js", function() {
     });
 
     /*****************************************************************/
-    it("add : domain len", function(done) {
+    it("domain len", function(done) {
 
       handler.params.domain = "" +
         "123456789012345678901234567890" +
@@ -130,7 +130,7 @@ describe("controllers/ctrl_company.js", function() {
     });
 
     /*****************************************************************/
-    it("add : type notEmpty", function(done) {
+    it("type notEmpty", function(done) {
 
       handler.params.domain = now;
       handler.params.type = "";
@@ -143,7 +143,7 @@ describe("controllers/ctrl_company.js", function() {
     });
 
     /*****************************************************************/
-    it("add : type len", function(done) {
+    it("type len", function(done) {
 
       handler.params.type = "123";
       company.add(handler, function(err, result) {
@@ -155,7 +155,7 @@ describe("controllers/ctrl_company.js", function() {
     });
 
     /*****************************************************************/
-    it("add : type len", function(done) {
+    it("type len", function(done) {
 
       handler.params.type = "1";
       company.add(handler, function(err, result) {
