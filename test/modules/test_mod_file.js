@@ -7,6 +7,7 @@
 "use strict";
 
 var should     = require("should")
+  , conf        = require("config").db
   , file        = require("../../coverage/modules/mod_file");
 
 /**
@@ -42,17 +43,21 @@ describe("modules/mod_file.js", function() {
   describe("add()", function() {
 
     it("should return err when the dbCode is an invalid", function(done) {
+      conf.host = "mongos";
       file.add("aaaaaaaaa", fileName, filePath, options, newFile, function(err, result) {
         should.exist(err);
         should(result).eql(null);
+        conf.host = "mongo";
         done();
       });
     });
 
     it("should return err when the file options is an invalid", function(done) {
       var options = {
-          "metadata": "aaa"
-        , "content_type": "aaaa"
+          "w": -1
+        , "wtimeout": 0
+        , "fsync": true
+        , "journal": true
         };
       file.add(dbCode, fileName, filePath, options, newFile, function(err, result) {
         should.exist(err);
@@ -111,6 +116,21 @@ describe("modules/mod_file.js", function() {
   /*****************************************************************/
   describe("getFile()", function() {
 
+    it("should return err when the dbCode is an invalid", function(done) {
+      file.getFile("aaaaaaaaa", "", function(err, result) {
+        should.exist(err);
+        should(result).eql(null);
+        done();
+      });
+    });
+
+    it("should return err when the file options is an invalid", function(done) {
+      file.getFile(dbCode, "", function(err, result) {
+        should.exist(err);
+        should(result).eql(null);
+        done();
+      });
+    });
     it("should return null when fileId not exists", function(done) {
       file.getFile(dbCode, "6281f1ccb90224882a000001", function(err, result) {
         should.not.exist(err);
@@ -164,6 +184,31 @@ describe("modules/mod_file.js", function() {
 
   /*****************************************************************/
   describe("updateFile()", function() {
+
+    it("should return err when the dbCode is an invalid", function(done) {
+//      conf.host = "mongos";
+      file.updateFile("aaaaaaaaa", "" , "", fileName, filePath, options, function(err, result) {
+        should.exist(err);
+        should(result).eql(null);
+//        conf.host = "mongo";
+        done();
+      });
+    });
+
+    it("should return err when the file options is an invalid", function(done) {
+      var options = {
+          "w": -1
+        , "wtimeout": 0
+        , "fsync": true
+        , "journal": true
+        };
+      file.updateFile(dbCode, "" , "", fileName, "1111/sss", options, function(err, result) {
+        should.exist(err);
+        should(result).eql(null);
+        done();
+      });
+    });
+
     it("should return OK", function(done) {
       file.add(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
         var updateFile = {
