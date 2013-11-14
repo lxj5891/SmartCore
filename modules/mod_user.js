@@ -7,6 +7,7 @@
 "use strict";
 
 var mongo       = require("mongoose")
+  , constant    = require("../core/constant")
   , conn        = require("./connection")
   , schema      = mongo.Schema
   , mixed       = schema.Types.Mixed;
@@ -66,7 +67,7 @@ exports.get = function (uid, callback) {
 
   var userModel = model();
 
-  userModel.findOne({"_id": uid, "valid": 1}, function (err, result) {
+  userModel.findOne({"_id": uid, "valid": constant.VALID}, function (err, result) {
     callback(err, result);
   });
 };
@@ -101,7 +102,7 @@ exports.getList = function (condition, fields, skip, limit, order, callback) {
   userModel.find(condition)
     .select(fields)
     .skip(skip || 0)
-    .limit(limit || 20)
+    .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)
     .exec(function (err, result) {
       callback(err, result);
@@ -118,7 +119,7 @@ exports.update = function (uid, command, callback) {
 
   var userModel = model();
 
-  userModel.findOneAndUpdate({"_id": uid, "valid": 1}, command, function (err, result) {
+  userModel.findOneAndUpdate({"_id": uid, "valid": constant.VALID}, command, function (err, result) {
     callback(err, result);
   });
 };

@@ -10,14 +10,14 @@ var async       = require("async")
   , _           = require("underscore")
   , check       = require("validator").check
   , auth        = require("../core/auth")
+  , constant    = require("../core/constant")
   , errors      = require("../core/errors")
   , util        = require("../core/util")
   , ctrlGroup   = require("../controllers/ctrl_group")
   , modGroup    = require("../modules/mod_group")
   , modUser     = require("../modules/mod_user");
 
-var SupportedLangs = ["en", "ja", "zh"]
-  , extendPropertyPrefix = "ext_";
+var SupportedLangs = ["en", "ja", "zh"];
 
 /**
  * 创建或更新用户（完整）
@@ -43,14 +43,16 @@ function updateCompletely(handler, isInsert, callback) {
 
     // 用户名
     if(isInsert) {
-      user.userName = params.uid;
+      user.userName = params.userName;
       check(user.userName, __("user.error.emptyUserName")).notEmpty();
+    } else {
+      user.userName = null;
     }
 
     // 真实名
-    user.first = params.first || "";
-    user.middle = params.middle || "";
-    user.last = params.last || "";
+    user.first = params.first;
+    user.middle = params.middle;
+    user.last = params.last;
 
     // 密码
     user.password = params.password;
@@ -62,8 +64,9 @@ function updateCompletely(handler, isInsert, callback) {
     if(!util.isArray(user.groups)) {
       user.groups = [user.groups];
     }
+    // TODO 用户是否必须属于某个组？
     if(user.groups.length === 0) {
-      throw __("user.error.emptyGroups");
+      // throw __("user.error.emptyGroups");
     }
 
     // 电子邮件地址
@@ -84,17 +87,12 @@ function updateCompletely(handler, isInsert, callback) {
     user.status = params.status;
 
     // 扩展属性
-    user.extend = {};
-    _.each(params, function(val, key) {
-      if(key.indexOf(extendPropertyPrefix) === 0) {
-        user.extend[key] = val;
-      }
-    });
+    user.extend = params.extend;
 
     // Common
     var curDate = new Date();
     if(isInsert) {
-      user.valid = 1;
+      user.valid = constant.VALID;
       user.createAt = curDate;
       user.createBy = updateBy;
     }
@@ -111,7 +109,7 @@ function updateCompletely(handler, isInsert, callback) {
   // 检查用户标识是否有效
   if(isUpdate) {
     tasks.push(function(done) {
-      modUser.total({"_id": params.uid, "valid": 1}, function(err, count) {
+      modUser.total({"_id": params.uid, "valid": constant.VALID}, function(err, count) {
         if(count && count === 0) {
           done(new errors.BadRequest(__("user.error.notExist")));
         } else {
@@ -124,7 +122,7 @@ function updateCompletely(handler, isInsert, callback) {
   // 检查用户名是否冲突
   if(isInsert) {
     tasks.push(function(done) {
-      modUser.total({"userName": user.userName, "valid": 1}, function(err, count) {
+      modUser.total({"userName": user.userName, "valid": constant.VALID}, function(err, count) {
         if(count && count !== 0) {
           done(new errors.BadRequest(__("user.error.userNameConflict")));
         } else {
@@ -137,7 +135,7 @@ function updateCompletely(handler, isInsert, callback) {
   // 检查所属组是否有效
   _.each(user.groups, function(gid) {
     tasks.push(function(done) {
-      modGroup.total({"_id":gid, "valid": 1}, function(err, count) {
+      modGroup.total({"_id":gid, "valid": constant.VALID}, function(err, count) {
         if(count && count === 0) {
           done(new errors.BadRequest(__("group.error.notExist")));
         } else {
@@ -169,7 +167,7 @@ function updateCompletely(handler, isInsert, callback) {
  * @param {Function} callback 回调函数，返回用户列表
  */
 function getUsersDirectlyInGroup(gid, fields, order, callback) {
-  modUser.getList({"groups": gid, "valid":1},
+  modUser.getList({"groups": gid, "valid": constant.VALID},
     fields, 0, Number.MAX_VALUE, order, callback);
 }
 
@@ -208,7 +206,7 @@ exports.removeUser = function(handler, callback) {
     return callback(new errors.BadRequest(e.message));
   }
 
-  var command = {"valid": 0, "updateAt": (new Date()), "updateBy": handler.uid};
+  var command = {"valid": exports.INVALID, "updateAt": (new Date()), "updateBy": handler.uid};
 
   return modUser.update(params.uid, command, callback);
 };
@@ -308,7 +306,7 @@ exports.canLogin = function(handler, callback) {
   var userName = handler.params.userName;
   var password = handler.params.password;
 
-  modUser.total({"userName": userName, "password": auth.sha256(password), "valid": 1}, function(err, count) {
+  modUser.total({"userName": userName, "password": auth.sha256(password), "valid": constant.VALID}, function(err, count) {
     callback(err, count === 1);
   });
 };
@@ -346,8 +344,8 @@ exports.searchUsers = function (handler, callback) {
   }
 
   var fields = params.fields;
-  var skip = params.skip;
-  var limit = params.limit;
+  var skip = params.skip || 0;
+  var limit = params.limit || constant.MOD_DEFAULT_LIMIT;
   var order = params.order;
 
   if(conditions.length === 0) {
@@ -374,7 +372,7 @@ exports.isUserExist = function(handler, callback) {
     return;
   }
 
-  modUser.total({"_id": params.uid, "valid": 1}, function(err, count) {
+  modUser.total({"_id": params.uid, "valid": constant.VALID}, function(err, count) {
     callback(err, count > 0);
   });
 };

@@ -6,13 +6,14 @@
 
 "use strict";
 
-var _         = require("underscore")
-  , check     = require("validator").check
-  , async     = require("async")
-  , errors    = require("../core/errors")
-  , util      = require("../core/util")
-  , modGroup  = require("../modules/mod_group")
-  , modUser  = require("../modules/mod_user");
+var _            = require("underscore")
+  , check        = require("validator").check
+  , async        = require("async")
+  , constant     = require("../core/constant")
+  , errors       = require("../core/errors")
+  , util         = require("../core/util")
+  , modGroup     = require("../modules/mod_group")
+  , modUser      = require("../modules/mod_user");
 
 // 类型常量
 exports.GroupType = {
@@ -27,7 +28,6 @@ exports.PublicType = {
   Public: "2" // 公开
 };
 
-var extendPropertyPrefix = "ext_";
 var rootParent = "0";
 
 /**
@@ -59,13 +59,14 @@ function updateCompletely(handler, isInsert, callback) {
       group.type = params.type;
       check(group.type, __("group.error.emptyType")).notEmpty();
       check(group.type, __("group.error.invalidType")).isIn(
-        [exports.GroupType.Dept, exports.GroupType.Group, exports.GroupType.Manage]);
+        [constant.GROUP_TYPE_DEPARTMENT, constant.GROUP_TYPE_GROUP, constant.GROUP_TYPE_OFFICIAL]);
     }
 
     // 父组标识
-    if(group.type === exports.GroupType.Dept) {
-      group.parent = params.parent;
-      check(group.parent, __("group.error.emptyParent")).notEmpty();
+    group.parent = params.parent;
+    if(group.type === constant.GROUP_TYPE_DEPARTMENT) {
+      // TODO 部门是否必须有父部门？
+      // check(group.parent, __("group.error.emptyParent")).notEmpty();
     }
 
     // 描述
@@ -74,7 +75,7 @@ function updateCompletely(handler, isInsert, callback) {
     // 公开性, 1:私密，2:公开
     group.public = params.public;
     check(group.public, __("group.error.emptyPublic")).notEmpty();
-    check(group.public, __("group.error.invalidPublic")).isIn([exports.PublicType.Private, exports.PublicType.Public]);
+    check(group.public, __("group.error.invalidPublic")).isIn([constant.GROUP_PRIVATE, constant.GROUP_PUBLIC]);
 
     // 经理一览
     group.owners = params.owners || [];
@@ -83,17 +84,12 @@ function updateCompletely(handler, isInsert, callback) {
     }
 
     // 扩展属性
-    group.extend = {};
-    _.each(params, function(val, key) {
-      if(key.indexOf(extendPropertyPrefix) === 0) {
-        group.extend[key] = val;
-      }
-    });
+    group.extend = params.extend;
 
     // Common
     var curDate = new Date();
     if(isInsert) {
-      group.valid = 1;
+      group.valid = constant.VALID;
       group.createAt = curDate;
       group.createBy = createBy;
     }
@@ -107,7 +103,7 @@ function updateCompletely(handler, isInsert, callback) {
   var tasks = [];
 
   // 检查父组的存在性
-  if(group.type === exports.GroupType.Dept) {
+  if(group.type === exports.GroupType.Dept && group.parent) {
     tasks.push(function(done) {
       modGroup.get(group.parent, function(err, gp) {
         if(err) {
@@ -131,7 +127,7 @@ function updateCompletely(handler, isInsert, callback) {
   tasks.push(function() {
     _.each(group.owners, function(owner) {
       tasks.push(function(done) {
-        modUser.total({"_id": owner, "valid": 1}, function(err, count) {
+        modUser.total({"_id": owner, "valid": constant.VALID}, function(err, count) {
           if(count && count !== 1) {
             return done(new errors.BadRequest(__("group.error.ownerNotExist")));
           }
@@ -195,7 +191,7 @@ exports.isGroupExist = function(handler, callback) {
 
   var gid = handler.params.gid;
 
-  modGroup.total({"_id": gid, "valid": 1}, function(err, count) {
+  modGroup.total({"_id": gid, "valid": constant.VALID}, function(err, count) {
     return callback(err, count > 0);
   });
 };
@@ -238,7 +234,7 @@ exports.getSubGroups = function(handler, callback) {
 
     function fetch(parents, cb) {
 
-      modGroup.getList({"parent": {$in: parents}, "valid":1},
+      modGroup.getList({"parent": {$in: parents}, "valid": constant.VALID},
         groupFields, 0, Number.MAX_VALUE, null, function(err, result) {
 
         if(err) {

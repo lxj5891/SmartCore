@@ -7,6 +7,7 @@
 "use strict";
 
 var mongo       = require("mongoose")
+  , constant    = require("../core/constant")
   , conn        = require("./connection")
   , schema      = mongo.Schema
   , mixed       = schema.Types.Mixed;
@@ -19,8 +20,8 @@ var Group = new schema({
     name          : { type : String, description: "组名" }
   , parent        : { type : String, description: "父组标识" }
   , description   : { type : String, description: "描述" }
-  , type          : { type : String, description: "类型, 1:部门（公司组织结构）, 2:组（自由创建）, 3:职位组" }
-  , public        : { type : String, description: "公开性, 1:私密，2:公开" }
+  , type          : { type : Number, description: "类型, 1:部门（公司组织结构）, 2:组（自由创建）, 3:职位组" }
+  , public        : { type : Number, description: "公开性, 1:私密，2:公开" }
   , owners        : { type : Array,  description: "经理一览" }
   , extend        : { type : mixed,  description: "扩展属性" }
   , valid         : { type : Number, description: "删除 0:无效 1:有效", default:1 }
@@ -62,7 +63,7 @@ exports.get = function (gid, callback) {
 
   var groupModel = model();
 
-  groupModel.findOne({"_id": gid, "valid": 1}, function (err, result) {
+  groupModel.findOne({"_id": gid, "valid": constant.VALID}, function (err, result) {
     callback(err, result);
   });
 };
@@ -97,7 +98,7 @@ exports.getList = function (condition, fields, skip, limit, order, callback) {
   groupModel.find(condition)
     .select(fields)
     .skip(skip || 0)
-    .limit(limit || 20)
+    .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)
     .exec(function (err, result) {
       callback(err, result);
@@ -114,7 +115,7 @@ exports.update = function (gid, command, callback) {
 
   var groupModel = model();
 
-  groupModel.findOneAndUpdate({"_id": gid, "valid": 1}, command, function (err, result) {
+  groupModel.findOneAndUpdate({"_id": gid, "valid": constant.VALID}, command, function (err, result) {
     callback(err, result);
   });
 };
