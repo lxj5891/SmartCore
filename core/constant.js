@@ -20,3 +20,15 @@ exports.MOD_DB_OPTIONS = { w: 1 };
 exports.MOD_GRIDSTORE_MODE_WRITE = "w";
 // read only. This is the default mode.
 exports.MOD_GRIDSTORE_MODE_READ = "r";
+
+/** 组类型 */
+exports.GROUP_TYPE_DEPARTMENT = 1; // 部门（公司组织结构）
+exports.GROUP_TYPE_GROUP = 2; // 组（自由创建）
+exports.GROUP_TYPE_OFFICIAL = 3; // 职位组
+
+/** 组公开性 */
+exports.GROUP_PRIVATE = 1; // 私密
+exports.GROUP_PUBLIC = 2; // 公开
+
+
+

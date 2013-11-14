@@ -1,14 +1,12 @@
 /**
  * @file 存取访问控制关联信息的module
- * @author r2space@gmail.com
+ * @author lizheng
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
-var smart     = require("smartcore")
-  , mongo       = smart.util.mongoose
-  , util        = smart.framework.util
+var mongo       = require("mongoose")
   , conn        = require("./connection")
   , schema      = mongo.Schema;
 
@@ -40,9 +38,9 @@ function model() {
  */
 exports.exist = function(type, main, subs, callback) {
 
-  var Link = model();
+  var linkModel = model();
 
-  Link.count({ "type" : type, "main" : main, "subs" : { $all: subs } }, function(err, count) {
+  linkModel.count({ "type": type, "main": main, "subs" : { $all: subs } }, function(err, count) {
     return callback(err, count > 0);
   });
 };
@@ -56,9 +54,9 @@ exports.exist = function(type, main, subs, callback) {
  */
 exports.add = function(type, main, subsToAdd, callback) {
 
-  var Link = model();
+  var linkModel = model();
 
-  Link.update({"type" : type, "main" : main}, { $addToSet : { "subs" : { $each : subsToAdd } } },
+  linkModel.update({"type": type, "main": main}, { $addToSet: { "subs": { $each: subsToAdd } } },
     { upsert : true }, function(err) {
     return callback(err);
   });
@@ -73,11 +71,11 @@ exports.add = function(type, main, subsToAdd, callback) {
  */
 exports.update = function(type, main, subsToReplace, callback) {
 
-  var Link = model();
+  var linkModel = model();
 
-  Link.update({"type" : type, "main" : main}, { "subs" : subsToReplace }, function(err) {
-      return callback(err);
-    });
+  linkModel.update({"type": type, "main": main}, { "subs": subsToReplace }, function(err) {
+    return callback(err);
+  });
 };
 
 /**
@@ -89,11 +87,11 @@ exports.update = function(type, main, subsToReplace, callback) {
  */
 exports.remove = function(type, main, subsToDel, callback){
 
-  var Link = model();
+  var linkModel = model();
 
-  Link.update({"type" : type, "main" : main}, { $pullAll : { "subs" : subsToDel } }, function(err) {
-      return callback(err);
-    });
+  linkModel.update({"type": type, "main": main}, { $pullAll: { "subs": subsToDel } }, function(err) {
+    return callback(err);
+  });
 };
 
 /**
@@ -104,9 +102,9 @@ exports.remove = function(type, main, subsToDel, callback){
  */
 exports.get = function(type, main, callback) {
 
-  var Link = model();
+  var linkModel = model();
 
-  Link.findOne({"type" : type, "main" : main}, function(err, result) {
+  linkModel.findOne({"type": type, "main": main}, function(err, result) {
     return callback(err, result);
   });
 };

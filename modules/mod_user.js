@@ -6,8 +6,8 @@
 
 "use strict";
 
-var smart       = require("smartcore")
-  , mongo       = smart.util.mongoose
+var mongo       = require("mongoose")
+  , constant    = require("../core/constant")
   , conn        = require("./connection")
   , schema      = mongo.Schema
   , mixed       = schema.Types.Mixed;
@@ -17,12 +17,12 @@ var smart       = require("smartcore")
  * @type {schema}
  */
 var User = new schema({
-    username    : { type: String, description: "用户标识"}
+    userName    : { type: String, description: "用户标识"}
   , first       : { type: String, description: "名"}
   , middle      : { type: String, description: "中间名"}
   , last        : { type: String, description: "姓"}
   , password    : { type: String, description: "密码" }
-  , group       : { type: Array,  description: "所属组一览" }
+  , groups      : { type: Array,  description: "所属组一览" }
   , email       : { type: String, description: "电子邮件地址" }
   , lang        : { type: String, description: "语言" }
   , timezone    : { type: String, description: "时区" }
@@ -30,9 +30,9 @@ var User = new schema({
   , extend      : { type: mixed,  description: "扩展属性" }
   , valid       : { type: Number, description: "删除 0:无效 1:有效", default:1 }
   , createAt    : { type: Date,   description: "创建时间" }
-  , creator     : { type: String, description: "创建者" }
+  , createBy    : { type: String, description: "创建者" }
   , updateAt    : { type: Date,   description: "最终修改时间" }
-  , updater     : { type: String, description: "最终修改者" }
+  , updateBy    : { type: String, description: "最终修改者" }
   });
 
 /**
@@ -47,7 +47,7 @@ function model() {
 /**
  * 创建用户
  * @param {Object} user 用户对象
- * @param {Function} callback(err, user) 回调函数，返回新插入的用户
+ * @param {Function} callback 回调函数，返回新插入的用户
  */
 exports.add = function(user, callback) {
 
@@ -61,13 +61,13 @@ exports.add = function(user, callback) {
 /**
  * 根据用户标识查询用户
  * @param {String} uid 用户标识
- * @param {Function} callback(err, user) 回调函数，返回用户信息
+ * @param {Function} callback 回调函数，返回用户信息
  */
 exports.get = function (uid, callback) {
 
   var userModel = model();
 
-  userModel.findOne({"_id": uid, "valid": 1}, function (err, result) {
+  userModel.findOne({"_id": uid, "valid": constant.VALID}, function (err, result) {
     callback(err, result);
   });
 };
@@ -75,7 +75,7 @@ exports.get = function (uid, callback) {
 /**
  * 查询符合条件的有效用户的数目
  * @param {Object} condition 查询条件
- * @param {Function} callback(err, count) 回调函数，返回用户数目
+ * @param {Function} callback  回调函数，返回用户数目
  */
 exports.total = function (condition, callback) {
 
@@ -93,7 +93,7 @@ exports.total = function (condition, callback) {
  * @param {Number} skip 跳过的文书数，默认为0
  * @param {Number} limit 返回的文书的上限数目，默认为20
  * @param {String} order 排序，例如："first email"
- * @param {Function} callback(err, users) 回调函数，返回用户列表
+ * @param {Function} callback 回调函数，返回用户列表
  */
 exports.getList = function (condition, fields, skip, limit, order, callback) {
 
@@ -102,7 +102,7 @@ exports.getList = function (condition, fields, skip, limit, order, callback) {
   userModel.find(condition)
     .select(fields)
     .skip(skip || 0)
-    .limit(limit || 20)
+    .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)
     .exec(function (err, result) {
       callback(err, result);
@@ -113,13 +113,13 @@ exports.getList = function (condition, fields, skip, limit, order, callback) {
  * 根据用户标识更新用户
  * @param {String} uid 用户标识
  * @param {Object} command 更新命令
- * @param {Function} callback(err, user) 回调函数，返回更新后的用户
+ * @param {Function} callback 回调函数，返回更新后的用户
  */
 exports.update = function (uid, command, callback) {
 
   var userModel = model();
 
-  userModel.findOneAndUpdate({"_id": uid, "valid": 1}, command, function (err, result) {
+  userModel.findOneAndUpdate({"_id": uid, "valid": constant.VALID}, command, function (err, result) {
     callback(err, result);
   });
 };
