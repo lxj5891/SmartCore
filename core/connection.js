@@ -87,7 +87,7 @@ exports.model = function(code, name, schema) {
   var conn = getMongoConnection(code)
     , collection = "";
 
-  // 没有特别指定的collection名，同意添加前缀
+  // 没有特别指定的collection名，统一添加前缀
   if (conf.schema && _.has(conf.schema, name)) {
     collection = conf.schema[name];
   } else {
