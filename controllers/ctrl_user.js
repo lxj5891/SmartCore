@@ -11,12 +11,23 @@ var async       = require("async")
   , check       = require("validator").check
   , constant    = require("../core/constant")
   , errors      = require("../core/errors")
+  , log         = require("../core/log")
   , util        = require("../core/util")
   , ctrlGroup   = require("../controllers/ctrl_group")
   , modGroup    = require("../modules/mod_group")
-  , modUser     = require("../modules/mod_user");
+  , modUser     = require("../modules/mod_user")
+  , __          = global.__;
 
-var SupportedLangs = ["en", "ja", "zh"];
+/**
+ * 将ObjectId转为字符串
+ */
+function objIdToStr(obj) {
+  if(obj) {
+    return obj.toString();
+  } else {
+    return obj;
+  }
+}
 
 /**
  * 创建或更新用户（完整）
@@ -26,6 +37,7 @@ var SupportedLangs = ["en", "ja", "zh"];
  */
 function updateCompletely(handler, isInsert, callback) {
 
+  var code = handler.code;
   var params = handler.params;
   var updateBy = handler.uid;
   var isUpdate = !isInsert;
@@ -37,6 +49,7 @@ function updateCompletely(handler, isInsert, callback) {
 
     // 用户标识
     if(isUpdate) {
+      params.uid = objIdToStr(params.uid);
       check(params.uid, __("user.error.emptyUid")).notEmpty();
     }
 
@@ -44,22 +57,17 @@ function updateCompletely(handler, isInsert, callback) {
     if(isInsert) {
       user.userName = params.userName;
       check(user.userName, __("user.error.emptyUserName")).notEmpty();
-    } else {
-      user.userName = undefined;
     }
 
     // 真实名
-    user.first = params.first;
-    user.middle = params.middle;
-    user.last = params.last;
+    user.first = params.first || "";
+    user.middle = params.middle || "";
+    user.last = params.last || "";
 
     // 密码
-    if(isInsert) {
-      user.password = params.password;
-      check(user.password, __("user.error.emptyPwd")).notEmpty();
-    } else {
-      user.password = undefined;
-    }
+    // TODO 密码如何修改？
+    user.password = params.password;
+    check(user.password, __("user.error.emptyPwd")).notEmpty();
 
     // 所属组一览
     user.groups = params.groups || [];
@@ -70,6 +78,9 @@ function updateCompletely(handler, isInsert, callback) {
     if(user.groups.length === 0) {
       // throw __("user.error.emptyGroups");
     }
+    for(var i = 0; i < user.groups.length; i++) {
+      user.groups[i] = user.groups[i].toString();
+    }
 
     // 电子邮件地址
     user.email = params.email;
@@ -79,7 +90,7 @@ function updateCompletely(handler, isInsert, callback) {
     // 语言
     user.lang = params.lang;
     check(user.lang, __("user.error.emptyLang")).notEmpty();
-    check(user.lang, __("user.error.notSupportedLang")).isIn(SupportedLangs);
+    check(user.lang, __("user.error.notSupportedLang")).isIn(constant.SUPPORTED_LANGS);
 
     // 时区 TODO : 检查时区有效性
     user.timezone = params.timezone;
@@ -89,7 +100,9 @@ function updateCompletely(handler, isInsert, callback) {
     user.status = params.status;
 
     // 扩展属性
-    user.extend = params.extend;
+    if(params.extend) {
+      user.extend = params.extend;
+    }
 
     // Common
     var curDate = new Date();
@@ -97,43 +110,27 @@ function updateCompletely(handler, isInsert, callback) {
       user.valid = constant.VALID;
       user.createAt = curDate;
       user.createBy = updateBy;
-    } else {
-      user.valid = undefined;
-      user.createAt = undefined;
-      user.createBy = undefined;
     }
     user.updateAt = curDate;
     user.updateBy = updateBy;
 
   } catch (e) {
+    log.error(e.message, handler.uid);
     callback(new errors.BadRequest(e.message));
     return;
   }
 
   var tasks = [];
 
-  // 检查用户标识是否有效
-  if(isUpdate) {
-    tasks.push(function(done) {
-      modUser.total({"_id": params.uid, "valid": constant.VALID}, function(err, count) {
-        if(count && count === 0) {
-          done(new errors.BadRequest(__("user.error.notExist")));
-        } else {
-          done(err);
-        }
-      });
-    });
-  }
-
   // 检查用户名是否冲突
   if(isInsert) {
     tasks.push(function(done) {
-      modUser.total({"userName": user.userName, "valid": constant.VALID}, function(err, count) {
-        if(count && count !== 0) {
-          done(new errors.BadRequest(__("user.error.userNameConflict")));
-        } else {
-          done(err);
+      modUser.total(code, {"userName": user.userName, "valid": constant.VALID}, function(err, count) {
+        if(count !== 0) {
+          return done(new errors.BadRequest(__("user.error.userNameConflict")));
         }
+
+        return done(err);
       });
     });
   }
@@ -141,40 +138,89 @@ function updateCompletely(handler, isInsert, callback) {
   // 检查所属组是否有效
   _.each(user.groups, function(gid) {
     tasks.push(function(done) {
-      modGroup.total({"_id":gid, "valid": constant.VALID}, function(err, count) {
-        if(count && count === 0) {
-          done(new errors.BadRequest(__("group.error.notExist")));
-        } else {
-          done(err);
+      modGroup.total(code, {"_id": gid, "valid": constant.VALID}, function(err, count) {
+        if(count === 0) {
+          return done(new errors.BadRequest(__("group.error.notExist")));
         }
+
+        return done(err);
       });
     });
   });
 
   async.waterfall(tasks, function(err) {
+
     if(err) {
+      log.error(err, handler.uid);
       callback(err);
-    } else {
-      if(isInsert) { // 添加用户
-        modUser.add(user, callback);
-      } else { // 更新用户
-        modUser.update(params.uid, user, callback);
-      }
+      return;
+    }
+
+    if(isInsert) { // 添加用户
+      modUser.add(code, user, function(err, result) {
+        if(err) {
+          log.error(err, handler.uid);
+          return callback(new errors.InternalServer(err));
+        }
+        return callback(err, result);
+      });
+    } else { // 更新用户
+      modUser.update(code, params.uid, user, function(err, result) {
+        if(err) {
+          log.error(err, handler.uid);
+          return callback(err);
+        }
+
+        if(result) {
+          return callback(err, result);
+        } else {
+          return callback(new errors.NotFound(__("user.error.notExist")));
+        }
+      });
     }
   });
 
 }
 
 /**
- * 查询某个组下的用户（直下，非递归）
- * @param {String} gid 组标识
+ * 查询组下的用户（直下，非递归）
+ * @param {String} code 公司code
+ * @param {String} uid 操作用户标识
+ * @param {Array} gids 组标识列表
  * @param {String} fields 查询的字段
+ * @param {Number} skip 跳过的文书数，默认为0
+ * @param {Number} limit 返回的文书的上限数目，默认为20
  * @param {String} order 排序字段
  * @param {Function} callback 回调函数，返回用户列表
  */
-function getUsersDirectlyInGroup(gid, fields, order, callback) {
-  modUser.getList({"groups": gid, "valid": constant.VALID},
-    fields, 0, Number.MAX_VALUE, order, callback);
+function getUsersInGroups(code, uid, gids, fields, skip, limit, order, callback) {
+
+  var condition = {"groups": {$in: gids}, "valid": constant.VALID};
+
+  modUser.total(code, condition, function(err, count) {
+    if(err) {
+      log.error(err, uid);
+      callback(new errors.InternalServer(err));
+      return;
+    }
+
+    if(count === 0) {
+      callback({ totalItems: count, items: [] });
+      return;
+    }
+
+    modUser.getList(code, condition, fields, skip, limit, order, function(err, result) {
+      if(err) {
+        log.error(err, uid);
+        return callback(new errors.InternalServer(err));
+      }
+
+      // TODO 一个用户可能属于多个组，所以返回时需要distinct
+
+      return callback({ totalItems: count, items: result });
+    });
+
+  });
 }
 
 /**
@@ -182,7 +228,7 @@ function getUsersDirectlyInGroup(gid, fields, order, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回新创建的用户
  */
-exports.addUser = function(handler, callback) {
+exports.add = function(handler, callback) {
 
   updateCompletely(handler, true, callback);
 };
@@ -192,7 +238,7 @@ exports.addUser = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回更新后的用户
  */
-exports.updateUser = function(handler, callback) {
+exports.update = function(handler, callback) {
 
   updateCompletely(handler, false, callback);
 };
@@ -202,37 +248,41 @@ exports.updateUser = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回删除的用户
  */
-exports.removeUser = function(handler, callback) {
+exports.remove = function(handler, callback) {
 
+  var code = handler.code;
   var params = handler.params;
 
-  try {
-    check(params.uid, __("user.error.emptyUid")).notEmpty();
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
-  }
+  var command = {"valid": constant.INVALID, "updateAt": (new Date()), "updateBy": handler.uid};
 
-  var command = {"valid": exports.INVALID, "updateAt": (new Date()), "updateBy": handler.uid};
-
-  return modUser.update(params.uid, command, callback);
+  return modUser.update(code, params.uid, command, function(err, result) {
+    if(err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
+    } else {
+      return callback(err, result);
+    }
+  });
 };
 
 /**
- * 查询用户信息
+ * 根据用户标识查询用户信息
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回用户信息
  */
-exports.getUserDetails = function(handler, callback) {
+exports.get = function(handler, callback) {
 
-  var params = handler.params;
+  var code = handler.code;
+  var uid = handler.params.uid;
 
-  try {
-    check(params.uid, __("user.error.emptyUid")).notEmpty();
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
-  }
-
-  return modUser.get(params.uid, callback);
+  return modUser.get(code, uid, function(err, result) {
+    if(err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
+    } else {
+      return callback(err, result);
+    }
+  });
 };
 
 /**
@@ -242,62 +292,47 @@ exports.getUserDetails = function(handler, callback) {
  */
 exports.getUsersInGroup = function(handler, callback) {
 
+  var code = handler.code;
+  var uid = handler.uid;
   var params = handler.params;
 
   var gid = params.groupId;
   var recursive = params.recursive || false;
   var fields = params.fields;
+  var skip = params.fields || 0;
+  var limit = params.limit || constant.MOD_DEFAULT_LIMIT;
   var order = params.order;
-
-  // TODO 需不需要限制返回数目？
-
-  try {
-    check(gid, __("group.error.emptyId")).notEmpty();
-  } catch (e) {
-    callback(new errors.BadRequest(e.message));
-    return;
-  }
 
   ctrlGroup.isGroupExist(handler, function(err, exist) {
 
     if(err) {
-      callback(err);
+      log.error(err, handler.uid);
+      callback(new errors.InternalServer(err));
       return;
     }
 
     if(exist === false) {
       callback(new errors.BadRequest(__("group.error.notExist")));
-    } else {
-      if(recursive) { // 递归查找
-        handler.addParams("groupFields", "_id");
-        ctrlGroup.getSubGroups(handler, function(err, groups) {
-          if(err) {
-            callback(err);
-            return;
-          }
+      return;
+    }
 
-          var tasks = [];
-          var users = [];
-          groups.concat({"_id": gid});
-          _.each(groups, function(group) {
-            tasks.push(function(done) {
-              getUsersDirectlyInGroup(group._id, fields, order, function(err, tempUsers) {
-                if(tempUsers) {
-                  users.concat(tempUsers);
-                }
-                done(err);
-              });
-            });
-          });
+    if(recursive === true) { // 递归查找
+      handler.addParams("groupFields", "_id");
+      ctrlGroup.getSubGroups(handler, function(err, groups) {
+        if(err) {
+          log.error(err, handler.uid);
+          return callback(new errors.InternalServer(err));
+        }
 
-          async.waterfall(tasks, function(err) {
-            callback(err, users);
-          });
-
+        var gids = [gid];
+        _.each(groups, function(group) {
+          gids.push(group._id);
         });
-      } else {
-        getUsersDirectlyInGroup(gid, fields, order, callback);
-      }
+
+        return getUsersInGroups(code, uid, gids, fields, skip, limit, order, callback);
+      });
+    } else {
+      getUsersInGroups(code, uid, gid, fields, skip, limit, order, callback);
     }
   });
 };
@@ -307,8 +342,9 @@ exports.getUsersInGroup = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回用户列表
  */
-exports.searchUsers = function (handler, callback) {
+exports.getListByKeywords = function (handler, callback) {
 
+  var code = handler.code;
   var params = handler.params;
 
   var conditions = [];
@@ -341,9 +377,38 @@ exports.searchUsers = function (handler, callback) {
 
   if(conditions.length === 0) {
     callback(new errors.BadRequest(__("user.error.emptySearchCondition")));
-  } else {
-    modUser.getList({$and : conditions}, fields, skip, limit, order, callback);
+    return;
   }
+
+  var and = params.and || true;
+  if(and === false) {
+    conditions = {$or : conditions};
+  } else {
+    conditions = {$and : conditions};
+  }
+
+  modUser.total(code, conditions, function(err, count) {
+    if(err) {
+      log.error(err, handler.uid);
+      callback(new errors.InternalServer(err));
+      return;
+    }
+
+    if(count === 0) {
+      callback({ totalItems: count, items: [] });
+      return;
+    }
+
+    modUser.getList(code, conditions, fields, skip, limit, order, function(err, result) {
+      if(err) {
+        log.error(err, handler.uid);
+        return callback(new errors.InternalServer(err));
+      }
+
+      return callback(err, result);
+    });
+
+  });
 
 };
 
@@ -352,18 +417,18 @@ exports.searchUsers = function (handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回用户是否已存在
  */
-exports.isUserExist = function(handler, callback) {
+exports.exist = function(handler, callback) {
 
-  var params = handler.params;
+  var code = handler.code;
+  var uid = handler.params.uid;
 
-  try {
-    check(params.uid, __("user.error.emptyUid")).notEmpty();
-  } catch (e) {
-    callback(new errors.BadRequest(e.message));
-    return;
-  }
+  modUser.total(code, {"_id": uid, "valid": constant.VALID}, function(err, count) {
 
-  modUser.total({"_id": params.uid, "valid": constant.VALID}, function(err, count) {
-    callback(err, count > 0);
+    if(err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
+    } else {
+      return callback(err, count > 0);
+    }
   });
 };

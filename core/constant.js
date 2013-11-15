@@ -7,6 +7,8 @@
 exports.VALID = 1;
 exports.INVALID = 0;
 
+exports.SUPPORTED_LANGS = ["en", "ja", "zh"];
+
 /**
  * Modules层用常量
  */

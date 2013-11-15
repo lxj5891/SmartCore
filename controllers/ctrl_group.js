@@ -95,14 +95,14 @@ function updateCompletely(handler, isInsert, callback) {
   var tasks = [];
 
   // 检查父组的存在性
-  if(group.type === exports.GroupType.Dept && group.parent) {
+  if(group.type === constant.GROUP_TYPE_DEPARTMENT && group.parent) {
     tasks.push(function(done) {
       modGroup.get(group.parent, function(err, gp) {
         if(err) {
           done(err);
         } else {
           if(gp) {
-            if(gp.type === exports.GroupType.Dept) {
+            if(gp.type === constant.GROUP_TYPE_DEPARTMENT) {
               done();
             } else {
               done(new errors.BadRequest(__("group.error.parentNotDept")));
@@ -120,7 +120,7 @@ function updateCompletely(handler, isInsert, callback) {
     _.each(group.owners, function(owner) {
       tasks.push(function(done) {
         modUser.total({"_id": owner, "valid": constant.VALID}, function(err, count) {
-          if(count && count !== 1) {
+          if(count !== 1) {
             return done(new errors.BadRequest(__("group.error.ownerNotExist")));
           }
 

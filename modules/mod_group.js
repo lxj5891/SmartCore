@@ -33,7 +33,7 @@ var Group = new schema({
 
 /**
  * 使用定义好的Schema，生成Group的model
- * @params {String} code DbCode
+ * @param {String} code 公司code
  * @returns {Object} Group model
  */
 function model(code) {
@@ -43,12 +43,13 @@ function model(code) {
 
 /**
  * 创建组
+ * @param {String} code 公司code
  * @param {Object} group 组对象
  * @param {Function} callback 回调函数，返回新创建的组
  */
-exports.add = function(group, callback) {
+exports.add = function(code, group, callback) {
 
-  var GroupModel = model();
+  var GroupModel = model(code);
 
   new GroupModel(group).save(function(err, result){
     callback(err, result);
@@ -57,12 +58,13 @@ exports.add = function(group, callback) {
 
 /**
  * 根据组标识查询组
+ * @param {String} code 公司code
  * @param {String} gid 组标识
  * @param {Function} callback 回调函数，返回组信息
  */
-exports.get = function (gid, callback) {
+exports.get = function (code, gid, callback) {
 
-  var groupModel = model();
+  var groupModel = model(code);
 
   groupModel.findOne({"_id": gid, "valid": constant.VALID}, function (err, result) {
     callback(err, result);
@@ -71,12 +73,13 @@ exports.get = function (gid, callback) {
 
 /**
  * 查询符合条件的组数目
+ * @param {String} code 公司code
  * @param {Object} condition 查询条件
  * @param {Function} callback 回调函数，返回组数目
  */
-exports.total = function (condition, callback) {
+exports.total = function (code, condition, callback) {
 
-  var groupModel = model();
+  var groupModel = model(code);
 
   groupModel.count(condition, function (err, count) {
     callback(err, count);
@@ -85,6 +88,7 @@ exports.total = function (condition, callback) {
 
 /**
  * 根据指定条件查询组
+ * @param {String} code 公司code
  * @param {Object} condition 查询条件
  * @param {String} fields 查询的字段，例如："_id name parent type"
  * @param {Number} skip 跳过的文书数，默认为0
@@ -92,9 +96,9 @@ exports.total = function (condition, callback) {
  * @param {String} order 排序，例如："name -type"
  * @param {Function} callback 回调函数，返回组列表
  */
-exports.getList = function (condition, fields, skip, limit, order, callback) {
+exports.getList = function (code, condition, fields, skip, limit, order, callback) {
 
-  var groupModel = model();
+  var groupModel = model(code);
 
   groupModel.find(condition)
     .select(fields)
@@ -108,13 +112,14 @@ exports.getList = function (condition, fields, skip, limit, order, callback) {
 
 /**
  * 根据组标识更新组
+ * @param {String} code 公司code
  * @param {String} gid 组标识
  * @param {Object} command 更新命令
  * @param {Function} callback 回调函数，返回更新后的组
  */
-exports.update = function (gid, command, callback) {
+exports.update = function (code, gid, command, callback) {
 
-  var groupModel = model();
+  var groupModel = model(code);
 
   groupModel.findOneAndUpdate({"_id": gid, "valid": constant.VALID}, command, function (err, result) {
     callback(err, result);
