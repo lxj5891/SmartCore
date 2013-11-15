@@ -12,6 +12,8 @@ exports.SUPPORTED_LANGS = ["en", "ja", "zh"];
 /**
  * Modules层用常量
  */
+// the number of documents to skip
+exports.MOD_DEFAULT_START = 0;
 // 检索件数的默认值
 exports.MOD_DEFAULT_LIMIT = 20;
 // number of connections in the connection pool, set to 5 as default.
