@@ -353,18 +353,9 @@ exports.getListByKeywords = function (handler, callback) {
     conditions.push({ userName : { $regex : params.userName, $options: "i" } });
   }
   if(params.realName) { // 真实名
-    var subCondition = { $where: function() {
-
-      var first = (this.first || "");
-      var middle = (this.middle || "");
-      var last = (this.last || "");
-
-      var name1 = first + middle + last;
-      var name2 = last + middle + first;
-
-      return (name1.indexOf(params.realName) >= 0 || name2.indexOf(params.realName) >= 0);
-    }};
-    conditions.push(subCondition);
+    var subCondition1 = { $where: "(this.first + this.middle + this.last).indexOf('" + params.realName + "') >= 0"};
+    var subCondition2 = { $where: "(this.last + this.middle + this.first).indexOf('" + params.realName + "') >= 0"};
+    conditions.push({$and: [subCondition1, subCondition2]});
   }
   if(params.email) { // 电子邮件地址
     conditions.push({ email : { $regex : params.email, $options: "i" } });
@@ -405,7 +396,7 @@ exports.getListByKeywords = function (handler, callback) {
         return callback(new errors.InternalServer(err));
       }
 
-      return callback(err, result);
+      return callback(err, { totalItems: count, items: result });
     });
 
   });

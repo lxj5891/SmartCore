@@ -506,41 +506,82 @@ describe("controllers/ctrl_user.js", function() {
     });
   });
 
-//  describe("getListByKeywords()", function() {
-//
-//    var handler = newHandler("12345678");
-//
-//    var user1 = addedUser;
-//    var user2;
-//    var user3;
-//
-//    ctrlUser.add(handler, function(result) {
-//
-//      user2 = result;
-//
-//      ctrlUser.add(handler, function(result) {
-//
-//        user3 = result;
-//
-//      });
-//
-//    });
-//
-//    it("correctly get user list", function(done) {
-//
-//      var handler = newHandler("44", {uid: addedUser._id});
-//
-//      ctrlUser.remove(handler, function(err, result) {
-//
-//        should.not.exist(err);
-//        should.exist(result);
-//
-//        result.should.have.property("valid").and.equal(0);
-//
-//        done();
-//      });
-//    });
-//  });
+  describe("getListByKeywords()", function() {
+
+//    var user1 = {
+//      userName    : "Fri Nov 15 2013 15:08:07 GMT+0800 (中国 (標準時))"
+//      , first       : "first"
+//      , middle      : "middle"
+//      , last        : "last"
+//      , email       : "test@aaa.com"
+//      };
+
+    var user2;
+    var handler2 = newHandler("12345678", {
+        userName    : ""
+      , first       : "名22"
+      , middle      : "中名22"
+      , last        : "姓22"
+      , password    : "admin"
+      , groups      : []
+      , email       : "zli_ray2@sina.cn"
+      , lang        : "ja"
+      , timezone    : "GMT+09:00"
+      , status      : 0
+      , extend      : {"QQ":"123456789", "birthday": "19850302"}
+    });
+
+    var user3;
+    var handler3 = newHandler("12345678", {
+        userName    : ""
+      , first       : "名33"
+      , middle      : "中名33"
+      , last        : "姓33"
+      , password    : "admin"
+      , groups      : []
+      , email       : "zli_ray3@sina.cn"
+      , lang        : "ja"
+      , timezone    : "GMT+09:00"
+      , status      : 0
+      , extend      : {"QQ":"123456789", "birthday": "19850302"}
+    });
+
+    ctrlUser.add(handler2, function(result) {
+
+      user2 = result;
+
+      ctrlUser.add(handler3, function(result) {
+
+        user3 = result;
+
+        it("correctly get user list", function(done) {
+
+          var condition = {
+            "userName": "中国",
+            "realName": "middle",
+            "email": "aaa",
+            "and": true
+          };
+
+          var handler = newHandler("44", condition);
+
+          ctrlUser.getListByKeywords(handler, function(err, result) {
+
+            should.not.exist(err);
+            should.exist(result);
+
+            result.should.have.property("totalItems").and.equal(1);
+
+            done();
+          });
+        });
+
+
+      });
+
+    });
+
+  });
 
   describe("remove()", function() {
 
