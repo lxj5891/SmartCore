@@ -1,18 +1,15 @@
 /**
- * @file 单体测试对象：modules/mod_user.js
+ * @file 单体测试对象：modules/mod_group.js
  * @author lizheng
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
+require("../../core/test").befor();
+
 var should   = require("should")
   , modGroup  = require("../../coverage/modules/mod_group");
-
-if(!process.env.TEST) {
-  process.env.TEST = true;
-  process.env.NODE_CONFIG_DIR = "../config";
-}
 
 describe("modules/mod_group.js", function() {
 
@@ -43,20 +40,22 @@ describe("modules/mod_group.js", function() {
         should.not.exist(err);
         should.exist(result);
 
-        result.name.should.equal("lizheng");
-        result.parent.should.equal("123456");
-        result.description.should.equal("中名");
-        result.type.should.equal("1");
-        result.public.should.equal("1");
+        result.should.have.property("name").and.equal("lizheng");
+        result.should.have.property("parent").and.equal("123456");
+        result.should.have.property("description").and.equal("中名");
+        result.should.have.property("type").and.equal("1");
+        result.should.have.property("public").and.equal("1");
+        result.should.have.property("owners");
         result.owners[0].should.equal("0");
         result.owners[1].should.equal("1");
+        result.should.have.property("extend");
         result.extend.QQ.should.equal("123456789");
         result.extend.birthday.should.equal("19850302");
-        result.valid.should.equal(1);
-        result.createAt.getTime().should.equal(date.getTime());
-        result.createBy.should.equal("123");
-        result.updateAt.getTime().should.equal(date.getTime());
-        result.updateBy.should.equal("456");
+        result.should.have.property("valid").and.equal(1);
+        result.should.have.property("createAt");
+        result.should.have.property("createBy").and.equal("123");
+        result.should.have.property("updateAt");
+        result.should.have.property("updateBy").and.equal("456");
 
         gid = result._id;
 
@@ -74,20 +73,22 @@ describe("modules/mod_group.js", function() {
         should.not.exist(err);
         should.exist(result);
 
-        result.name.should.equal("lizheng");
-        result.parent.should.equal("123456");
-        result.description.should.equal("中名");
-        result.type.should.equal("1");
-        result.public.should.equal("1");
+        result.should.have.property("name").and.equal("lizheng");
+        result.should.have.property("parent").and.equal("123456");
+        result.should.have.property("description").and.equal("中名");
+        result.should.have.property("type").and.equal("1");
+        result.should.have.property("public").and.equal("1");
+        result.should.have.property("owners");
         result.owners[0].should.equal("0");
         result.owners[1].should.equal("1");
+        result.should.have.property("extend");
         result.extend.QQ.should.equal("123456789");
         result.extend.birthday.should.equal("19850302");
-        result.valid.should.equal(1);
-        result.createAt.getTime().should.equal(date.getTime());
-        result.createBy.should.equal("123");
-        result.updateAt.getTime().should.equal(date.getTime());
-        result.updateBy.should.equal("456");
+        result.should.have.property("valid").and.equal(1);
+        result.should.have.property("createAt");
+        result.should.have.property("createBy").and.equal("123");
+        result.should.have.property("updateAt");
+        result.should.have.property("updateBy").and.equal("456");
 
         done();
       });
@@ -147,7 +148,7 @@ describe("modules/mod_group.js", function() {
         should.not.exist(err);
         should.exist(result);
 
-        result.name.should.equal("888");
+        result.should.have.property("name").and.equal("888");
         result.extend.QQ.should.equal("555");
 
         done();
