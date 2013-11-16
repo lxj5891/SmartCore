@@ -280,10 +280,16 @@ exports.remove = function(handler, callback) {
       return callback(new errors.InternalServer(err));
     } else {
 
-      log.info("finished: remove user " + result._id + " .", handler.uid);
-      log.audit("finished: remove user " + result._id + " .", handler.uid);
+      if(result) {
 
-      return callback(err, result);
+        log.info("finished: remove user " + result._id + " .", handler.uid);
+        log.audit("finished: remove user " + result._id + " .", handler.uid);
+
+        return callback(err, result);
+      } else {
+
+        return callback(new errors.NotFound(__("user.error.notExist")));
+      }
     }
   });
 };
