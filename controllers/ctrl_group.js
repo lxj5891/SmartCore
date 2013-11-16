@@ -7,13 +7,26 @@
 "use strict";
 
 var _            = require("underscore")
-  , check        = require("validator").check
   , async        = require("async")
+  , check        = require("validator").check
   , constant     = require("../core/constant")
   , errors       = require("../core/errors")
+  , log          = require("../core/log")
   , util         = require("../core/util")
   , modGroup     = require("../modules/mod_group")
-  , modUser      = require("../modules/mod_user");
+  , modUser      = require("../modules/mod_user")
+  , __          = global.__;
+
+/**
+ * 将ObjectId转为字符串
+ */
+function objIdToStr(obj) {
+  if(obj) {
+    return obj.toString();
+  } else {
+    return obj;
+  }
+}
 
 /**
  * 创建或更新组（完整）
@@ -23,6 +36,7 @@ var _            = require("underscore")
  */
 function updateCompletely(handler, isInsert, callback) {
 
+  var code = handler.code;
   var params = handler.params;
   var createBy = handler.uid;
   var isUpdate = !isInsert;
@@ -32,6 +46,7 @@ function updateCompletely(handler, isInsert, callback) {
 
     // 组标识
     if(isUpdate) {
+      params.gid = objIdToStr(params.gid);
       check(params.gid, __("group.error.emptyId")).notEmpty();
     }
 
@@ -39,26 +54,23 @@ function updateCompletely(handler, isInsert, callback) {
     group.name = params.name;
     check(group.name, __("group.error.emptyName")).notEmpty();
 
-    if(isInsert) {
-      // 类型, 1:部门（公司组织结构）, 2:组（自由创建）, 3:职位组
-      group.type = params.type;
-      check(group.type, __("group.error.emptyType")).notEmpty();
-
-      check(group.type, __("group.error.invalidType")).isIn(
-        [constant.GROUP_TYPE_DEPARTMENT, constant.GROUP_TYPE_GROUP, constant.GROUP_TYPE_OFFICIAL]);
-    } else {
-      group.type = undefined;
-    }
+    // 类型, 1:部门（公司组织结构）, 2:组（自由创建）, 3:职位组
+    group.type = params.type;
+    check(group.type, __("group.error.emptyType")).notEmpty();
+    check(group.type, __("group.error.invalidType")).isIn(
+      [constant.GROUP_TYPE_DEPARTMENT, constant.GROUP_TYPE_GROUP, constant.GROUP_TYPE_OFFICIAL]);
 
     // 父组标识
-    group.parent = params.parent;
     if(group.type === constant.GROUP_TYPE_DEPARTMENT) {
-      // TODO 部门是否必须有父部门？
-      // check(group.parent, __("group.error.emptyParent")).notEmpty();
+      group.parent = params.parent;
+    } else {
+      group.parent = null;
     }
 
     // 描述
-    group.description = params.description;
+    if(params.description) {
+      group.description = params.description;
+    }
 
     // 公开性, 1:私密，2:公开
     group.public = params.public;
@@ -70,9 +82,15 @@ function updateCompletely(handler, isInsert, callback) {
     if(!util.isArray(group.owners)) {
       group.owners = [group.owners];
     }
+    // 将ObjectId转化为String
+    for(var i = 0; i < group.owners.length; i++) {
+      group.owners[i] = group.owners[i].toString();
+    }
 
     // 扩展属性
-    group.extend = params.extend;
+    if(params.extend) {
+      group.extend = params.extend;
+    }
 
     // Common
     var curDate = new Date();
@@ -80,65 +98,108 @@ function updateCompletely(handler, isInsert, callback) {
       group.valid = constant.VALID;
       group.createAt = curDate;
       group.createBy = createBy;
-    } else {
-      group.valid = undefined;
-      group.createAt = undefined;
-      group.createBy = undefined;
     }
     group.updateAt = curDate;
     group.updateBy = createBy;
   } catch (e) {
+    log.error(e.message, handler.uid);
     callback(new errors.BadRequest(e.message));
     return;
   }
 
   var tasks = [];
 
+  if(isUpdate) {
+
+    // 检查组和类型是否匹配
+    tasks.push(function(done) {
+      modGroup.get(code, params.gid, function(err, resultGroup) {
+
+        if(err) {
+          return done(err);
+        }
+
+        if(resultGroup) {
+          if(resultGroup.type !== group.type) {
+            return done(new errors.NotFound(__("group.error.typeNotMatch")));
+          } else {
+            return done(err, resultGroup);
+          }
+        }
+
+        return done(new errors.NotFound(__("group.error.notExist")));
+      });
+    });
+  }
+
   // 检查父组的存在性
   if(group.type === constant.GROUP_TYPE_DEPARTMENT && group.parent) {
     tasks.push(function(done) {
-      modGroup.get(group.parent, function(err, gp) {
+      modGroup.get(code, group.parent, function(err, parentGroup) {
         if(err) {
-          done(err);
-        } else {
-          if(gp) {
-            if(gp.type === constant.GROUP_TYPE_DEPARTMENT) {
-              done();
-            } else {
-              done(new errors.BadRequest(__("group.error.parentNotDept")));
-            }
+          return done(err);
+        }
+
+        if(parentGroup) {
+          if(parentGroup.type === constant.GROUP_TYPE_DEPARTMENT) {
+            return done();
           } else {
-            done(new errors.BadRequest(__("group.error.parentNotExist")));
+            return done(new errors.BadRequest(__("group.error.parentNotDept")));
           }
         }
+
+        return done(new errors.BadRequest(__("group.error.invalidParent")));
       });
     });
   }
 
   // 检查经理的存在性
-  tasks.push(function() {
-    _.each(group.owners, function(owner) {
-      tasks.push(function(done) {
-        modUser.total({"_id": owner, "valid": constant.VALID}, function(err, count) {
-          if(count !== 1) {
-            return done(new errors.BadRequest(__("group.error.ownerNotExist")));
-          }
+  _.each(group.owners, function(owner) {
+    tasks.push(function(done) {
+      modUser.total(code, {"_id": owner, "valid": constant.VALID}, function(err, count) {
+        if(count !== 1) {
+          return done(new errors.BadRequest(__("group.error.ownerNotExist")));
+        }
 
-          return done(err);
-        });
+        return done(err);
       });
     });
   });
 
   async.waterfall(tasks, function(err) {
     if(err) {
-      callback(err);
-    } else {
-      if(isInsert) { // 创建
-        modGroup.add(group, callback);
-      } else { // 更新
-        modGroup.update(params.gid, group, callback);
+      log.error(err, handler.uid);
+      if(err instanceof errors.BadRequest) {
+        callback(err);
+        return;
+      } else {
+        callback(new errors.InternalServer(err));
+        return;
       }
+    }
+
+    if(isInsert) { // 创建
+      modGroup.add(code, group, function(err, result) {
+        if(err) {
+          log.error(err, handler.uid);
+          return callback(new errors.InternalServer(err));
+        }
+
+        return callback(err, result);
+      });
+    } else { // 更新
+      modGroup.update(code, params.gid, group, function(err, result) {
+        if(err) {
+          log.error(err, handler.uid);
+          return callback(new errors.InternalServer(err));
+        }
+
+        if(result) {
+          return callback(err, result);
+        } else {
+          return callback(new errors.NotFound(__("group.error.notExist")));
+        }
+      });
     }
   });
 }
@@ -148,7 +209,7 @@ function updateCompletely(handler, isInsert, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回新创建的组
  */
-exports.addGroup = function(handler, callback) {
+exports.add = function(handler, callback) {
 
   updateCompletely(handler, true, callback);
 };
@@ -158,7 +219,7 @@ exports.addGroup = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回更新后的组
  */
-exports.updateGroup = function(handler, callback) {
+exports.update = function(handler, callback) {
 
   updateCompletely(handler, false, callback);
 };
@@ -181,12 +242,19 @@ exports.removeGroup = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回组是否已存在
  */
-exports.isGroupExist = function(handler, callback) {
+exports.exist = function(handler, callback) {
 
+  var code = handler.code;
   var gid = handler.params.gid;
 
-  modGroup.total({"_id": gid, "valid": constant.VALID}, function(err, count) {
-    return callback(err, count > 0);
+  modGroup.total(code, {"_id": gid, "valid": constant.VALID}, function(err, count) {
+
+    if(err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
+    } else {
+      return callback(err, count > 0);
+    }
   });
 };
 
@@ -195,17 +263,23 @@ exports.isGroupExist = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回组信息
  */
-exports.getGroupDetails = function(handler, callback) {
+exports.get = function(handler, callback) {
 
+  var code = handler.code;
   var params = handler.params;
 
-  try {
-    check(params.gid, __("group.error.emptyId")).notEmpty();
-  } catch (e) {
-    return callback(new errors.BadRequest(e.message));
-  }
+  modGroup.get(code, params.gid, function(err, result) {
+    if(err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
+    }
 
-  return modGroup.get(params.gid, callback);
+    if(result) {
+      return callback(err, result);
+    } else {
+      return callback(new errors.NotFound(__("group.error.notExist")));
+    }
+  });
 };
 
 /**
@@ -215,27 +289,25 @@ exports.getGroupDetails = function(handler, callback) {
  */
 exports.getSubGroups = function(handler, callback) {
 
+  var code = handler.code;
   var params = handler.params;
 
   var gid = params.groupId;
-  var recursive = params.recursive || false;
+  var recursive = params.recursive;
   var groupFields = params.groupFields;
 
-  // Scope Limite
-  (function() {
+  var resultGroups = [];
 
-    var resultGroups = [];
+  var fetch = function(parents, cb) {
 
-    function fetch(parents, cb) {
-
-      modGroup.getList({"parent": {$in: parents}, "valid": constant.VALID},
-        groupFields, 0, Number.MAX_VALUE, null, function(err, result) {
+    modGroup.getList(code, {"parent": {$in: parents}, "valid": constant.VALID},
+      groupFields, 0, Number.MAX_VALUE, null, function(err, result) {
 
         if(err) {
           return cb(err);
         } else {
           resultGroups.concat(result);
-          if(result.length > 0 && recursive) {
+          if(result.length > 0 && recursive === true) {
             var subGroupIds = [];
             _.each(result, function(id) {
               subGroupIds.push(id);
@@ -246,58 +318,57 @@ exports.getSubGroups = function(handler, callback) {
           }
         }
       });
+  };
+
+  fetch(gid, function(err) {
+    if(err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
     }
 
-    fetch(gid, function(err) {
-      return callback(err, resultGroups);
-    });
-
-  })();
+    return callback(err, resultGroups);
+  });
 
 };
 
 /**
- * 查询组的上位组织（一直到根）
+ * 查询查询从根组到指定组的路径（包含本身）
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回上位组织列表
  */
-exports.getParentGroups = function(handler, callback) {
+exports.getPath = function(handler, callback) {
 
+  var code = handler.code;
   var params = handler.params;
-
   var gid = params.gid;
 
-  modGroup.get(gid, function(err, group) {
+  var resultGroups = [];
+
+  var fetch = function(inGid, cb) {
+
+    modGroup.get(code, inGid, function(err, result) {
+      if(err) {
+        cb(err);
+        return;
+      }
+
+      resultGroups.push(result);
+      if(result && result.parent) {
+        fetch(result.parent, cb);
+      } else {
+        cb(err);
+      }
+    });
+  };
+
+  fetch(gid, function(err) {
+
     if(err) {
-      callback(err);
-    } else {
-      // Scope Limite
-      (function() {
-
-        var resultGroups = [];
-
-        function fetch(inGid, cb) {
-
-          modGroup.get(inGid, function(err, g) {
-            if(err) {
-              cb(err);
-            } else {
-              resultGroups.push(g);
-              if(g.parent) {
-                fetch(g.parent, cb);
-              } else {
-                cb(err);
-              }
-            }
-          });
-        }
-
-        fetch(group.parent, function(err) {
-          return callback(err, resultGroups);
-        });
-
-      })();
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
     }
+
+    return callback(err, resultGroups.reverse());
   });
 
 };

@@ -6,8 +6,8 @@
 
 "use strict";
 
-var async       = require("async")
-  , _           = require("underscore")
+var _           = require("underscore")
+  , async       = require("async")
   , check       = require("validator").check
   , constant    = require("../core/constant")
   , errors      = require("../core/errors")
@@ -78,6 +78,7 @@ function updateCompletely(handler, isInsert, callback) {
     if(user.groups.length === 0) {
       // throw __("user.error.emptyGroups");
     }
+    // 将ObjectId转化为String
     for(var i = 0; i < user.groups.length; i++) {
       user.groups[i] = user.groups[i].toString();
     }
@@ -152,8 +153,13 @@ function updateCompletely(handler, isInsert, callback) {
 
     if(err) {
       log.error(err, handler.uid);
-      callback(err);
-      return;
+      if(err instanceof errors.BadRequest) {
+        callback(err);
+        return;
+      } else {
+        callback(new errors.InternalServer(err));
+        return;
+      }
     }
 
     if(isInsert) { // 添加用户
@@ -184,16 +190,20 @@ function updateCompletely(handler, isInsert, callback) {
 
 /**
  * 查询组下的用户（直下，非递归）
- * @param {String} code 公司code
- * @param {String} uid 操作用户标识
+ * @param {Object} handler 上下文对象
  * @param {Array} gids 组标识列表
- * @param {String} fields 查询的字段
- * @param {Number} skip 跳过的文书数，默认为0
- * @param {Number} limit 返回的文书的上限数目，默认为20
- * @param {String} order 排序字段
  * @param {Function} callback 回调函数，返回用户列表
  */
-function getUsersInGroups(code, uid, gids, fields, skip, limit, order, callback) {
+function getUsersInGroups(handler, gids, callback) {
+
+  var code = handler.code;
+  var uid = handler.uid;
+  var params = handler.params;
+
+  var fields = params.fields;
+  var skip = params.fields || 0;
+  var limit = params.limit || constant.MOD_DEFAULT_LIMIT;
+  var order = params.order;
 
   var condition = {"groups": {$in: gids}, "valid": constant.VALID};
 
@@ -205,7 +215,7 @@ function getUsersInGroups(code, uid, gids, fields, skip, limit, order, callback)
     }
 
     if(count === 0) {
-      callback({ totalItems: count, items: [] });
+      callback(err, { totalItems: count, items: [] });
       return;
     }
 
@@ -217,7 +227,7 @@ function getUsersInGroups(code, uid, gids, fields, skip, limit, order, callback)
 
       // TODO 一个用户可能属于多个组，所以返回时需要distinct
 
-      return callback({ totalItems: count, items: result });
+      return callback(err, { totalItems: count, items: result });
     });
 
   });
@@ -279,8 +289,12 @@ exports.get = function(handler, callback) {
     if(err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
-    } else {
+    }
+
+    if(result) {
       return callback(err, result);
+    } else {
+      return callback(new errors.NotFound(__("user.error.notExist")));
     }
   });
 };
@@ -292,18 +306,11 @@ exports.get = function(handler, callback) {
  */
 exports.getUsersInGroup = function(handler, callback) {
 
-  var code = handler.code;
-  var uid = handler.uid;
   var params = handler.params;
+  var gid = params.gid;
+  var recursive = params.recursive;
 
-  var gid = params.groupId;
-  var recursive = params.recursive || false;
-  var fields = params.fields;
-  var skip = params.fields || 0;
-  var limit = params.limit || constant.MOD_DEFAULT_LIMIT;
-  var order = params.order;
-
-  ctrlGroup.isGroupExist(handler, function(err, exist) {
+  ctrlGroup.exist(handler, function(err, exist) {
 
     if(err) {
       log.error(err, handler.uid);
@@ -329,10 +336,10 @@ exports.getUsersInGroup = function(handler, callback) {
           gids.push(group._id);
         });
 
-        return getUsersInGroups(code, uid, gids, fields, skip, limit, order, callback);
+        return getUsersInGroups(handler, gids, callback);
       });
     } else {
-      getUsersInGroups(code, uid, gid, fields, skip, limit, order, callback);
+      getUsersInGroups(handler, gid, callback);
     }
   });
 };
@@ -352,28 +359,24 @@ exports.getListByKeywords = function (handler, callback) {
   if(params.userName) { // 用户名
     conditions.push({ userName : { $regex : params.userName, $options: "i" } });
   }
+
   if(params.realName) { // 真实名
     var subCondition1 = { $where: "(this.first + this.middle + this.last).indexOf('" + params.realName + "') >= 0"};
     var subCondition2 = { $where: "(this.last + this.middle + this.first).indexOf('" + params.realName + "') >= 0"};
     conditions.push(subCondition1);
     conditions.push(subCondition2);
   }
+
   if(params.email) { // 电子邮件地址
     conditions.push({ email : { $regex : params.email, $options: "i" } });
   }
-
-  var fields = params.fields;
-  var skip = params.skip || 0;
-  var limit = params.limit || constant.MOD_DEFAULT_LIMIT;
-  var order = params.order;
 
   if(conditions.length === 0) {
     callback(new errors.BadRequest(__("user.error.emptySearchCondition")));
     return;
   }
 
-  var and = params.and;
-  if(and === false) {
+  if(params.and === false) {
     conditions = {$or : conditions};
   } else {
     conditions = {$and : conditions};
@@ -390,6 +393,11 @@ exports.getListByKeywords = function (handler, callback) {
       callback(err, { totalItems: count, items: [] });
       return;
     }
+
+    var fields = params.fields;
+    var skip = params.skip || 0;
+    var limit = params.limit || constant.MOD_DEFAULT_LIMIT;
+    var order = params.order;
 
     modUser.getList(code, conditions, fields, skip, limit, order, function(err, result) {
       if(err) {

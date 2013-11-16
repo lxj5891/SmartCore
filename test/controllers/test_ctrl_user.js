@@ -585,8 +585,6 @@ describe("controllers/ctrl_user.js", function() {
 
         result.should.have.property("totalItems").and.above(1);
 
-        console.log(result);
-
         done();
       });
 
