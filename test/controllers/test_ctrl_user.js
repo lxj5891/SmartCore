@@ -8,30 +8,19 @@
 
 require("../../core/test").befor();
 
-var should  = require("should")
-  , mock    = require("../../core/mock")
-  , context = require("../../core/context")
-  , ctrlUser = require("../../controllers/ctrl_user")
-  , modGroup = require("../../modules/mod_group");
+var _         = require("underscore")
+  , should     = require("should")
+  , mock      = require("../../core/mock")
+  , context   = require("../../core/context")
+  , ctrlUser  = require("../../controllers/ctrl_user")
+  , modGroup  = require("../../modules/mod_group");
 
 var userName = new Date().toLocaleString();
 
 function newHandler(uid, body) {
 
   var res = mock.getRequest();
-  var req = mock.getResponse(uid, {}, body || {
-      userName    : userName
-    , first       : "名"
-    , middle      : "中名"
-    , last        : "姓"
-    , password    : "admin"
-    , groups      : []
-    , email       : "zli_ray@sina.cn"
-    , lang        : "ja"
-    , timezone    : "GMT+09:00"
-    , status      : 0
-    , extend      : {"QQ":"123456789", "birthday": "19850302"}
-    });
+  var req = mock.getResponse(uid, {}, body);
 
   var handler = new context().bind(req, res);
 
@@ -62,12 +51,29 @@ describe("controllers/ctrl_user.js", function() {
 
   describe("add()", function() {
 
+    function newUser() {
+      return {
+          userName    : userName
+        , first       : "名"
+        , middle      : "中名"
+        , last        : "姓"
+        , password    : "admin"
+        , groups      : []
+        , email       : "zli_ray@sina.cn"
+        , lang        : "ja"
+        , timezone    : "GMT+09:00"
+        , status      : 0
+        , extend      : {"QQ":"123456789", "birthday": "19850302"}
+        };
+    }
+
+
     /*****************************************************************/
     it("correctly add new user", function(done) {
 
       modGroup.add(null, groupData, function(err, group) {
 
-        var handler = newHandler("12345678");
+        var handler = newHandler("12345678", newUser());
         handler.params.groups.push(group._id);
 
         ctrlUser.add(handler, function(err, result) {
@@ -107,7 +113,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("empty userName", function(done) {
 
-      var handler = newHandler("12345678");
+      var handler = newHandler("12345678", newUser());
       handler.params.userName = "";
 
       ctrlUser.add(handler, function(err, result) {
@@ -124,7 +130,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("empty password", function(done) {
 
-      var handler = newHandler("12345678");
+      var handler = newHandler("12345678", newUser());
       handler.params.password = "";
 
       ctrlUser.add(handler, function(err, result) {
@@ -141,7 +147,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("empty email", function(done) {
 
-      var handler = newHandler("12345678");
+      var handler = newHandler("12345678", newUser());
       handler.params.email = "";
 
       ctrlUser.add(handler, function(err, result) {
@@ -158,7 +164,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("invalid email", function(done) {
 
-      var handler = newHandler("12345678");
+      var handler = newHandler("12345678", newUser());
       handler.params.email = "AAA";
 
       ctrlUser.add(handler, function(err, result) {
@@ -175,7 +181,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("empty lang", function(done) {
 
-      var handler = newHandler("12345678");
+      var handler = newHandler("12345678", newUser());
       handler.params.lang = "";
 
       ctrlUser.add(handler, function(err, result) {
@@ -192,7 +198,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("not supported lang", function(done) {
 
-      var handler = newHandler("12345678");
+      var handler = newHandler("12345678", newUser());
       handler.params.lang = "89";
 
       ctrlUser.add(handler, function(err, result) {
@@ -209,7 +215,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("empty timezone", function(done) {
 
-      var handler = newHandler("12345678");
+      var handler = newHandler("12345678", newUser());
       handler.params.timezone = null;
 
       ctrlUser.add(handler, function(err, result) {
@@ -226,7 +232,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("conflict userName", function(done) {
 
-      var handler = newHandler("12345678");
+      var handler = newHandler("12345678", newUser());
 
       ctrlUser.add(handler, function(err, result) {
 
@@ -242,7 +248,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("group not exist", function(done) {
 
-      var handler = newHandler("12345678");
+      var handler = newHandler("12345678", newUser());
       handler.params.userName = new Date().getTime();
       handler.params.groups = ["5284e5862102f0b801000002"];
 
@@ -516,12 +522,11 @@ describe("controllers/ctrl_user.js", function() {
 //      , email       : "test@aaa.com"
 //      };
 
-    var user2;
     var handler2 = newHandler("12345678", {
-        userName    : ""
-      , first       : "名22"
-      , middle      : "中名22"
-      , last        : "姓22"
+        userName    : userName + "1"
+      , first       : "2名"
+      , middle      : "2中名"
+      , last        : "2姓"
       , password    : "admin"
       , groups      : []
       , email       : "zli_ray2@sina.cn"
@@ -529,54 +534,60 @@ describe("controllers/ctrl_user.js", function() {
       , timezone    : "GMT+09:00"
       , status      : 0
       , extend      : {"QQ":"123456789", "birthday": "19850302"}
-    });
+      });
 
-    var user3;
-    var handler3 = newHandler("12345678", {
-        userName    : ""
-      , first       : "名33"
-      , middle      : "中名33"
-      , last        : "姓33"
-      , password    : "admin"
-      , groups      : []
-      , email       : "zli_ray3@sina.cn"
-      , lang        : "ja"
-      , timezone    : "GMT+09:00"
-      , status      : 0
-      , extend      : {"QQ":"123456789", "birthday": "19850302"}
-    });
+    it("correctly get user list by intersect conditions", function(done) {
 
-    ctrlUser.add(handler2, function(result) {
+      ctrlUser.add(handler2, function() {
 
-      user2 = result;
+        var condition = {
+          "userName": "中国",
+          "realName": "middle",
+          "email": "aaa",
+          "and": true
+        };
 
-      ctrlUser.add(handler3, function(result) {
+        var handler = newHandler("44", condition);
 
-        user3 = result;
+        ctrlUser.getListByKeywords(handler, function(err, result) {
 
-        it("correctly get user list", function(done) {
+          should.not.exist(err);
+          should.exist(result);
 
-          var condition = {
-            "userName": "中国",
-            "realName": "middle",
-            "email": "aaa",
-            "and": true
-          };
+          result.should.have.property("totalItems").and.above(0);
 
-          var handler = newHandler("44", condition);
-
-          ctrlUser.getListByKeywords(handler, function(err, result) {
-
-            should.not.exist(err);
-            should.exist(result);
-
-            result.should.have.property("totalItems").and.equal(1);
-
-            done();
+          _.each(result.items, function(user) {
+            user.userName.indexOf("GMT").should.above(0);
+            user.middle.indexOf("middle").should.equal(0);
+            user.email.indexOf("aaa").should.above(0);
           });
+
+          done();
         });
+      });
 
+    });
 
+    it("correctly get user list by union conditions", function(done) {
+
+      var condition = {
+        "realName": "2姓2中",
+        "email": "aaa",
+        "and": false
+      };
+
+      var handler = newHandler("44", condition);
+
+      ctrlUser.getListByKeywords(handler, function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.should.have.property("totalItems").and.above(1);
+
+        console.log(result);
+
+        done();
       });
 
     });

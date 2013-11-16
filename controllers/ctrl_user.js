@@ -355,7 +355,8 @@ exports.getListByKeywords = function (handler, callback) {
   if(params.realName) { // 真实名
     var subCondition1 = { $where: "(this.first + this.middle + this.last).indexOf('" + params.realName + "') >= 0"};
     var subCondition2 = { $where: "(this.last + this.middle + this.first).indexOf('" + params.realName + "') >= 0"};
-    conditions.push({$and: [subCondition1, subCondition2]});
+    conditions.push(subCondition1);
+    conditions.push(subCondition2);
   }
   if(params.email) { // 电子邮件地址
     conditions.push({ email : { $regex : params.email, $options: "i" } });
@@ -371,7 +372,7 @@ exports.getListByKeywords = function (handler, callback) {
     return;
   }
 
-  var and = params.and || true;
+  var and = params.and;
   if(and === false) {
     conditions = {$or : conditions};
   } else {
@@ -386,7 +387,7 @@ exports.getListByKeywords = function (handler, callback) {
     }
 
     if(count === 0) {
-      callback({ totalItems: count, items: [] });
+      callback(err, { totalItems: count, items: [] });
       return;
     }
 
