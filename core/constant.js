@@ -35,6 +35,7 @@ exports.GROUP_PRIVATE = "1"; // 私密
 exports.GROUP_PUBLIC = "2"; // 公开
 
 exports.MODULES_NAME_FILE = "File";
+exports.MODULES_NAME_MASTER = "Master";
 
 
 
