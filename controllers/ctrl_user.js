@@ -168,6 +168,10 @@ function updateCompletely(handler, isInsert, callback) {
           log.error(err, handler.uid);
           return callback(new errors.InternalServer(err));
         }
+
+        log.info("finished: add user " + result._id + " .", handler.uid);
+        log.audit("finished: add user " + result._id + " .", handler.uid);
+
         return callback(err, result);
       });
     } else { // 更新用户
@@ -178,6 +182,10 @@ function updateCompletely(handler, isInsert, callback) {
         }
 
         if(result) {
+
+          log.info("finished: update user " + result._id + " .", handler.uid);
+          log.audit("finished: update user " + result._id + " .", handler.uid);
+
           return callback(err, result);
         } else {
           return callback(new errors.NotFound(__("user.error.notExist")));
@@ -266,10 +274,15 @@ exports.remove = function(handler, callback) {
   var command = {"valid": constant.INVALID, "updateAt": (new Date()), "updateBy": handler.uid};
 
   return modUser.update(code, params.uid, command, function(err, result) {
+
     if(err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     } else {
+
+      log.info("finished: remove user " + result._id + " .", handler.uid);
+      log.audit("finished: remove user " + result._id + " .", handler.uid);
+
       return callback(err, result);
     }
   });

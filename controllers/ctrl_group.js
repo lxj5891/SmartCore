@@ -185,6 +185,9 @@ function updateCompletely(handler, isInsert, callback) {
           return callback(new errors.InternalServer(err));
         }
 
+        log.debug("finished: add group.", handler.uid);
+        log.audit("finished: add group.", handler.uid);
+
         return callback(err, result);
       });
     } else { // 更新
@@ -195,6 +198,10 @@ function updateCompletely(handler, isInsert, callback) {
         }
 
         if(result) {
+
+          log.info("finished: update group.", handler.uid);
+          log.audit("finished: update group.", handler.uid);
+
           return callback(err, result);
         } else {
           return callback(new errors.NotFound(__("group.error.notExist")));
