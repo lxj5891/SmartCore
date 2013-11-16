@@ -9,7 +9,7 @@
 require("../../core/test").befor();
 
 var should   = require("should")
-  , modGroup  = require("../../coverage/modules/mod_group");
+  , modGroup  = require("../../modules/mod_group");
 
 describe("modules/mod_group.js", function() {
 
@@ -35,7 +35,7 @@ describe("modules/mod_group.js", function() {
   describe("add()", function() {
     it("correctly create new group", function(done) {
 
-      modGroup.add(data, function(err, result) {
+      modGroup.add(null, data, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
@@ -68,7 +68,7 @@ describe("modules/mod_group.js", function() {
   describe("get()", function() {
     it("correctly get group", function(done) {
 
-      modGroup.get(gid, function(err, result) {
+      modGroup.get(null, gid, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
@@ -99,7 +99,7 @@ describe("modules/mod_group.js", function() {
   describe("total()", function() {
     it("correctly get group count", function(done) {
 
-      modGroup.total({_id: gid}, function(err, count) {
+      modGroup.total(null, {_id: gid}, function(err, count) {
 
         should.not.exist(err);
         should.exist(count);
@@ -117,7 +117,7 @@ describe("modules/mod_group.js", function() {
 
       modGroup.add(data, function() {});
 
-      modGroup.getList({name: "lizheng", parent: "123456", "extend.birthday": "19850302"},
+      modGroup.getList(null, {name: "lizheng", parent: "123456", "extend.birthday": "19850302"},
         "_id name parent type extend.QQ", null, null, null, function(err, result) {
 
           should.not.exist(err);
@@ -143,7 +143,7 @@ describe("modules/mod_group.js", function() {
   describe("update()", function() {
     it("correctly update group", function(done) {
 
-      modGroup.update(gid, {name: "888", "extend.QQ": "555"}, function(err, result) {
+      modGroup.update(null, gid, {name: "888", "extend.QQ": "555"}, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);

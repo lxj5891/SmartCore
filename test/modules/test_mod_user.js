@@ -9,7 +9,7 @@
 require("../../core/test").befor();
 
 var should   = require("should")
-  , modUser  = require("../../coverage/modules/mod_user");
+  , modUser  = require("../../modules/mod_user");
 
 describe("modules/mod_user.js", function() {
 
@@ -39,7 +39,7 @@ describe("modules/mod_user.js", function() {
   describe("add()", function() {
     it("correctly create new user", function(done) {
 
-      modUser.add(data, function(err, result) {
+      modUser.add(null, data, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
@@ -76,7 +76,7 @@ describe("modules/mod_user.js", function() {
   describe("get()", function() {
     it("correctly get user", function(done) {
 
-      modUser.get(uid, function(err, result) {
+      modUser.get(null, uid, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
@@ -111,7 +111,7 @@ describe("modules/mod_user.js", function() {
   describe("total()", function() {
     it("correctly get user count", function(done) {
 
-      modUser.total({_id: uid}, function(err, count) {
+      modUser.total(null, {_id: uid}, function(err, count) {
 
         should.not.exist(err);
         should.exist(count);
@@ -127,9 +127,9 @@ describe("modules/mod_user.js", function() {
   describe("getList()", function() {
     it("correctly get user list", function(done) {
 
-      modUser.add(data, function() {});
+      modUser.add(null, data, function() {});
 
-      modUser.getList({userName: "lizheng", middle: "中名", "extend.birthday": "19850302"},
+      modUser.getList(null, {userName: "lizheng", middle: "中名", "extend.birthday": "19850302"},
         null, null, null, null, function(err, result) {
 
         should.not.exist(err);
@@ -146,7 +146,7 @@ describe("modules/mod_user.js", function() {
   describe("update()", function() {
     it("correctly update user", function(done) {
 
-      modUser.update(uid, {userName: "888", "extend.QQ": "555"}, function(err, result) {
+      modUser.update(null, uid, {userName: "888", "extend.QQ": "555"}, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
