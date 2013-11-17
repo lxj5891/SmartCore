@@ -21,6 +21,11 @@ var target = [
 
   , "test/modules/test_mod_user.js"
   , "test/modules/test_mod_group.js"
+  , "test/controllers/test_ctrl_user.js"
+  , "test/controllers/test_ctrl_group.js"
+
+  , "test/modules/test_mod_company.js"
+  , "test/controllers/test_ctrl_company.js"
   ];
 
 /**
