@@ -1,0 +1,114 @@
+/**
+ * @file module层的说明
+ * @author <%= author %>
+ * @copyright Dreamarts Corporation. All Rights Reserved.
+ */
+
+"use strict";
+
+var mongo       = require("mongoose")
+  , constant    = require("../core/constant")
+  , conn        = require("../core/connection")
+  , schema      = mongo.Schema
+  , Mixed       = mongo.Schema.Types.Mixed;
+
+/**
+ * XXXXXschema
+ * @type {schema}
+ */
+var <%= objectName %> = new schema({
+    field1        : { type: String, description: "说明1", unique: true }
+  , field2        : { type: String, description: "说明2" }
+  , extend        : { type: Mixed,  description: "扩展属性" }
+  , valid         : { type: Number, description: "删除 0:无效 1:有效", default:constant.VALID }
+  , createAt      : { type: Date,   description: "创建时间" }
+  , createBy      : { type: String, description: "创建者" }
+  , updateAt      : { type: Date,   description: "最终修改时间" }
+  , updateBy      : { type: String, description: "最终修改者" }
+  });
+
+/**
+ * 使用定义好的Schema，生成<%= objectName %>的model
+ * @returns {Object} <%= name %> model
+ */
+function model() {
+  return conn.model(undefined, "<%= objectName %>", <%= objectName %>);
+}
+
+/**
+ * 获取指定XXXXX
+ * @param {String} <%= name %>id XXXXX
+ * @param {Function} callback 回调函数，返回XXXXX对象
+ */
+exports.get = function(<%= name %>id, callback) {
+
+  var <%= name %> = model();
+
+  <%= name %>.findById(<%= name %>id, function(err, result) {
+    return callback(err, result);
+  });
+};
+
+/**
+ * 获取XXXXX一览
+ * @param {Object} condition 条件
+ * @param {Number} start 数据开始位置
+ * @param {Number} limit 数据件数
+ * @param {Number} order 排序
+ * @param {Function} callback 回调函数，返回XXXXX一览
+ */
+exports.getList = function(condition, start, limit, order, callback){
+
+  var <%= name %> = model();
+
+  <%= name %>.find(condition)
+    .skip(start || 0)
+    .limit(limit || constant.MOD_DEFAULT_LIMIT)
+    .sort(order)
+    .exec(function(err, result) {
+      return callback(err, result);
+    });
+};
+
+/**
+ * 添加XXXXX
+ * @param {Object} new<%= objectName %> 新的XXXXX对象
+ * @param {Function} callback 回调函数，返回添加的XXXXX对象
+ */
+exports.add = function(new<%= objectName %>, callback){
+
+  var <%= objectName %> = model();
+
+  new <%= objectName %>(new<%= objectName %>).save(function(err, result){
+    return callback(err, result);
+  });
+};
+
+/**
+ * 更新指定XXXXX
+ * @param {String} <%= name %>id XXXXXID
+ * @param {Object} new<%= objectName %> 更新用XXXXX对象
+ * @param {Function} callback 回调函数，返回更新结果
+ */
+exports.update = function(<%= name %>id, new<%= objectName %>, callback) {
+
+  var <%= name %> = model();
+
+  <%= name %>.findByIdAndUpdate(<%= name %>id, new<%= objectName %>, function(err, result) {
+    return callback(err, result);
+  });
+};
+
+/**
+ * 获取XXXXX有效件数
+ * @param {Object} condition 检索条件
+ * @param {Function} callback 回调函数，返回件数
+ */
+exports.total = function(condition, callback) {
+
+  var <%= name %> = model();
+
+  <%= name %>.count(condition).exec(function(err, count) {
+    return callback(err, count);
+  });
+};

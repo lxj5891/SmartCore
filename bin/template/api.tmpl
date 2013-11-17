@@ -1,0 +1,35 @@
+/**
+ * @file API层的说明
+ * @author <%= author %>
+ * @copyright Dreamarts Corporation. All Rights Reserved.
+ */
+
+"use strict";
+
+var context   = smart.framework.context
+  , log       = smart.framework.log
+  , response  = smart.framework.response
+  , <%= name %> = require("../controllers/ctrl_<%= name %>");
+
+/**
+ * XXXXXXXX
+ * @param req 请求对象
+ * @param res 响应对象
+ * @returns {*} 无
+ */
+exports.myFunction = function(req, res) {
+
+  log.operation("begin: myFunction.");
+
+  // 转换参数，生成context实例
+  var handler = new context().bind(req, res);
+
+  // 调用ctrl层业务逻辑
+  <%= name %>.myFunction(handler, function(err, result) {
+
+    log.operation("finish: myFunction.");
+
+    // 返回结果
+    return response.send(res, err, result);
+  });
+};

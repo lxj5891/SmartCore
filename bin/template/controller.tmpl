@@ -1,0 +1,64 @@
+/**
+ * @file CTRL层的说明
+ * @author <%= author %>
+ * @copyright Dreamarts Corporation. All Rights Reserved.
+ */
+
+"use strict";
+
+var sync      = require("async")
+  , check     = require("validator").check
+  , errors    = require("../core/errors")
+  , log       = require("../core/log")
+  , <%= name %> = require("../modules/mod_ <%= name %>");
+
+/**
+ * XXXX
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 回调函数，返回XXXXXxs
+ * @returns {*} 无
+ */
+exports.add = function(handler, callback) {
+
+  var params = handler.params
+    , uid = handler.uid;
+
+  log.debug("begin: add <%= name %>.", uid);
+  log.debug("<%= name %> name: " + params.name, uid);
+  log.debug("<%= name %> domain: " + params.domain, uid);
+
+  try {
+
+    // XXXXX必须为空
+    check(params.code, __("xxxxx")).isNull();
+
+    // XXXXX不能为空
+    check(params.name, __("xxxxx")).notEmpty();
+    check(params.name, __("xxxxx")).len(0, 128);
+
+  } catch (err) {
+
+    log.error(err.message, uid);
+    return callback(new errors.BadRequest(err.message));
+  }
+
+  var comp = {};
+  comp.name = params.name;
+  comp.domain = params.domain;
+  comp.type = params.type;
+  comp.extend = params.extend;
+  comp.createAt = params.createAt || new Date();
+  comp.createBy = params.creator || uid;
+  comp.updateAt = comp.createAt;
+  comp.updateBy = params.updater || uid;
+
+  <%= name %>.add(comp, function(err, result) {
+    if (err) {
+      log.error(err, uid);
+      return callback(new errors.InternalServer(__("xxxxx")));
+    }
+
+    log.debug("finished: add <%= name %>.", uid);
+    return callback(err, result._doc);
+  });
+};
