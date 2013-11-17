@@ -331,7 +331,7 @@ exports.get = function(handler, callback) {
 exports.getUsersInGroup = function(handler, callback) {
 
   var params = handler.params;
-  var gid = params.gid;
+  var gid = params.gid.toString();
   var recursive = params.recursive;
 
   ctrlGroup.exist(handler, function(err, exist) {
@@ -349,7 +349,7 @@ exports.getUsersInGroup = function(handler, callback) {
 
     if(recursive === true) { // 递归查找
       handler.addParams("groupFields", "_id");
-      ctrlGroup.getSubGroups(handler, function(err, groups) {
+      ctrlGroup.subGroups(handler, function(err, groups) {
         if(err) {
           log.error(err, handler.uid);
           return callback(new errors.InternalServer(err));
@@ -357,7 +357,7 @@ exports.getUsersInGroup = function(handler, callback) {
 
         var gids = [gid];
         _.each(groups, function(group) {
-          gids.push(group._id);
+          gids.push(group._id.toString());
         });
 
         return getUsersInGroups(handler, gids, callback);
