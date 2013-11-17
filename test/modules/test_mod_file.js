@@ -7,7 +7,9 @@
 "use strict";
 
 var should     = require("should")
+  , conf        = require("config").db
   , file        = require("../../coverage/modules/mod_file");
+
 /**
  * 测试代码
  */
@@ -16,7 +18,7 @@ describe("modules/mod_file.js", function() {
    * 初始化测试数据
    */
   var fileName = "test_file"
-    , filePath = "../SmartCore/test/data/test_file.txt";
+    , filePath = "./test/data/test_file.txt";
 
   var options = {
 //      "metadata": ""
@@ -34,34 +36,30 @@ describe("modules/mod_file.js", function() {
 
   var dbCode = "yukari";
 
-//  afterEach(function(done) {
-//    file.removeFile("yukari",result._id,function(err,result) {
-//      should.not.exist(err);
-//      should(result).not.eql(null);
-//      done();
-//    });
-//  });
-
   /**
    * 执行测试case
    */
   /*****************************************************************/
-  describe("addFile()", function() {
+  describe("add()", function() {
 
     it("should return err when the dbCode is an invalid", function(done) {
-      file.addFile("aaaaaaaaa", fileName, filePath, options, newFile, function(err, result) {
+      conf.host = "mongos";
+      file.add("aaaaaaaaa", fileName, filePath, options, newFile, function(err, result) {
         should.exist(err);
         should(result).eql(null);
+        conf.host = "mongo";
         done();
       });
     });
 
     it("should return err when the file options is an invalid", function(done) {
       var options = {
-          "metadata": "aaa"
-        , "content_type": "aaaa"
+          "w": -1
+        , "wtimeout": 0
+        , "fsync": true
+        , "journal": true
         };
-      file.addFile(dbCode, fileName, filePath, options, newFile, function(err, result) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -70,7 +68,7 @@ describe("modules/mod_file.js", function() {
 
     it("should return err when the filePath is an invalid", function(done) {
       var filePath = "aaaa/aaa/aaa.txt";
-      file.addFile(dbCode, fileName, filePath, options, newFile, function(err, result) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -78,11 +76,10 @@ describe("modules/mod_file.js", function() {
     });
 
     it("should return OK", function(done) {
-      file.addFile(dbCode, fileName, filePath, options, newFile, function(err, result) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, result) {
         should.not.exist(err);
         should(result).not.eql(null);
         result.should.have.property("length").and.eql(40);
-        result.should.have.property("chunkSize").and.eql(262144);
         result.should.have.property("filename").and.eql(fileName);
         result.should.have.property("contentType").and.eql("binary/octet-stream");
         result.should.have.property("valid").and.eql(1);
@@ -96,14 +93,13 @@ describe("modules/mod_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("getFileInfo()", function() {
+  describe("get()", function() {
     it("should return OK", function(done) {
-      file.addFile(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
-        file.getFileInfo(dbCode, fileInfo._id, function(err, result) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
+        file.get(dbCode, fileInfo._id, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.should.have.property("length").and.eql(fileInfo.length);
-          result.should.have.property("chunkSize").and.eql(fileInfo.chunkSize);
           result.should.have.property("filename").and.eql(fileInfo.filename);
           result.should.have.property("contentType").and.eql(fileInfo.contentType);
           result.should.have.property("valid").and.eql(fileInfo.valid);
@@ -120,6 +116,21 @@ describe("modules/mod_file.js", function() {
   /*****************************************************************/
   describe("getFile()", function() {
 
+    it("should return err when the dbCode is an invalid", function(done) {
+      file.getFile("aaaaaaaaa", "", function(err, result) {
+        should.exist(err);
+        should(result).eql(null);
+        done();
+      });
+    });
+
+    it("should return err when the file options is an invalid", function(done) {
+      file.getFile(dbCode, "", function(err, result) {
+        should.exist(err);
+        should(result).eql(null);
+        done();
+      });
+    });
     it("should return null when fileId not exists", function(done) {
       file.getFile(dbCode, "6281f1ccb90224882a000001", function(err, result) {
         should.not.exist(err);
@@ -129,7 +140,7 @@ describe("modules/mod_file.js", function() {
     });
 
     it("should return OK when fileId exists", function(done) {
-      file.addFile(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
         file.getFile(dbCode, fileInfo.fileId, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
@@ -140,11 +151,11 @@ describe("modules/mod_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("getFileInfoList()", function() {
+  describe("getList()", function() {
     it("should return OK when fileId exists", function(done) {
-      file.addFile(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
         var conditions = { valid : 1 };
-        file.getFileInfoList(dbCode, conditions, function(err, result) {
+        file.getList(dbCode, conditions, "", "", "", function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.length.should.be.above(0);
@@ -155,13 +166,13 @@ describe("modules/mod_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("updateFileInfo()", function() {
+  describe("update()", function() {
     it("should return OK", function(done) {
-      file.addFile(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
         var updateFile = {
           filename : "updated File"
         };
-        file.updateFileInfo(dbCode, fileInfo._id, updateFile, function(err, result) {
+        file.update(dbCode, fileInfo._id, updateFile, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.should.have.property("filename").and.eql(updateFile.filename);
@@ -172,9 +183,26 @@ describe("modules/mod_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("removeFile()", function() {
-    it("should return err", function(done) {
-      file.removeFile(dbCode, "6281f1ccb90224882a000001", function(err, result) {
+  describe("updateFile()", function() {
+
+    it("should return err when the dbCode is an invalid", function(done) {
+//      conf.host = "mongos";
+      file.updateFile("aaaaaaaaa", "" , "", fileName, filePath, options, function(err, result) {
+        should.exist(err);
+        should(result).eql(null);
+//        conf.host = "mongo";
+        done();
+      });
+    });
+
+    it("should return err when the file options is an invalid", function(done) {
+      var options = {
+          "w": -1
+        , "wtimeout": 0
+        , "fsync": true
+        , "journal": true
+        };
+      file.updateFile(dbCode, "" , "", fileName, "1111/sss", options, function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -182,11 +210,28 @@ describe("modules/mod_file.js", function() {
     });
 
     it("should return OK", function(done) {
-      file.addFile(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
-        file.removeFile(dbCode, fileInfo._id, function(err, result) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
+        var updateFile = {
+          filename : "updated File"
+        };
+        file.updateFile(dbCode, fileInfo._id, updateFile, fileName, filePath, options, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
-          result.should.have.property("fileId").and.eql(fileInfo.fileId);
+          result.should.have.property("filename").and.eql(updateFile.filename);
+          done();
+        });
+      });
+    });
+  });
+  /*****************************************************************/
+  describe("removeFile()", function() {
+
+    it("should return OK", function(done) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
+        file.remove(dbCode, fileInfo._id, function(err, result) {
+          should.not.exist(err);
+          should(result).not.eql(null);
+          result.should.have.property("valid").and.eql(0);
           done();
         });
       });
@@ -196,7 +241,7 @@ describe("modules/mod_file.js", function() {
   /*****************************************************************/
   describe("total()", function() {
     it("should return OK", function(done) {
-      file.addFile(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
         file.total(dbCode, {}, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);

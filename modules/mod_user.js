@@ -7,8 +7,8 @@
 "use strict";
 
 var mongo       = require("mongoose")
+  , conn        = require("../core/connection")
   , constant    = require("../core/constant")
-  , conn        = require("./connection")
   , schema      = mongo.Schema
   , mixed       = schema.Types.Mixed;
 
@@ -37,21 +37,23 @@ var User = new schema({
 
 /**
  * 使用定义好的Schema，生成User的model
+ * @param {String} code 公司code
  * @returns {Object} User model
  */
-function model() {
+function model(code) {
 
-  return conn().model("User", User);
+  return conn.model(code, "User", User);
 }
 
 /**
  * 创建用户
+ * @param {String} code 公司code
  * @param {Object} user 用户对象
  * @param {Function} callback 回调函数，返回新插入的用户
  */
-exports.add = function(user, callback) {
+exports.add = function(code, user, callback) {
 
-  var UserModel = model();
+  var UserModel = model(code);
 
   new UserModel(user).save(function(err, result){
     callback(err, result);
@@ -60,12 +62,13 @@ exports.add = function(user, callback) {
 
 /**
  * 根据用户标识查询用户
+ * @param {String} code 公司code
  * @param {String} uid 用户标识
  * @param {Function} callback 回调函数，返回用户信息
  */
-exports.get = function (uid, callback) {
+exports.get = function (code, uid, callback) {
 
-  var userModel = model();
+  var userModel = model(code);
 
   userModel.findOne({"_id": uid, "valid": constant.VALID}, function (err, result) {
     callback(err, result);
@@ -74,12 +77,13 @@ exports.get = function (uid, callback) {
 
 /**
  * 查询符合条件的有效用户的数目
+ * @param {String} code 公司code
  * @param {Object} condition 查询条件
  * @param {Function} callback  回调函数，返回用户数目
  */
-exports.total = function (condition, callback) {
+exports.total = function (code, condition, callback) {
 
-  var userModel = model();
+  var userModel = model(code);
 
   userModel.count(condition, function (err, count) {
     callback(err, count);
@@ -88,6 +92,7 @@ exports.total = function (condition, callback) {
 
 /**
  * 根据指定条件查询用户
+ * @param {String} code 公司code
  * @param {Object} condition 查询条件
  * @param {String} fields 查询的字段，例如："_id first email"
  * @param {Number} skip 跳过的文书数，默认为0
@@ -95,9 +100,9 @@ exports.total = function (condition, callback) {
  * @param {String} order 排序，例如："first email"
  * @param {Function} callback 回调函数，返回用户列表
  */
-exports.getList = function (condition, fields, skip, limit, order, callback) {
+exports.getList = function (code, condition, fields, skip, limit, order, callback) {
 
-  var userModel = model();
+  var userModel = model(code);
 
   userModel.find(condition)
     .select(fields)
@@ -111,13 +116,14 @@ exports.getList = function (condition, fields, skip, limit, order, callback) {
 
 /**
  * 根据用户标识更新用户
+ * @param {String} code 公司code
  * @param {String} uid 用户标识
  * @param {Object} command 更新命令
  * @param {Function} callback 回调函数，返回更新后的用户
  */
-exports.update = function (uid, command, callback) {
+exports.update = function (code, uid, command, callback) {
 
-  var userModel = model();
+  var userModel = model(code);
 
   userModel.findOneAndUpdate({"_id": uid, "valid": constant.VALID}, command, function (err, result) {
     callback(err, result);

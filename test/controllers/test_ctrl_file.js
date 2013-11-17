@@ -18,7 +18,7 @@ describe("controllers/ctrl_file.js", function() {
 
   var newFile = {
       name : "test_file"
-    , path : "../SmartCore/test/data/test_file.txt"
+    , path : "./test/data/test_file.txt"
     , type : "text/plain"
     };
 
@@ -28,25 +28,30 @@ describe("controllers/ctrl_file.js", function() {
   files.push(newFile);
   files.push(newFile);
 
-  var dbCode = "yukari";
-
-  var uid = "sl_say";
+  var handler = {
+    uid : "sl_say"
+  , params : {
+      files : files
+    , code : "yukari"
+    }
+  };
 
   /**
    * 执行测试case
    */
   /*****************************************************************/
-  describe("addFile()", function() {
-    var newFile = {
-        name : "test_file"
-      , path : "aaaaaaaaaaaaaaaaaaaa.txt"
-      , type : "text/plain"
-      };
-
-    var files = [];
-    files.push(newFile);
+  describe("add()", function() {
+//    var newFile = {
+//        name : "test_file"
+//      , path : "aaaaaaaaaaaaaaaaaaaa.txt"
+//      , type : "text/plain"
+//      };
+//
+//    var files = [];
+//    files.push(newFile);
+//    handler.params.files = files;
     it("should return err when file not exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, result) {
+      file.add(handler, function(err, result) {
         should.exist(err);
         should(result).eql([]);
         done();
@@ -54,7 +59,7 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK", function(done) {
-      file.addFile(dbCode, uid, files, function(err, result) {
+      file.add(handler, function(err, result) {
         should.not.exist(err);
         should(result).not.eql(null);
         result.length.should.eql(4);
@@ -64,9 +69,9 @@ describe("controllers/ctrl_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("getFileInfo()", function() {
+  describe("get()", function() {
     it("should return err when fileInfoid not exists", function(done) {
-      file.getFileInfo(dbCode, "", function(err, result) {
+      file.get(handler, function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -74,11 +79,13 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
-        file.getFileInfo(dbCode, fileList[0]._id, function(err, result) {
+      file.add(handler, function(err, fileList) {
+        handler.params.fileInfoId = fileList[0]._id;
+        file.get(handler, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.should.have.property("_id").and.eql(fileList[0]._id);
+          delete handler.params.fileInfoId;
           done();
         });
       });
@@ -88,7 +95,7 @@ describe("controllers/ctrl_file.js", function() {
   /*****************************************************************/
   describe("getFile()", function() {
     it("should return err when fileInfoid not exists", function(done) {
-      file.getFile(dbCode, "", function(err, result) {
+      file.getFile(handler, function(err, result) {
         should.not.exist(err);
         should(result).eql(null);
         done();
@@ -96,10 +103,12 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
-        file.getFile(dbCode, fileList[0].fileId, function(err, result) {
+      file.add(handler, function(err, fileList) {
+        handler.params.fileId = fileList[0].fileId;
+        file.getFile(handler, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
+          delete handler.params.fileId;
           done();
         });
       });
@@ -107,21 +116,25 @@ describe("controllers/ctrl_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("getFileInfoList()", function() {
+  describe("getList()", function() {
     it("should return err", function(done) {
-      file.getFileInfoList(dbCode, { 1 : 1 }, function(err, result) {
+      handler.params.condition = { 1 : 1 };
+      file.getList(handler, function(err, result) {
         should.not.exist(err);
         should(result).eql([]);
+        delete handler.params.condition;
         done();
       });
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
-        file.getFileInfoList(dbCode, { valid : 1 }, function(err, result) {
+      file.add(handler, function(err, fileList) {
+        handler.params.condition = { valid : 1 };
+        file.getList(handler, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.length.should.be.above(3);
+          delete handler.params.condition;
           done();
         });
       });
@@ -129,9 +142,9 @@ describe("controllers/ctrl_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("updateFileInfo()", function() {
+  describe("update()", function() {
     it("should return err when fileInfoid not exists", function(done) {
-      file.updateFileInfo(dbCode, "", "", function(err, result) {
+      file.update(handler, function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -139,15 +152,19 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
+      file.add(handler, function(err, fileList) {
         var updateFile = {
           filename : "updated File"
         };
-        file.updateFileInfo(dbCode, fileList[0]._id, updateFile, function(err, result) {
+        handler.params.fileInfoId = fileList[0]._id;
+        handler.params.updateFile = updateFile;
+        file.update(handler, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.should.have.property("_id").and.eql(fileList[0]._id);
           result.should.have.property("filename").and.eql(updateFile.filename);
+          delete handler.params.fileInfoId;
+          delete handler.params.updateFile;
           done();
         });
       });
@@ -155,9 +172,9 @@ describe("controllers/ctrl_file.js", function() {
   });
 
   /*****************************************************************/
-  describe("removeFile()", function() {
+  describe("updateFile()", function() {
     it("should return err when fileInfoid not exists", function(done) {
-      file.removeFile(dbCode, "", function(err, result) {
+      file.updateFile(handler, function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -165,11 +182,47 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
-        file.removeFile(dbCode, fileList[0]._id, function(err, result) {
+      file.add(handler, function(err, fileList) {
+        var updateFile = {
+          filename : "updated File"
+        };
+        handler.params.fileInfoId = fileList[0]._id;
+        handler.params.updateFile = updateFile;
+        handler.params.fileName = "update_File";
+        handler.params.filePath = "./test/data/test_file.txt";
+        file.updateFile(handler, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
-          result.should.have.property("fileId").and.eql(fileList[0].fileId);
+          result.should.have.property("_id").and.eql(fileList[0]._id);
+          result.should.have.property("filename").and.eql(updateFile.filename);
+          delete handler.params.fileInfoId;
+          delete handler.params.updateFile;
+          delete handler.params.fileName;
+          delete handler.params.filePath;
+          done();
+        });
+      });
+    });
+  });
+
+  /*****************************************************************/
+  describe("remove()", function() {
+    it("should return err when fileInfoid not exists", function(done) {
+      file.remove(handler, function(err, result) {
+        should.exist(err);
+        should(result).eql(null);
+        done();
+      });
+    });
+
+    it("should return OK when fileInfoid exists", function(done) {
+      file.add(handler, function(err, fileList) {
+        handler.params.fileInfoId = fileList[0]._id;
+        file.remove(handler, function(err, result) {
+          should.not.exist(err);
+          should(result).not.eql(null);
+          result.should.have.property("valid").and.eql(0);
+          delete handler.params.fileInfoId;
           done();
         });
       });
@@ -179,7 +232,7 @@ describe("controllers/ctrl_file.js", function() {
   /*****************************************************************/
   describe("total()", function() {
     it("should return err", function(done) {
-      file.total(dbCode, { 1 : 1 }, function(err, result) {
+      file.total(handler, function(err, result) {
         should.not.exist(err);
         should(result).eql(0);
         done();
@@ -187,10 +240,12 @@ describe("controllers/ctrl_file.js", function() {
     });
 
     it("should return OK when fileInfoid exists", function(done) {
-      file.addFile(dbCode, uid, files, function(err, fileList) {
-        file.total(dbCode, { fileName : fileList[0].fileName }, function(err, result) {
+      file.add(handler, function(err, fileList) {
+        handler.params.condition = { fileName : fileList[0].fileName };
+        file.total(handler, function(err, result) {
           should.not.exist(err);
           result.should.be.above(3);
+          delete handler.params.condition;
           done();
         });
       });

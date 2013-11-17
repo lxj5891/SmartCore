@@ -6,13 +6,10 @@
 
 "use strict";
 
-var should   = require("should")
-  , modUser  = require("../../coverage/modules/mod_user");
+require("../../core/test").befor();
 
-if(!process.env.TEST) {
-  process.env.TEST = true;
-  process.env.NODE_CONFIG_DIR = "../config";
-}
+var should   = require("should")
+  , modUser  = require("../../modules/mod_user");
 
 describe("modules/mod_user.js", function() {
 
@@ -42,29 +39,31 @@ describe("modules/mod_user.js", function() {
   describe("add()", function() {
     it("correctly create new user", function(done) {
 
-      modUser.add(data, function(err, result) {
+      modUser.add(null, data, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
-        result.userName.should.equal("lizheng");
-        result.first.should.equal("名");
-        result.middle.should.equal("中名");
-        result.last.should.equal("姓");
-        result.password.should.equal("admin");
+        result.should.have.property("userName").and.equal("lizheng");
+        result.should.have.property("first").and.equal("名");
+        result.should.have.property("middle").and.equal("中名");
+        result.should.have.property("last").and.equal("姓");
+        result.should.have.property("password").and.equal("admin");
+        result.should.have.property("groups");
         result.groups[0].should.equal("0");
         result.groups[1].should.equal("1");
-        result.email.should.equal("zli_ray@sina.cn");
-        result.lang.should.equal("ja");
-        result.status.should.equal("0");
-        result.timezone.should.equal("GMT+09:00");
+        result.should.have.property("email").and.equal("zli_ray@sina.cn");
+        result.should.have.property("lang").and.equal("ja");
+        result.should.have.property("status").and.equal("0");
+        result.should.have.property("timezone").and.equal("GMT+09:00");
+        result.should.have.property("extend");
         result.extend.QQ.should.equal("123456789");
         result.extend.birthday.should.equal("19850302");
-        result.valid.should.equal(1);
-        result.createAt.getTime().should.equal(date.getTime());
-        result.createBy.should.equal("123");
-        result.updateAt.getTime().should.equal(date.getTime());
-        result.updateBy.should.equal("456");
+        result.should.have.property("valid").and.equal(1);
+        result.should.have.property("createAt");
+        result.should.have.property("updateAt");
+        result.should.have.property("createBy").and.equal("123");
+        result.should.have.property("updateBy").and.equal("456");
 
         uid = result._id;
 
@@ -77,29 +76,31 @@ describe("modules/mod_user.js", function() {
   describe("get()", function() {
     it("correctly get user", function(done) {
 
-      modUser.get(uid, function(err, result) {
+      modUser.get(null, uid, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
-        result.userName.should.equal("lizheng");
-        result.first.should.equal("名");
-        result.middle.should.equal("中名");
-        result.last.should.equal("姓");
-        result.password.should.equal("admin");
+        result.should.have.property("userName").and.equal("lizheng");
+        result.should.have.property("first").and.equal("名");
+        result.should.have.property("middle").and.equal("中名");
+        result.should.have.property("last").and.equal("姓");
+        result.should.have.property("password").and.equal("admin");
+        result.should.have.property("groups");
         result.groups[0].should.equal("0");
         result.groups[1].should.equal("1");
-        result.email.should.equal("zli_ray@sina.cn");
-        result.lang.should.equal("ja");
-        result.status.should.equal("0");
-        result.timezone.should.equal("GMT+09:00");
+        result.should.have.property("email").and.equal("zli_ray@sina.cn");
+        result.should.have.property("lang").and.equal("ja");
+        result.should.have.property("status").and.equal("0");
+        result.should.have.property("timezone").and.equal("GMT+09:00");
+        result.should.have.property("extend");
         result.extend.QQ.should.equal("123456789");
         result.extend.birthday.should.equal("19850302");
-        result.valid.should.equal(1);
-        result.createAt.getTime().should.equal(date.getTime());
-        result.createBy.should.equal("123");
-        result.updateAt.getTime().should.equal(date.getTime());
-        result.updateBy.should.equal("456");
+        result.should.have.property("valid").and.equal(1);
+        result.should.have.property("createAt");
+        result.should.have.property("updateAt");
+        result.should.have.property("createBy").and.equal("123");
+        result.should.have.property("updateBy").and.equal("456");
 
         done();
       });
@@ -110,7 +111,7 @@ describe("modules/mod_user.js", function() {
   describe("total()", function() {
     it("correctly get user count", function(done) {
 
-      modUser.total({_id: uid}, function(err, count) {
+      modUser.total(null, {_id: uid}, function(err, count) {
 
         should.not.exist(err);
         should.exist(count);
@@ -126,9 +127,9 @@ describe("modules/mod_user.js", function() {
   describe("getList()", function() {
     it("correctly get user list", function(done) {
 
-      modUser.add(data, function() {});
+      modUser.add(null, data, function() {});
 
-      modUser.getList({userName: "lizheng", middle: "中名", "extend.birthday": "19850302"},
+      modUser.getList(null, {userName: "lizheng", middle: "中名", "extend.birthday": "19850302"},
         null, null, null, null, function(err, result) {
 
         should.not.exist(err);
@@ -145,12 +146,13 @@ describe("modules/mod_user.js", function() {
   describe("update()", function() {
     it("correctly update user", function(done) {
 
-      modUser.update(uid, {userName: "888", "extend.QQ": "555"}, function(err, result) {
+      modUser.update(null, uid, {userName: "888", "extend.QQ": "555"}, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
-        result.userName.should.equal("888");
+        result.should.have.property("userName").and.equal("888");
+        result.should.have.property("extend");
         result.extend.QQ.should.equal("555");
 
         done();
