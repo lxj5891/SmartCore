@@ -30,8 +30,9 @@
     "validator": "0.4.24",
     "underscore": "1.4.4",
     "i18n": "0.3.7",
-    "commander": "*",
-    "optimist": "*"
+    "commander": "2.0.0",
+    "optimist": "0.6.0",
+    "csv": "0.3.6"
   },
   "devDependencies": {
     "less": "*",
@@ -39,7 +40,6 @@
     "uglify-js": "*",
     "docco-husky": "*",
     "mocha": "*",
-    "csv": "*",
     "jshint": "*",
     "should": "*"
   }
