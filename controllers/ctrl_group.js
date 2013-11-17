@@ -53,6 +53,7 @@ function updateCompletely(handler, isInsert, callback) {
     // 组名
     group.name = params.name;
     check(group.name, __("group.error.emptyName")).notEmpty();
+    check(group.name, __("group.error.nameTooLong")).len(0, 128);
 
     // 类型, 1:部门（公司组织结构）, 2:组（自由创建）, 3:职位组
     group.type = params.type;
@@ -68,8 +69,9 @@ function updateCompletely(handler, isInsert, callback) {
     }
 
     // 描述
-    if(params.description) {
-      group.description = params.description;
+    group.description = params.description;
+    if(group.description) {
+      check(group.description, __("group.error.descTooLong")).len(0, 256);
     }
 
     // 公开性, 1:私密，2:公开
@@ -116,14 +118,14 @@ function updateCompletely(handler, isInsert, callback) {
       modGroup.get(code, params.gid, function(err, resultGroup) {
 
         if(err) {
-          return done(err);
+          return done(new errors.InternalServer(err));
         }
 
         if(resultGroup) {
           if(resultGroup.type !== group.type) {
-            return done(new errors.NotFound(__("group.error.typeNotMatch")));
+            return done(new errors.BadRequest(__("group.error.typeNotMatch")));
           } else {
-            return done(err, resultGroup);
+            return done(err);
           }
         }
 
@@ -137,7 +139,7 @@ function updateCompletely(handler, isInsert, callback) {
     tasks.push(function(done) {
       modGroup.get(code, group.parent, function(err, parentGroup) {
         if(err) {
-          return done(err);
+          return done(new errors.InternalServer(err));
         }
 
         if(parentGroup) {
@@ -157,8 +159,12 @@ function updateCompletely(handler, isInsert, callback) {
   _.each(group.owners, function(owner) {
     tasks.push(function(done) {
       modUser.total(code, {"_id": owner, "valid": constant.VALID}, function(err, count) {
+        if(err) {
+          return done(new errors.InternalServer(err));
+        }
+
         if(count !== 1) {
-          return done(new errors.BadRequest(__("group.error.ownerNotExist")));
+          return done(new errors.BadRequest(__("group.error.invalidOwner")));
         }
 
         return done(err);
@@ -169,13 +175,8 @@ function updateCompletely(handler, isInsert, callback) {
   async.waterfall(tasks, function(err) {
     if(err) {
       log.error(err, handler.uid);
-      if(err instanceof errors.BadRequest) {
-        callback(err);
-        return;
-      } else {
-        callback(new errors.InternalServer(err));
-        return;
-      }
+      callback(err);
+      return;
     }
 
     if(isInsert) { // 创建

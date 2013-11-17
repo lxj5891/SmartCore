@@ -57,6 +57,7 @@ function updateCompletely(handler, isInsert, callback) {
     if(isInsert) {
       user.userName = params.userName;
       check(user.userName, __("user.error.emptyUserName")).notEmpty();
+      check(user.userName, __("user.error.nameTooLong")).len(0, 128);
     }
 
     // 真实名
@@ -127,6 +128,11 @@ function updateCompletely(handler, isInsert, callback) {
   if(isInsert) {
     tasks.push(function(done) {
       modUser.total(code, {"userName": user.userName, "valid": constant.VALID}, function(err, count) {
+
+        if(err) {
+          return done(new errors.InternalServer(err));
+        }
+
         if(count !== 0) {
           return done(new errors.BadRequest(__("user.error.userNameConflict")));
         }
@@ -140,6 +146,10 @@ function updateCompletely(handler, isInsert, callback) {
   _.each(user.groups, function(gid) {
     tasks.push(function(done) {
       modGroup.total(code, {"_id": gid, "valid": constant.VALID}, function(err, count) {
+        if(err) {
+          return done(new errors.InternalServer(err));
+        }
+
         if(count === 0) {
           return done(new errors.BadRequest(__("group.error.notExist")));
         }
@@ -153,13 +163,8 @@ function updateCompletely(handler, isInsert, callback) {
 
     if(err) {
       log.error(err, handler.uid);
-      if(err instanceof errors.BadRequest) {
-        callback(err);
-        return;
-      } else {
-        callback(new errors.InternalServer(err));
-        return;
-      }
+      callback(err);
+      return;
     }
 
     if(isInsert) { // 添加用户
@@ -178,7 +183,7 @@ function updateCompletely(handler, isInsert, callback) {
       modUser.update(code, params.uid, user, function(err, result) {
         if(err) {
           log.error(err, handler.uid);
-          return callback(err);
+          return callback(new errors.InternalServer(err));
         }
 
         if(result) {
