@@ -1,8 +1,10 @@
+
+"use strict";
+
 var crypto = require('crypto')
   , confapp = require('config').app
   , confcookie = require('config').cookie
   , log = require('./log');
-
 
 var spliter = "\t";
 
@@ -32,7 +34,7 @@ exports.issueCookie = function(user, res) {
  */
 exports.clearCookie = function(res) {
   res.clearCookie(confcookie.key);
-}
+};
 
 
 /**
@@ -61,7 +63,7 @@ exports.encrypt = function(str, secret) {
   var cipher = crypto.createCipher("aes192", secret);
   var crypted = cipher.update(str, "utf8", "hex");
   return crypted + cipher.final("hex");
-}
+};
 
 
 /**
@@ -74,7 +76,7 @@ exports.decrypt = function(str, secret) {
   var decipher = crypto.createDecipher("aes192", secret);
   var decrypted = decipher.update(str, "hex", "utf8");
   return decrypted + decipher.final("utf8");
-}
+};
 
 // rfc4122 v4
 exports.uuid = function() {
@@ -84,7 +86,7 @@ exports.uuid = function() {
   });
 
   return result;
-}
+};
 
 /**
  * 登陆处理，不额外发行cookie
@@ -96,7 +98,7 @@ exports.login = function(req, res, user) {
   res.setHeader("userid", user._id);
   
   // exports.issueCookie(user, res);
-}
+};
 
 /**
  * 注销
