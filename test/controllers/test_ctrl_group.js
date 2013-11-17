@@ -15,7 +15,7 @@ var _          = require("underscore")
   , context    = require("../../core/context")
   , constant   = require("../../core/constant")
   , ctrlUser   = require("../../controllers/ctrl_user")
-  , ctrlGroup  = require("../../controllers/ctrl_group");
+  , ctrlGroup  = require("../../coverage/controllers/ctrl_group");
 
 function newUser() {
   return {
@@ -518,7 +518,7 @@ describe("controllers/ctrl_user.js", function() {
   describe("get()", function() {
 
     /*****************************************************************/
-    it("get group", function(done) {
+    it("correctly get group", function(done) {
 
       var handler = newHandler("44", {gid: addedGroup._id.toString()});
 
@@ -534,6 +534,23 @@ describe("controllers/ctrl_user.js", function() {
         done();
       });
     });
+
+    /*****************************************************************/
+    it("invalid group", function(done) {
+
+      var handler = newHandler("44", {gid: "5288b80f3ce4ee6819000005"});
+
+      ctrlGroup.get(handler, function(err, result) {
+
+        should.not.exist(result);
+        should.exist(err);
+
+        err.should.have.property("code").and.equal(404);
+
+        done();
+      });
+    });
+
   });
 
   var gids = [];

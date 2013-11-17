@@ -9,7 +9,7 @@
 require("../../core/test").befor();
 
 var should   = require("should")
-  , modGroup  = require("../../modules/mod_group");
+  , modGroup  = require("../../coverage/modules/mod_group");
 
 describe("modules/mod_group.js", function() {
 

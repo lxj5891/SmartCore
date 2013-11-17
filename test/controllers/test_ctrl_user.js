@@ -14,7 +14,7 @@ var _         = require("underscore")
   , mock      = require("../../core/mock")
   , context   = require("../../core/context")
   , constant   = require("../../core/constant")
-  , ctrlUser  = require("../../controllers/ctrl_user")
+  , ctrlUser  = require("../../coverage/controllers/ctrl_user")
   , modGroup  = require("../../modules/mod_group")
   , ctrlGroup = require("../../controllers/ctrl_group");
 
@@ -77,7 +77,7 @@ describe("controllers/ctrl_user.js", function() {
       modGroup.add(null, groupData, function(err, group) {
 
         var handler = newHandler("12345678", newUser());
-        handler.params.groups.push(group._id);
+        handler.params.groups = group._id;
 
         ctrlUser.add(handler, function(err, result) {
 
@@ -496,6 +496,23 @@ describe("controllers/ctrl_user.js", function() {
         done();
       });
     });
+
+    /*****************************************************************/
+    it("invalid user", function(done) {
+
+      var handler = newHandler("44", {uid: "5288b80f3ce4ee6819000001"});
+
+      ctrlUser.get(handler, function(err, result) {
+
+        should.exist(err);
+        should.not.exist(result);
+
+        err.code.should.equal(404);
+
+        done();
+      });
+    });
+
   });
 
   describe("exist()", function() {
@@ -597,6 +614,48 @@ describe("controllers/ctrl_user.js", function() {
 
     });
 
+    /*****************************************************************/
+    it("empty conditions", function(done) {
+
+      var condition = {};
+
+      var handler = newHandler("44", condition);
+
+      ctrlUser.getListByKeywords(handler, function(err, result) {
+
+        should.exist(err);
+        should.not.exist(result);
+
+        err.code.should.equal(400);
+
+        done();
+      });
+
+    });
+
+    /*****************************************************************/
+    it("empty result", function(done) {
+
+      var condition = {
+        "realName": "ADRT",
+        "email": "uijk",
+        "and": true
+      };
+
+      var handler = newHandler("44", condition);
+
+      ctrlUser.getListByKeywords(handler, function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.should.have.property("totalItems").and.equal(0);
+
+        done();
+      });
+
+    });
+
   });
 
   describe("remove()", function() {
@@ -616,6 +675,23 @@ describe("controllers/ctrl_user.js", function() {
         done();
       });
     });
+
+    /*****************************************************************/
+    it("invalid user", function(done) {
+
+      var handler = newHandler("44", {uid: "5288b80f3ce4ee6819000001"});
+
+      ctrlUser.remove(handler, function(err, result) {
+
+        should.exist(err);
+        should.not.exist(result);
+
+        err.code.should.equal(404);
+
+        done();
+      });
+    });
+
   });
 
   describe("usersInGroup()", function() {
@@ -719,6 +795,21 @@ describe("controllers/ctrl_user.js", function() {
         result.items[0].should.not.have.property("password");
         result.items[0].should.not.have.property("extend");
         result.items[0].should.not.have.property("valid");
+
+        done();
+      });
+
+    });
+
+    /*****************************************************************/
+    it("invalid group", function(done) {
+
+      ctrlUser.usersInGroup(newHandler("123", {gid: "5288b80f3ce4ee6819000001"}), function(err, result) {
+
+        should.exist(err);
+        should.not.exist(result);
+
+        err.code.should.equal(400);
 
         done();
       });

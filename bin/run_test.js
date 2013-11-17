@@ -19,9 +19,8 @@ var target = [
   , "test/core/test_errors.js"
   , "test/core/test_connection.js"
 
-  , "test/modules/test_mod_company.js"
-
-  , "test/controllers/test_ctrl_company.js"
+  , "test/modules/test_mod_user.js"
+  , "test/modules/test_mod_group.js"
   ];
 
 /**
