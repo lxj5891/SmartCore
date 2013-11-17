@@ -1,3 +1,6 @@
 logs/*
 .idea/*
 npm-debug.log
+docs/
+reports/
+coverage/

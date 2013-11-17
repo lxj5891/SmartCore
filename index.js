@@ -45,46 +45,30 @@ module.exports = {
   , log:          require("./core/log")
   , mail:         require("./core/mail")
   , middleware:   require("./core/middleware")
-  , process:      require("./core/process")
-  , solr:         require("./core/solr")
   , util:         require("./core/util")
   , context:      require("./core/context")
-  , checker:      require("./core/authorityChecker")
   },
 
   /**
    * smart核心机能
    */
   core: {
-    common:       require("./api/common")
-  , document:     require("./api/document")
-  , group:        require("./api/group")
-  , notification: require("./api/notification")
-  , search:       require("./api/search")
-  , template:     require("./api/template")
+    group:        require("./api/group")
   , user:         require("./api/user")
-  , dbfile:       require("./api/dbfile")
-  , apn:          require("./api/apn")
+  , file:         require("./api/file")
   , log:          require("./api/log")
   },
 
   /**
-   * 以下废弃预定
+   * TODO:smart核心机能(通过ctrl开放？)
    */
   ctrl: {
-    dbfile: require("./controllers/ctrl_dbfile")
-  , document: require("./controllers/ctrl_document")
-  , fulltextsearch: require("./controllers/ctrl_fulltextsearch")
-  , group: require("./controllers/ctrl_group")
-  , notification: require("./controllers/ctrl_notification")
-  , search: require("./controllers/ctrl_search")
-  , user: require("./controllers/ctrl_user")
-  , category: require("./controllers/ctrl_category")
-  },
-  mod: {
-    user: require("./modules/mod_user")
-  , group: require("./modules/mod_group")
-  , notification: require("./modules/mod_notification")
-  , gridfs: require("./modules/gridfs")
+    aclink:       require("./controllers/ctrl_aclink")
+  , company:      require("./controllers/ctrl_company")
+  , file:         require("./controllers/ctrl_file")
+  , group:        require("./controllers/ctrl_group")
+  , log:          require("./controllers/ctrl_log")
+  , master:       require("./controllers/ctrl_master")
+  , user:         require("./controllers/ctrl_user")
   }
 };

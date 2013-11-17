@@ -1,3 +1,8 @@
+/**
+ * @file 常量定义类
+ * @author r2space@gmail.com
+ * @copyright Dreamarts Corporation. All Rights Reserved.
+ */
 
 "use strict";
 

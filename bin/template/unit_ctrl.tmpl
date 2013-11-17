@@ -1,0 +1,48 @@
+/**
+ * @file 单体测试对象：controllers/ctrl_<%= name %>.js
+ * @author <%= author %>
+ * @copyright Dreamarts Corporation. All Rights Reserved.
+ */
+
+"use strict";
+
+require("../../core/test").befor();
+
+var should  = require("should")
+  , mock    = require("../../core/mock")
+  , context = require("../../core/context")
+  , <%= name %> = require("../../coverage/controllers/ctrl_<%= name %>");
+
+/**
+ * 测试代码
+ */
+describe("controllers/ctrl_<%= name %>.js", function() {
+
+  /**
+   * 初始化测试数据
+   */
+  var now = Date.now().toString()
+    , res = mock.getRequest()
+    , req = mock.getResponse("12345678", {}, {
+      name: "dac"
+    , domain: now
+    , type: "1"
+    , extend: {
+        address: "liaoning"
+      , tel: "0411-12345678"
+      }
+    })
+    , handler = new context().bind(req, res);
+
+  describe("add()", function() {
+
+    /*****************************************************************/
+    it("add new <%= name %>", function(done) {
+
+      result.should.have.property("createBy").and.equal("12345678");
+      result.should.have.property("createAt");
+      done();
+    });
+  });
+
+});
