@@ -561,7 +561,7 @@ describe("controllers/ctrl_user.js", function() {
         },
         function(cb) {
           addGroup(gids[1], cb);
-        },
+        }
       ], function() {
         ctrlGroup.subGroups(newHandler("123", {gid: addedGroup._id.toString()}), function(err, result) {
 

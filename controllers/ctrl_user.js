@@ -328,7 +328,7 @@ exports.get = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回用户列表
  */
-exports.getUsersInGroup = function(handler, callback) {
+exports.usersInGroup = function(handler, callback) {
 
   var params = handler.params;
   var gid = params.gid.toString();
@@ -363,7 +363,7 @@ exports.getUsersInGroup = function(handler, callback) {
         return getUsersInGroups(handler, gids, callback);
       });
     } else {
-      getUsersInGroups(handler, gid, callback);
+      getUsersInGroups(handler, [gid], callback);
     }
   });
 };

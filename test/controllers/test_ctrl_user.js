@@ -9,11 +9,14 @@
 require("../../core/test").befor();
 
 var _         = require("underscore")
-  , should     = require("should")
+  , async     = require("async")
+  , should    = require("should")
   , mock      = require("../../core/mock")
   , context   = require("../../core/context")
+  , constant   = require("../../core/constant")
   , ctrlUser  = require("../../controllers/ctrl_user")
-  , modGroup  = require("../../modules/mod_group");
+  , modGroup  = require("../../modules/mod_group")
+  , ctrlGroup = require("../../controllers/ctrl_group");
 
 var userName = new Date().toLocaleString();
 
@@ -480,6 +483,7 @@ describe("controllers/ctrl_user.js", function() {
 
   describe("get()", function() {
 
+    /*****************************************************************/
     it("correctly get user", function(done) {
 
       var handler = newHandler("44", {uid: addedUser._id});
@@ -496,6 +500,7 @@ describe("controllers/ctrl_user.js", function() {
 
   describe("exist()", function() {
 
+    /*****************************************************************/
     it("check user exist", function(done) {
 
       var handler = newHandler("44", {uid: addedUser._id});
@@ -536,6 +541,7 @@ describe("controllers/ctrl_user.js", function() {
       , extend      : {"QQ":"123456789", "birthday": "19850302"}
       });
 
+    /*****************************************************************/
     it("correctly get user list by intersect conditions", function(done) {
 
       ctrlUser.add(handler2, function() {
@@ -568,6 +574,7 @@ describe("controllers/ctrl_user.js", function() {
 
     });
 
+    /*****************************************************************/
     it("correctly get user list by union conditions", function(done) {
 
       var condition = {
@@ -594,6 +601,7 @@ describe("controllers/ctrl_user.js", function() {
 
   describe("remove()", function() {
 
+    /*****************************************************************/
     it("correctly remove user", function(done) {
 
       var handler = newHandler("44", {uid: addedUser._id});
@@ -608,6 +616,115 @@ describe("controllers/ctrl_user.js", function() {
         done();
       });
     });
+  });
+
+  describe("usersInGroup()", function() {
+
+    function newUser() {
+      return {
+          userName    : userName
+        , first       : "名"
+        , middle      : "中名"
+        , last        : "姓"
+        , password    : "admin"
+        , groups      : []
+        , email       : "zli_ray@sina.cn"
+        , lang        : "ja"
+        , timezone    : "GMT+09:00"
+        , status      : 0
+        , extend      : {"QQ":"123456789", "birthday": "19850302"}
+        };
+    }
+
+    function newGroup() {
+      return {
+          name         : "lizheng"
+        , parent       : null
+        , description  : "test group"
+        , type         : constant.GROUP_TYPE_DEPARTMENT
+        , public       : constant.GROUP_PRIVATE
+        , owners       : []
+        , extend       : {"QQ":"123456789", "birthday": "19850302"}
+        };
+    }
+
+    var gids = [];
+    var uids = [];
+
+    /*****************************************************************/
+    it("correctly get users in group non-recursively", function(done) {
+
+      var addGroup = function(parent, cb) {
+        var group = newGroup();
+        group.parent = parent;
+        ctrlGroup.add(newHandler("123", group), function(err, result) {
+          gids.push(result._id.toString());
+          var user = newUser();
+          user.userName = new Date().getTime() + "";
+          user.groups = [result._id.toString()];
+          var handler = newHandler("12345678", user);
+          ctrlUser.add(handler, function(err, result) {
+            uids.push(result._id.toString());
+            cb();
+          });
+
+        });
+      };
+
+      async.waterfall([
+        function(cb) {
+          addGroup(null, cb);
+        },
+        function(cb) {
+          addGroup(gids[0], cb);
+        },
+        function(cb) {
+          addGroup(gids[1], cb);
+        }
+      ], function() {
+        ctrlUser.usersInGroup(newHandler("123", {gid: gids[0]}), function(err, result) {
+
+          should.not.exist(err);
+          should.exist(result);
+
+          result.should.have.property("totalItems").and.equal(1);
+          result.items.length.should.equal(1);
+          result.items[0]._id.toString().should.equal(uids[0]);
+
+          done();
+        });
+      });
+
+
+    });
+
+    /*****************************************************************/
+    it("correctly get users in group recursively", function(done) {
+
+      ctrlUser.usersInGroup(newHandler("123", {gid: gids[0], recursive: true, fields: "_id userName email"}), function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.items.length.should.equal(3);
+        result.items[0]._id.toString().should.equal(uids[0]);
+        result.items[1]._id.toString().should.equal(uids[1]);
+        result.items[2]._id.toString().should.equal(uids[2]);
+
+        result.items[0].should.have.property("_id");
+        result.items[0].should.have.property("userName");
+        result.items[0].should.have.property("email");
+
+        result.items[0].should.not.have.property("timezone");
+        result.items[0].should.not.have.property("password");
+        result.items[0].should.not.have.property("extend");
+        result.items[0].should.not.have.property("valid");
+
+        done();
+      });
+
+    });
+
   });
 
 
