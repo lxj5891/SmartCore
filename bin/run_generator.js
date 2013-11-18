@@ -151,3 +151,5 @@ generate();
 
 // 自动发布到npm上
 
+// 生成 routes
+
