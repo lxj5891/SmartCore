@@ -130,7 +130,7 @@ describe("modules/mod_user.js", function() {
       modUser.add(null, data, function() {});
 
       modUser.getList(null, {userName: "lizheng", middle: "中名", "extend.birthday": "19850302"},
-        null, null, null, null, function(err, result) {
+        null, null, null, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);

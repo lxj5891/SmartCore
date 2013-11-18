@@ -42,7 +42,9 @@ exports.GROUP_PUBLIC = "2"; // 公开
 exports.ACLINK_TYPE_USER_PERMISSION = "1";
 
 exports.MODULES_NAME_FILE = "File";
+exports.MODULES_NAME_GROUP = "Group";
 exports.MODULES_NAME_MASTER = "Master";
+exports.MODULES_NAME_USER = "User";
 
 
 

@@ -118,21 +118,12 @@ describe("modules/mod_group.js", function() {
       modGroup.add(null, data, function() {
 
         modGroup.getList(null, {name: "lizheng", parent: "123456", "extend.birthday": "19850302"},
-          "_id name parent type extend.QQ", null, null, null, function(err, result) {
+           null, null, null, function(err, result) {
 
             should.not.exist(err);
             should.exist(result);
 
             result.length.should.above(1);
-
-            should.exist(result[0]._id);
-            should.exist(result[0].name);
-            should.exist(result[0].parent);
-            should.exist(result[0].type);
-            should.exist(result[0].extend.QQ);
-
-            should.not.exist(result[0].owners);
-            should.not.exist(result[0].updateAt);
 
             done();
           });
