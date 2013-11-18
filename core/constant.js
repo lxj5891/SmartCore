@@ -39,6 +39,8 @@ exports.GROUP_TYPE_OFFICIAL = "3"; // 职位组
 exports.GROUP_PRIVATE = "1"; // 私密
 exports.GROUP_PUBLIC = "2"; // 公开
 
+exports.ACLINK_TYPE_USER_PERMISSION = "1";
+
 exports.MODULES_NAME_FILE = "File";
 exports.MODULES_NAME_MASTER = "Master";
 

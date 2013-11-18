@@ -7,7 +7,9 @@
 "use strict";
 
 var errors      = require("../core/errors")
+  , constant    = require("../core/constant")
   , log         = require("../core/log")
+  , util        = require("../core/util")
   , modAclink   = require("../modules/mod_aclink");
 
 /**
@@ -23,6 +25,9 @@ exports.exist = function(handler, callback) {
   var type = params.type;
   var main = params.main;
   var subs = params.subs;
+  if(!util.isArray(subs)) {
+    subs = [subs];
+  }
 
   modAclink.exist(code, type, main, subs, function(err, exist) {
 
@@ -48,6 +53,9 @@ exports.add = function(handler, callback) {
   var type = params.type;
   var main = params.main;
   var subsToAdd = params.subsToAdd;
+  if(!util.isArray(subsToAdd)) {
+    subsToAdd = [subsToAdd];
+  }
 
   modAclink.add(code, type, main, subsToAdd, function(err, result) {
 
@@ -76,6 +84,9 @@ exports.update = function(handler, callback) {
   var type = params.type;
   var main = params.main;
   var subsToReplace = params.subsToReplace;
+  if(!util.isArray(subsToReplace)) {
+    subsToReplace = [subsToReplace];
+  }
 
   modAclink.update(code, type, main, subsToReplace, function(err, result) {
 
@@ -109,6 +120,9 @@ exports.remove = function(handler, callback){
   var type = params.type;
   var main = params.main;
   var subsToDel = params.subsToDel;
+  if(!util.isArray(subsToDel)) {
+    subsToDel = [subsToDel];
+  }
 
   modAclink.remove(code, type, main, subsToDel, function(err, result) {
 
@@ -158,7 +172,7 @@ exports.get = function(handler, callback) {
 };
 
 /**
- * 检查用户是否有某种权限
+ * 检查用户是否有某种或某些权限
  * @param {Object} handler 上下文对象
  * @param {Function} callback 返回是否有某种权限
  */
@@ -167,11 +181,13 @@ exports.hasPermission = function(handler, callback) {
   var code = handler.code;
   var params = handler.params;
 
-  var type = params.type;
   var uid = params.uid;
-  var permission = params.permission;
+  var permissions = params.permissions;
+  if(!util.isArray(permissions)) {
+    permissions = [permissions];
+  }
 
-  modAclink.exist(code, type, uid, [permission], function(err, exist) {
+  modAclink.exist(code, constant.ACLINK_TYPE_USER_PERMISSION, uid, permissions, function(err, exist) {
 
     if(err) {
       log.error(err, handler.uid);
