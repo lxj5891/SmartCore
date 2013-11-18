@@ -237,7 +237,7 @@ exports.update = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回删除的组
  */
-exports.removeGroup = function(handler, callback) {
+exports.remove = function(handler, callback) {
 
   // TODO 如何删除组？
   // 部门
