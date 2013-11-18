@@ -9,14 +9,11 @@
 require("../../core/test").befor();
 
 var _         = require("underscore")
-  , async     = require("async")
   , should    = require("should")
   , mock      = require("../../core/mock")
   , context   = require("../../core/context")
-  , constant   = require("../../core/constant")
   , ctrlUser  = require("../../coverage/controllers/ctrl_user")
-  , modGroup  = require("../../modules/mod_group")
-  , ctrlGroup = require("../../controllers/ctrl_group");
+  , modGroup  = require("../../modules/mod_group");
 
 var userName = new Date().toLocaleString();
 
@@ -77,7 +74,7 @@ describe("controllers/ctrl_user.js", function() {
       modGroup.add(null, groupData, function(err, group) {
 
         var handler = newHandler("12345678", newUser());
-        handler.params.groups = group._id;
+        handler.params.groups = group._id.toString();
 
         ctrlUser.add(handler, function(err, result) {
 
@@ -199,23 +196,6 @@ describe("controllers/ctrl_user.js", function() {
     });
 
     /*****************************************************************/
-    it("not supported lang", function(done) {
-
-      var handler = newHandler("12345678", newUser());
-      handler.params.lang = "89";
-
-      ctrlUser.add(handler, function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
     it("empty timezone", function(done) {
 
       var handler = newHandler("12345678", newUser());
@@ -248,237 +228,25 @@ describe("controllers/ctrl_user.js", function() {
       });
     });
 
-    /*****************************************************************/
-    it("group not exist", function(done) {
-
-      var handler = newHandler("12345678", newUser());
-      handler.params.userName = new Date().getTime();
-      handler.params.groups = ["5284e5862102f0b801000002"];
-
-      ctrlUser.add(handler, function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(400);
-
-        done();
-      });
-    });
-
   });
 
-  describe("update()", function() {
-
-    function newUser() {
-      return {
-          userName    : "666"
-        , first       : "first"
-        , middle      : "middle"
-        , last        : "last"
-        , password    : "password"
-        , groups      : []
-        , email       : "test@aaa.com"
-        , lang        : "en"
-        , timezone    : "GMT+08:00"
-        , status      : "1"
-        , extend      : {"QQ":"55555", "zip": "116621"}
-        , valid       : 0
-        , createAt    : "6"
-        , createBy    : "7"
-        , updateAt    : "8"
-        , updateBy    : "9"
-        };
-    }
+  describe("exist()", function() {
 
     /*****************************************************************/
-    it("correctly update user", function(done) {
+    it("check user exist", function(done) {
 
-      modGroup.add(null, groupData, function(err, group) {
+      var handler = newHandler("44", {uid: addedUser._id.toString()});
 
-        var user = newUser();
+      ctrlUser.exist(handler, function(err, result) {
 
-        var handler = newHandler("44", user);
-        handler.params.uid = addedUser._id;
-        handler.params.groups = [group._id];
+        should.not.exist(err);
+        should.exist(result);
 
-        ctrlUser.update(handler, function(err, result) {
-
-          should.not.exist(err);
-          should.exist(result);
-
-          // 全字段正确性检查
-          should.exist(result._id);
-          result.should.have.property("userName").and.equal(addedUser.userName);
-          result.should.have.property("first").and.equal(user.first);
-          result.should.have.property("middle").and.equal(user.middle);
-          result.should.have.property("last").and.equal(user.last);
-          result.should.have.property("password").and.equal(user.password);
-          result.should.have.property("groups");
-          result.groups.length.should.equal(1);
-          result.groups[0].should.equal(group._id.toString());
-          result.groups[0].should.not.equal(addedUser.groups[0]);
-          result.should.have.property("email").and.equal(user.email);
-          result.should.have.property("lang").and.equal(user.lang);
-          result.should.have.property("status").and.equal(user.status);
-          result.should.have.property("timezone").and.equal(user.timezone);
-          result.should.have.property("extend");
-          result.extend.QQ.should.equal(user.extend.QQ);
-          // result.extend.birthday.should.equal(user.extend.birthday); TODO extend更新时，既存字段被删除掉了
-          result.should.have.property("valid").and.equal(1);
-          result.should.have.property("createAt");
-          result.createAt.getTime().should.equal(addedUser.createAt.getTime());
-          result.should.have.property("updateAt");
-          result.updateAt.getTime().should.not.equal(addedUser.createAt.getTime());
-          result.should.have.property("createBy").and.equal(addedUser.createBy);
-          result.should.have.property("updateBy").and.equal("44");
-
-          done();
-        });
-      });
-
-    });
-
-
-    /*****************************************************************/
-    it("empty email", function(done) {
-
-      var user = newUser();
-
-      var handler = newHandler("44", user);
-      handler.params.uid = addedUser._id;
-      handler.params.email = null;
-
-      ctrlUser.update(handler, function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(400);
+        result.should.equal(true);
 
         done();
       });
     });
-
-    /*****************************************************************/
-    it("invalid email", function(done) {
-
-      var user = newUser();
-
-      var handler = newHandler("44", user);
-      handler.params.uid = addedUser._id;
-      handler.params.email = "AAA";
-
-      ctrlUser.update(handler, function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("empty lang", function(done) {
-
-      var user = newUser();
-
-      var handler = newHandler("44", user);
-      handler.params.uid = addedUser._id;
-      handler.params.lang = "";
-
-      ctrlUser.update(handler, function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("not supported lang", function(done) {
-
-      var user = newUser();
-
-      var handler = newHandler("44", user);
-      handler.params.uid = addedUser._id;
-      handler.params.lang = "89";
-
-      ctrlUser.update(handler, function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("empty timezone", function(done) {
-
-      var user = newUser();
-
-      var handler = newHandler("44", user);
-      handler.params.uid = addedUser._id;
-      handler.params.timezone = null;
-
-      ctrlUser.update(handler, function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("group not exist", function(done) {
-
-      var user = newUser();
-
-      var handler = newHandler("44", user);
-      handler.params.uid = addedUser._id;
-      handler.params.groups = ["5284e5862102f0b801000002"];
-
-      ctrlUser.update(handler, function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("user not exist", function(done) {
-
-      var user = newUser();
-
-      var handler = newHandler("44", user);
-      handler.params.uid = "5284e5862102f0b801000002";
-
-      ctrlUser.update(handler, function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(404);
-
-        done();
-      });
-    });
-
   });
 
   describe("get()", function() {
@@ -515,25 +283,6 @@ describe("controllers/ctrl_user.js", function() {
 
   });
 
-  describe("exist()", function() {
-
-    /*****************************************************************/
-    it("check user exist", function(done) {
-
-      var handler = newHandler("44", {uid: addedUser._id});
-
-      ctrlUser.exist(handler, function(err, result) {
-
-        should.not.exist(err);
-        should.exist(result);
-
-        result.should.equal(true);
-
-        done();
-      });
-    });
-  });
-
   describe("getListByKeywords()", function() {
 
 //    var user1 = {
@@ -547,11 +296,11 @@ describe("controllers/ctrl_user.js", function() {
     var handler2 = newHandler("12345678", {
         userName    : userName + "1"
       , first       : "2名"
-      , middle      : "2中名"
+      , middle      : "2中"
       , last        : "2姓"
       , password    : "admin"
       , groups      : []
-      , email       : "zli_ray2@sina.cn"
+      , email       : "zli_aaa@sina.cn"
       , lang        : "ja"
       , timezone    : "GMT+09:00"
       , status      : 0
@@ -562,11 +311,10 @@ describe("controllers/ctrl_user.js", function() {
     it("correctly get user list by intersect conditions", function(done) {
 
       ctrlUser.add(handler2, function() {
-
         var condition = {
-          "userName": "中国",
-          "realName": "middle",
-          "email": "aaa",
+          "userName": "GMT",
+          "realName": "中名",
+          "email": "sina.cn",
           "and": true
         };
 
@@ -581,8 +329,8 @@ describe("controllers/ctrl_user.js", function() {
 
           _.each(result.items, function(user) {
             user.userName.indexOf("GMT").should.above(0);
-            user.middle.indexOf("middle").should.equal(0);
-            user.email.indexOf("aaa").should.above(0);
+            user.middle.indexOf("中名").should.equal(0);
+            user.email.indexOf("sina").should.above(0);
           });
 
           done();
@@ -596,7 +344,7 @@ describe("controllers/ctrl_user.js", function() {
 
       var condition = {
         "realName": "2姓2中",
-        "email": "aaa",
+        "email": "ray",
         "and": false
       };
 
@@ -663,7 +411,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("correctly remove user", function(done) {
 
-      var handler = newHandler("44", {uid: addedUser._id});
+      var handler = newHandler("44", {uid: addedUser._id.toString()});
 
       ctrlUser.remove(handler, function(err, result) {
 
@@ -690,130 +438,6 @@ describe("controllers/ctrl_user.js", function() {
 
         done();
       });
-    });
-
-  });
-
-  describe("usersInGroup()", function() {
-
-    function newUser() {
-      return {
-          userName    : userName
-        , first       : "名"
-        , middle      : "中名"
-        , last        : "姓"
-        , password    : "admin"
-        , groups      : []
-        , email       : "zli_ray@sina.cn"
-        , lang        : "ja"
-        , timezone    : "GMT+09:00"
-        , status      : 0
-        , extend      : {"QQ":"123456789", "birthday": "19850302"}
-        };
-    }
-
-    function newGroup() {
-      return {
-          name         : "lizheng"
-        , parent       : null
-        , description  : "test group"
-        , type         : constant.GROUP_TYPE_DEPARTMENT
-        , public       : constant.GROUP_PRIVATE
-        , owners       : []
-        , extend       : {"QQ":"123456789", "birthday": "19850302"}
-        };
-    }
-
-    var gids = [];
-    var uids = [];
-
-    /*****************************************************************/
-    it("correctly get users in group non-recursively", function(done) {
-
-      var addGroup = function(parent, cb) {
-        var group = newGroup();
-        group.parent = parent;
-        ctrlGroup.add(newHandler("123", group), function(err, result) {
-          gids.push(result._id.toString());
-          var user = newUser();
-          user.userName = new Date().getTime() + "";
-          user.groups = [result._id.toString()];
-          var handler = newHandler("12345678", user);
-          ctrlUser.add(handler, function(err, result) {
-            uids.push(result._id.toString());
-            cb();
-          });
-
-        });
-      };
-
-      async.waterfall([
-        function(cb) {
-          addGroup(null, cb);
-        },
-        function(cb) {
-          addGroup(gids[0], cb);
-        },
-        function(cb) {
-          addGroup(gids[1], cb);
-        }
-      ], function() {
-        ctrlUser.usersInGroup(newHandler("123", {gid: gids[0]}), function(err, result) {
-
-          should.not.exist(err);
-          should.exist(result);
-
-          result.should.have.property("totalItems").and.equal(1);
-          result.items.length.should.equal(1);
-          result.items[0]._id.toString().should.equal(uids[0]);
-
-          done();
-        });
-      });
-
-
-    });
-
-    /*****************************************************************/
-    it("correctly get users in group recursively", function(done) {
-
-      ctrlUser.usersInGroup(newHandler("123", {gid: gids[0], recursive: true, fields: "_id userName email"}), function(err, result) {
-
-        should.not.exist(err);
-        should.exist(result);
-
-        result.items.length.should.equal(3);
-        result.items[0]._id.toString().should.equal(uids[0]);
-        result.items[1]._id.toString().should.equal(uids[1]);
-        result.items[2]._id.toString().should.equal(uids[2]);
-
-        result.items[0].should.have.property("_id");
-        result.items[0].should.have.property("userName");
-        result.items[0].should.have.property("email");
-
-        result.items[0].should.not.have.property("timezone");
-        result.items[0].should.not.have.property("password");
-        result.items[0].should.not.have.property("extend");
-        result.items[0].should.not.have.property("valid");
-
-        done();
-      });
-
-    });
-
-    /*****************************************************************/
-    it("invalid group", function(done) {
-
-      ctrlUser.usersInGroup(newHandler("123", {gid: "5288b80f3ce4ee6819000001"}), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.code.should.equal(400);
-
-        done();
-      });
-
     });
 
   });

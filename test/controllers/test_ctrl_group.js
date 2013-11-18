@@ -8,30 +8,14 @@
 
 require("../../core/test").befor();
 
-var _          = require("underscore")
-  , async        = require("async")
+var async      = require("async")
   , should     = require("should")
   , mock       = require("../../core/mock")
   , context    = require("../../core/context")
   , constant   = require("../../core/constant")
+  , util       = require("../../core/util")
   , ctrlUser   = require("../../controllers/ctrl_user")
   , ctrlGroup  = require("../../coverage/controllers/ctrl_group");
-
-function newUser() {
-  return {
-      userName    : new Date().toLocaleString()
-    , first       : "名"
-    , middle      : "中名"
-    , last        : "姓"
-    , password    : "admin"
-    , groups      : []
-    , email       : "zli_ray@sina.cn"
-    , lang        : "ja"
-    , timezone    : "GMT+09:00"
-    , status      : 0
-    , extend      : {"QQ":"123456789", "birthday": "19850302"}
-    };
-}
 
 function newGroup() {
   return {
@@ -58,7 +42,7 @@ function newHandler(uid, body) {
 /**
  * 测试代码
  */
-describe("controllers/ctrl_user.js", function() {
+describe("controllers/ctrl_group.js", function() {
 
   var addedGroup;
 
@@ -67,7 +51,21 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("correctly add new group", function(done) {
 
-      ctrlUser.add(newHandler("123", newUser()), function(err, resultUser) {
+      var user = {
+          userName    : util.randomGUID8()
+        , first       : "名"
+        , middle      : "中名"
+        , last        : "姓"
+        , password    : "admin"
+        , groups      : []
+        , email       : "zli_ray@sina.cn"
+        , lang        : "ja"
+        , timezone    : "GMT+09:00"
+        , status      : 0
+        , extend      : {"QQ":"123456789", "birthday": "19850302"}
+        };
+
+      ctrlUser.add(newHandler("123", user), function(err, resultUser) {
 
         var group = newGroup();
         group.owners.push(resultUser._id.toString());
@@ -207,293 +205,6 @@ describe("controllers/ctrl_user.js", function() {
       });
     });
 
-    /*****************************************************************/
-    it("invalid parent", function(done) {
-
-      var group = newGroup();
-      group.parent = "528837003ea10edc09000002";
-
-      ctrlGroup.add(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("parent is not department", function(done) {
-
-      var group1 = newGroup();
-      group1.type = constant.GROUP_TYPE_OFFICIAL;
-
-      ctrlGroup.add(newHandler("123", group1), function(err1, result1) {
-
-        var group2 = newGroup();
-        group2.parent = result1._id.toString();
-
-        ctrlGroup.add(newHandler("123", group2), function(err2, result2) {
-
-          should.exist(err2);
-          should.not.exist(result2);
-
-          err2.should.have.property("code").and.equal(400);
-
-          done();
-        });
-      });
-    });
-
-    /*****************************************************************/
-    it("invalid owners", function(done) {
-
-      var group = newGroup();
-      group.owners = "528837003ea10edc09000002";
-
-      ctrlGroup.add(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-  });
-
-  describe("update()", function() {
-
-    /*****************************************************************/
-    it("correctly update group", function(done) {
-
-      var group = {
-          name         : "test"
-        , parent       : null
-        , description  : "666"
-        , type         : constant.GROUP_TYPE_DEPARTMENT
-        , public       : constant.GROUP_PUBLIC
-        , owners       : []
-        , extend       : {"QQ":"78952", "birthday": "123"}
-        , gid          : addedGroup._id.toString()
-        };
-
-      ctrlGroup.update(newHandler("234", group), function(err, result) {
-
-        should.not.exist(err);
-        should.exist(result);
-
-        should.exist(result._id);
-        result.should.have.property("_id");
-        result._id.toString().should.equal(addedGroup._id.toString());
-        result.should.have.property("name").and.equal("test");
-        result.should.have.property("parent");
-        result.should.have.property("description").and.equal("666");
-        result.should.have.property("type").and.equal(constant.GROUP_TYPE_DEPARTMENT);
-        result.should.have.property("public").and.equal(constant.GROUP_PUBLIC);
-        result.should.have.property("owners");
-        result.owners.length.should.equal(0);
-        result.should.have.property("extend");
-        result.extend.QQ.should.equal("78952");
-        result.extend.birthday.should.equal("123");
-        result.should.have.property("valid").and.equal(1);
-        result.should.have.property("createAt");
-        result.should.have.property("updateAt");
-        result.should.have.property("createBy").and.equal("123");
-        result.should.have.property("updateBy").and.equal("234");
-
-        addedGroup = result;
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("empty name", function(done) {
-
-      var group = newGroup();
-      group.gid = addedGroup._id.toString();
-      group.name = "";
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("empty type", function(done) {
-
-      var group = newGroup();
-      group.gid = addedGroup._id.toString();
-      group.type = "";
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("invalid type", function(done) {
-
-      var group = newGroup();
-      group.gid = addedGroup._id.toString();
-      group.type = "9";
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("description too long", function(done) {
-
-      var group = newGroup();
-      group.gid = addedGroup._id.toString();
-      group.description = "";
-      for(var i = 0; i < 20; i++) {
-        group.description += "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-      }
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("empty public", function(done) {
-
-      var group = newGroup();
-      group.gid = addedGroup._id.toString();
-      group.public = "";
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("invalid public", function(done) {
-
-      var group = newGroup();
-      group.gid = addedGroup._id.toString();
-      group.public = "9";
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("invalid parent", function(done) {
-
-      var group = newGroup();
-      group.gid = addedGroup._id.toString();
-      group.parent = "528837003ea10edc09000002";
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("invalid owners", function(done) {
-
-      var group = newGroup();
-      group.gid = addedGroup._id.toString();
-      group.owners = "528837003ea10edc09000002";
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("group not exist", function(done) {
-
-      var group = newGroup();
-      group.gid = "528837003ea10edc09000002";
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(404);
-
-        done();
-      });
-    });
-
-    /*****************************************************************/
-    it("type not match", function(done) {
-
-      var group = newGroup();
-      group.gid = addedGroup._id.toString();
-      group.type = constant.GROUP_TYPE_OFFICIAL;
-
-      ctrlGroup.update(newHandler("123", group), function(err, result) {
-
-        should.exist(err);
-        should.not.exist(result);
-
-        err.should.have.property("code").and.equal(400);
-
-        done();
-      });
-    });
-
   });
 
   describe("exist()", function() {
@@ -529,7 +240,7 @@ describe("controllers/ctrl_user.js", function() {
 
         result.should.have.property("_id");
         result._id.toString().should.equal(addedGroup._id.toString());
-        result.should.have.property("name").and.equal("test");
+        result.should.have.property("name").and.equal("lizheng");
 
         done();
       });
@@ -555,7 +266,7 @@ describe("controllers/ctrl_user.js", function() {
 
   var gids = [];
 
-  describe("subGroups()", function() {
+  describe("getSubGroups()", function() {
 
     /*****************************************************************/
     it("get sub groups non-recursively", function(done) {
@@ -580,13 +291,13 @@ describe("controllers/ctrl_user.js", function() {
           addGroup(gids[1], cb);
         }
       ], function() {
-        ctrlGroup.subGroups(newHandler("123", {gid: addedGroup._id.toString()}), function(err, result) {
+        ctrlGroup.getSubGroups(newHandler("123", {gid: addedGroup._id.toString()}), function(err, result) {
 
           should.not.exist(err);
           should.exist(result);
 
           result.length.should.equal(1);
-          result[0]._id.toString().should.equal(gids[0]);
+          result[0].toString().should.equal(gids[0]);
 
           done();
         });
@@ -597,25 +308,16 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("get sub groups recursively", function(done) {
 
-      ctrlGroup.subGroups(newHandler("123",
-        {gid: addedGroup._id.toString(), recursive: true, groupFields: "_id name type"}), function(err, result) {
+      ctrlGroup.getSubGroups(newHandler("123",
+        {gid: addedGroup._id.toString(), recursive: true}), function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
         result.length.should.equal(3);
-        result[0]._id.toString().should.equal(gids[0]);
-        result[1]._id.toString().should.equal(gids[1]);
-        result[2]._id.toString().should.equal(gids[2]);
-
-        result[0].should.have.property("_id");
-        result[0].should.have.property("name");
-        result[0].should.have.property("type");
-
-        result[0].should.not.have.property("public");
-        result[0].should.not.have.property("owners");
-        result[0].should.not.have.property("extend");
-        result[0].should.not.have.property("valid");
+        result[0].toString().should.equal(gids[0]);
+        result[1].toString().should.equal(gids[1]);
+        result[2].toString().should.equal(gids[2]);
 
         done();
       });
@@ -624,22 +326,112 @@ describe("controllers/ctrl_user.js", function() {
 
   });
 
-  describe("path()", function() {
+  describe("getUsersInGroup()", function() {
+
+    function newUser() {
+      return {
+          userName    : (new Date().getTime() + "")
+        , first       : "名"
+        , middle      : "中名"
+        , last        : "姓"
+        , password    : "admin"
+        , groups      : []
+        , email       : "zli_ray@sina.cn"
+        , lang        : "ja"
+        , timezone    : "GMT+09:00"
+        , status      : 0
+        , extend      : {"QQ":"123456789", "birthday": "19850302"}
+        };
+    }
+
+    var gids = [];
+    var uids = [];
+
+    /*****************************************************************/
+    it("correctly get users in group non-recursively", function(done) {
+
+      var addGroup = function(parent, cb) {
+        var group = newGroup();
+        group.parent = parent;
+        ctrlGroup.add(newHandler("123", group), function(err, result) {
+          gids.push(result._id.toString());
+          var user = newUser();
+          user.userName = util.randomGUID8();
+
+          user.groups = [result._id.toString()];
+          var handler = newHandler("12345678", user);
+          ctrlUser.add(handler, function(err, result) {
+            uids.push(result._id.toString());
+            cb();
+          });
+
+        });
+      };
+
+      async.waterfall([
+        function(cb) {
+          addGroup(null, cb);
+        },
+        function(cb) {
+          addGroup(gids[0], cb);
+        },
+        function(cb) {
+          addGroup(gids[1], cb);
+        }
+      ], function() {
+        ctrlGroup.getUsersInGroup(newHandler("123", {gid: gids[0]}), function(err, result) {
+
+          should.not.exist(err);
+          should.exist(result);
+
+          result.should.have.property("totalItems").and.equal(1);
+          result.items.length.should.equal(1);
+          result.items[0].toString().should.equal(uids[0]);
+
+          done();
+        });
+      });
+
+
+    });
+
+    /*****************************************************************/
+    it("correctly get users in group recursively", function(done) {
+
+      ctrlGroup.getUsersInGroup(newHandler("123", {gid: gids[0], recursive: true}), function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.items.length.should.equal(3);
+        result.items[0].should.equal(uids[0]);
+        result.items[1].should.equal(uids[1]);
+        result.items[2].should.equal(uids[2]);
+
+        done();
+      });
+
+    });
+
+  });
+
+
+  describe("getPath()", function() {
 
     /*****************************************************************/
     it("correctly get group path", function(done) {
 
-      ctrlGroup.path(newHandler("123", {gid: gids[2]}), function(err, result) {
+      ctrlGroup.getPath(newHandler("123", {gid: gids[2]}), function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
         result.length.should.equal(4);
 
-        result[0]._id.toString().should.equal(addedGroup._id.toString());
-        result[1]._id.toString().should.equal(gids[0]);
-        result[2]._id.toString().should.equal(gids[1]);
-        result[3]._id.toString().should.equal(gids[2]);
+        result[0].toString().should.equal(addedGroup._id.toString());
+        result[1].toString().should.equal(gids[0]);
+        result[2].toString().should.equal(gids[1]);
+        result[3].toString().should.equal(gids[2]);
 
         done();
       });
@@ -647,7 +439,6 @@ describe("controllers/ctrl_user.js", function() {
     });
 
   });
-
 
 });
 

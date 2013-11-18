@@ -8,6 +8,7 @@
 
 var mongo       = require("mongoose")
   , conn        = require("../core/connection")
+  , constant    = require("../core/constant")
   , schema      = mongo.Schema;
 
 /**
@@ -27,7 +28,7 @@ var ACLink = new schema({
  */
 function model(code) {
 
-  return conn.model(code, "ACLink", ACLink);
+  return conn.model(code, constant.MODULES_NAME_ACLINK, ACLink);
 }
 
 /**
@@ -40,9 +41,9 @@ function model(code) {
  */
 exports.exist = function(code, type, main, subs, callback) {
 
-  var linkModel = model(code);
+  var link = model(code);
 
-  linkModel.count({ "type": type, "main": main, "subs" : { $all: subs } }, function(err, count) {
+  link.count({ "type": type, "main": main, "subs" : { $all: subs } }, function(err, count) {
     return callback(err, count > 0);
   });
 };
@@ -57,9 +58,9 @@ exports.exist = function(code, type, main, subs, callback) {
  */
 exports.add = function(code, type, main, subsToAdd, callback) {
 
-  var linkModel = model(code);
+  var link = model(code);
 
-  linkModel.findOneAndUpdate({"type": type, "main": main},
+  link.findOneAndUpdate({"type": type, "main": main},
     { $addToSet: { "subs": { $each: subsToAdd } } }, { upsert : true }, function(err, doc) {
 
     return callback(err, doc);
@@ -76,9 +77,9 @@ exports.add = function(code, type, main, subsToAdd, callback) {
  */
 exports.update = function(code, type, main, subsToReplace, callback) {
 
-  var linkModel = model(code);
+  var link = model(code);
 
-  linkModel.findOneAndUpdate({"type": type, "main": main}, { "subs": subsToReplace }, function(err, result) {
+  link.findOneAndUpdate({"type": type, "main": main}, { "subs": subsToReplace }, function(err, result) {
     return callback(err, result);
   });
 };
@@ -93,9 +94,9 @@ exports.update = function(code, type, main, subsToReplace, callback) {
  */
 exports.remove = function(code, type, main, subsToDel, callback){
 
-  var linkModel = model(code);
+  var link = model(code);
 
-  linkModel.findOneAndUpdate({"type": type, "main": main}, { $pullAll: { "subs": subsToDel } }, function(err, result) {
+  link.findOneAndUpdate({"type": type, "main": main}, { $pullAll: { "subs": subsToDel } }, function(err, result) {
     return callback(err, result);
   });
 };
@@ -109,9 +110,9 @@ exports.remove = function(code, type, main, subsToDel, callback){
  */
 exports.get = function(code, type, main, callback) {
 
-  var linkModel = model(code);
+  var link = model(code);
 
-  linkModel.findOne({"type": type, "main": main}, function(err, result) {
+  link.findOne({"type": type, "main": main}, function(err, result) {
     return callback(err, result);
   });
 };

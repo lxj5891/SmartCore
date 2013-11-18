@@ -12,8 +12,6 @@
 exports.VALID = 1;
 exports.INVALID = 0;
 
-exports.SUPPORTED_LANGS = ["en", "ja", "zh"];
-
 /**
  * Modules层用常量
  */
@@ -41,6 +39,7 @@ exports.GROUP_PUBLIC = "2"; // 公开
 
 exports.ACLINK_TYPE_USER_PERMISSION = "1";
 
+exports.MODULES_NAME_ACLINK = "ACLink";
 exports.MODULES_NAME_FILE = "File";
 exports.MODULES_NAME_GROUP = "Group";
 exports.MODULES_NAME_MASTER = "Master";

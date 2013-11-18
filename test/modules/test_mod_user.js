@@ -9,6 +9,7 @@
 require("../../core/test").befor();
 
 var should   = require("should")
+  , util  = require("../../core/util")
   , modUser  = require("../../coverage/modules/mod_user");
 
 describe("modules/mod_user.js", function() {
@@ -39,12 +40,14 @@ describe("modules/mod_user.js", function() {
   describe("add()", function() {
     it("correctly create new user", function(done) {
 
+      data.userName = util.randomGUID8();
+
       modUser.add(null, data, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
-        result.should.have.property("userName").and.equal("lizheng");
+        result.should.have.property("userName").and.equal(data.userName);
         result.should.have.property("first").and.equal("名");
         result.should.have.property("middle").and.equal("中名");
         result.should.have.property("last").and.equal("姓");
@@ -81,7 +84,7 @@ describe("modules/mod_user.js", function() {
         should.not.exist(err);
         should.exist(result);
 
-        result.should.have.property("userName").and.equal("lizheng");
+        result.should.have.property("userName");
         result.should.have.property("first").and.equal("名");
         result.should.have.property("middle").and.equal("中名");
         result.should.have.property("last").and.equal("姓");
@@ -127,9 +130,11 @@ describe("modules/mod_user.js", function() {
   describe("getList()", function() {
     it("correctly get user list", function(done) {
 
+      data.userName = new Date().getTime();
+
       modUser.add(null, data, function() {});
 
-      modUser.getList(null, {userName: "lizheng", middle: "中名", "extend.birthday": "19850302"},
+      modUser.getList(null, {middle: "中名", "extend.birthday": "19850302"},
         null, null, null, function(err, result) {
 
         should.not.exist(err);
@@ -146,12 +151,14 @@ describe("modules/mod_user.js", function() {
   describe("update()", function() {
     it("correctly update user", function(done) {
 
-      modUser.update(null, uid, {userName: "888", "extend.QQ": "555"}, function(err, result) {
+      var userName = util.randomGUID8();
+
+      modUser.update(null, uid, {userName: userName, "extend.QQ": "555"}, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
-        result.should.have.property("userName").and.equal("888");
+        result.should.have.property("userName").and.equal(userName);
         result.should.have.property("extend");
         result.extend.QQ.should.equal("555");
 

@@ -7,7 +7,6 @@
 "use strict";
 
 var _            = require("underscore")
-  , async        = require("async")
   , check        = require("validator").check
   , constant     = require("../core/constant")
   , errors       = require("../core/errors")
@@ -18,37 +17,68 @@ var _            = require("underscore")
   , __          = global.__;
 
 /**
- * 将ObjectId转为字符串
+ * 查询组下的用户（直下，非递归）
+ * @param {Object} handler 上下文对象
+ * @param {Array} gids 组标识列表
+ * @param {Function} callback 回调函数，返回用户标识列表
  */
-function objIdToStr(obj) {
-  if(obj) {
-    return obj.toString();
-  } else {
-    return obj;
-  }
+function getUsersInGroups(handler, gids, callback) {
+
+  var code = handler.code;
+  var uid = handler.uid;
+  var params = handler.params;
+
+
+  var skip = params.skip || 0;
+  var limit = params.limit || constant.MOD_DEFAULT_LIMIT;
+  var order = params.order;
+
+  var condition = {"groups": {$in: gids}, "valid": constant.VALID};
+
+  modUser.total(code, condition, function(err, count) {
+    if (err) {
+      log.error(err, uid);
+      callback(new errors.InternalServer(err));
+      return;
+    }
+
+    if (count === 0) {
+      callback(err, { totalItems: 0, items: [] });
+      return;
+    }
+
+    modUser.getList(code, condition, skip, limit, order, function(err, result) {
+      if (err) {
+        log.error(err, uid);
+        return callback(new errors.InternalServer(err));
+      }
+
+      // TODO 一个用户可能属于多个组，所以返回时需要distinct
+      var uids = [];
+      _.each(result, function(user) {
+        uids.push(user._id.toString());
+      });
+
+
+      return callback(err, { totalItems: count, items: uids });
+    });
+
+  });
 }
 
 /**
- * 创建或更新组（完整）
+ * 创建组
  * @param {Object} handler 上下文对象
- * @param {Boolean} isInsert true：创建组，false：更新组
- * @param {Function} callback 回调函数，返回新创建或更新后的组
+ * @param {Function} callback 回调函数，返回新创建的组
  */
-function updateCompletely(handler, isInsert, callback) {
+exports.add = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
   var createBy = handler.uid;
-  var isUpdate = !isInsert;
 
   var group = {};
   try {
-
-    // 组标识
-    if(isUpdate) {
-      params.gid = objIdToStr(params.gid);
-      check(params.gid, __("group.error.emptyId")).notEmpty();
-    }
 
     // 组名
     group.name = params.name;
@@ -62,15 +92,13 @@ function updateCompletely(handler, isInsert, callback) {
       [constant.GROUP_TYPE_DEPARTMENT, constant.GROUP_TYPE_GROUP, constant.GROUP_TYPE_OFFICIAL]);
 
     // 父组标识
-    if(group.type === constant.GROUP_TYPE_DEPARTMENT) {
+    if (group.type === constant.GROUP_TYPE_DEPARTMENT) {
       group.parent = params.parent;
-    } else {
-      group.parent = null;
     }
 
     // 描述
     group.description = params.description;
-    if(group.description) {
+    if (group.description) {
       check(group.description, __("group.error.descTooLong")).len(0, 256);
     }
 
@@ -81,163 +109,54 @@ function updateCompletely(handler, isInsert, callback) {
 
     // 经理一览
     group.owners = params.owners || [];
-    if(!util.isArray(group.owners)) {
+    if (!util.isArray(group.owners)) {
       group.owners = [group.owners];
-    }
-    // 将ObjectId转化为String
-    for(var i = 0; i < group.owners.length; i++) {
-      group.owners[i] = group.owners[i].toString();
     }
 
     // 扩展属性
-    if(params.extend) {
+    if (params.extend) {
       group.extend = params.extend;
     }
 
     // Common
     var curDate = new Date();
-    if(isInsert) {
-      group.valid = constant.VALID;
-      group.createAt = curDate;
-      group.createBy = createBy;
-    }
+    group.valid = constant.VALID;
+    group.createAt = curDate;
+    group.createBy = createBy;
     group.updateAt = curDate;
     group.updateBy = createBy;
+
   } catch (e) {
     log.error(e.message, handler.uid);
     callback(new errors.BadRequest(e.message));
     return;
   }
 
-  var tasks = [];
-
-  if(isUpdate) {
-
-    // 检查组和类型是否匹配
-    tasks.push(function(done) {
-      modGroup.get(code, params.gid, function(err, resultGroup) {
-
-        if(err) {
-          return done(new errors.InternalServer(err));
-        }
-
-        if(resultGroup) {
-          if(resultGroup.type !== group.type) {
-            return done(new errors.BadRequest(__("group.error.typeNotMatch")));
-          } else {
-            return done(err);
-          }
-        }
-
-        return done(new errors.NotFound(__("group.error.notExist")));
-      });
-    });
-  }
-
-  // 检查父组的存在性
-  if(group.type === constant.GROUP_TYPE_DEPARTMENT && group.parent) {
-    tasks.push(function(done) {
-      modGroup.get(code, group.parent, function(err, parentGroup) {
-        if(err) {
-          return done(new errors.InternalServer(err));
-        }
-
-        if(parentGroup) {
-          if(parentGroup.type === constant.GROUP_TYPE_DEPARTMENT) {
-            return done();
-          } else {
-            return done(new errors.BadRequest(__("group.error.parentNotDept")));
-          }
-        }
-
-        return done(new errors.BadRequest(__("group.error.invalidParent")));
-      });
-    });
-  }
-
-  // 检查经理的存在性
-  _.each(group.owners, function(owner) {
-    tasks.push(function(done) {
-      modUser.total(code, {"_id": owner, "valid": constant.VALID}, function(err, count) {
-        if(err) {
-          return done(new errors.InternalServer(err));
-        }
-
-        if(count !== 1) {
-          return done(new errors.BadRequest(__("group.error.invalidOwner")));
-        }
-
-        return done(err);
-      });
-    });
-  });
-
-  async.waterfall(tasks, function(err) {
-    if(err) {
+  modGroup.add(code, group, function(err, result) {
+    if (err) {
       log.error(err, handler.uid);
-      callback(err);
-      return;
+      return callback(new errors.InternalServer(err));
     }
 
-    if(isInsert) { // 创建
-      modGroup.add(code, group, function(err, result) {
-        if(err) {
-          log.error(err, handler.uid);
-          return callback(new errors.InternalServer(err));
-        }
+    log.debug("finished: add group.", handler.uid);
 
-        log.debug("finished: add group.", handler.uid);
-        log.audit("finished: add group.", handler.uid);
-
-        return callback(err, result);
-      });
-    } else { // 更新
-      modGroup.update(code, params.gid, group, function(err, result) {
-        if(err) {
-          log.error(err, handler.uid);
-          return callback(new errors.InternalServer(err));
-        }
-
-        if(result) {
-
-          log.info("finished: update group.", handler.uid);
-          log.audit("finished: update group.", handler.uid);
-
-          return callback(err, result);
-        } else {
-          return callback(new errors.NotFound(__("group.error.notExist")));
-        }
-      });
-    }
+    return callback(err, result);
   });
-}
 
-/**
- * 创建组
- * @param {Object} handler 上下文对象
- * @param {Function} callback 回调函数，返回新创建的组
- */
-exports.add = function(handler, callback) {
-
-  updateCompletely(handler, true, callback);
 };
 
 /**
  * 更新组
- * @param {Object} handler 上下文对象
- * @param {Function} callback 回调函数，返回更新后的组
  */
-exports.update = function(handler, callback) {
+exports.update = function() {
 
-  updateCompletely(handler, false, callback);
+  // TODO
 };
 
 /**
  * 删除组
- * @param {Object} handler 上下文对象
- * @param {Function} callback 回调函数，返回删除的组
  */
-exports.remove = function(handler, callback) {
+exports.remove = function() {
 
   // TODO 如何删除组？
   // 部门
@@ -259,7 +178,7 @@ exports.exist = function(handler, callback) {
 
   modGroup.total(code, {"_id": gid, "valid": constant.VALID}, function(err, count) {
 
-    if(err) {
+    if (err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     } else {
@@ -279,12 +198,12 @@ exports.get = function(handler, callback) {
   var params = handler.params;
 
   modGroup.get(code, params.gid, function(err, result) {
-    if(err) {
+    if (err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     }
 
-    if(result) {
+    if (result) {
       return callback(err, result);
     } else {
       return callback(new errors.NotFound(__("group.error.notExist")));
@@ -293,36 +212,66 @@ exports.get = function(handler, callback) {
 };
 
 /**
+ * 查询某个组下的用户
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 回调函数，返回用户标识列表
+ */
+exports.getUsersInGroup = function(handler, callback) {
+
+  var params = handler.params;
+  var gid = params.gid.toString();
+  var recursive = params.recursive;
+
+  if (recursive === true) { // 递归查找
+    exports.getSubGroups(handler, function(err, gids) {
+      if (err) {
+        log.error(err, handler.uid);
+        return callback(new errors.InternalServer(err));
+      }
+
+      gids.push(gid);
+
+      return getUsersInGroups(handler, gids, callback);
+    });
+  } else {
+    getUsersInGroups(handler, [gid], callback);
+  }
+};
+
+/**
  * 查询组的下位组织
  * @param {Object} handler 上下文对象
- * @param {Function} callback 回调函数，返回下位组织列表
+ * @param {Function} callback 回调函数，返回下位组织标识列表
  */
-exports.subGroups = function(handler, callback) {
+exports.getSubGroups = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
 
   var gid = params.gid.toString();
   var recursive = params.recursive;
-  var groupFields = params.groupFields;
 
   var resultGroups = [];
 
   var fetch = function(parents, cb) {
 
     modGroup.getList(code, {"parent": {$in: parents}, "valid": constant.VALID},
-      groupFields, 0, Number.MAX_VALUE, null, function(err, result) {
+      0, Number.MAX_VALUE, null, function(err, result) {
 
-        if(err) {
+        if (err) {
           return cb(err);
         } else {
-          resultGroups = resultGroups.concat(result);
-          if(result.length > 0 && recursive === true) {
+          if (result.length > 0) {
             var subGroupIds = [];
             _.each(result, function(tmpGroup) {
+              resultGroups = resultGroups.concat(tmpGroup._id.toString());
               subGroupIds.push(tmpGroup._id.toString());
             });
-            return fetch(subGroupIds, cb);
+            if (recursive === true) {
+              return fetch(subGroupIds, cb);
+            } else {
+              return cb(err);
+            }
           } else {
             return cb(err);
           }
@@ -331,7 +280,7 @@ exports.subGroups = function(handler, callback) {
   };
 
   fetch([gid], function(err) {
-    if(err) {
+    if (err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     }
@@ -344,9 +293,9 @@ exports.subGroups = function(handler, callback) {
 /**
  * 查询查询从根组到指定组的路径（包含本身）
  * @param {Object} handler 上下文对象
- * @param {Function} callback 回调函数，返回上位组织列表
+ * @param {Function} callback 回调函数，返回上位组织标识列表
  */
-exports.path = function(handler, callback) {
+exports.getPath = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
@@ -357,14 +306,18 @@ exports.path = function(handler, callback) {
   var fetch = function(inGid, cb) {
 
     modGroup.get(code, inGid, function(err, result) {
-      if(err) {
+      if (err) {
         cb(err);
         return;
       }
 
-      resultGroups.push(result);
-      if(result && result.parent) {
-        fetch(result.parent.toString(), cb);
+      if (result) {
+        resultGroups.push(result._id.toString());
+        if (result.parent) {
+          fetch(result.parent, cb);
+        } else {
+          cb(err);
+        }
       } else {
         cb(err);
       }
@@ -373,7 +326,7 @@ exports.path = function(handler, callback) {
 
   fetch(gid, function(err) {
 
-    if(err) {
+    if (err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     }

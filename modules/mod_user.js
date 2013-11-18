@@ -17,7 +17,7 @@ var mongo       = require("mongoose")
  * @type {schema}
  */
 var User = new schema({
-    userName    : { type: String, description: "用户标识"}
+    userName    : { type: String, description: "用户标识", unique: true}
   , first       : { type: String, description: "名"}
   , middle      : { type: String, description: "中间名"}
   , last        : { type: String, description: "姓"}
@@ -56,7 +56,7 @@ exports.add = function(code, user, callback) {
   var User = model(code);
 
   new User(user).save(function(err, result){
-    callback(err, result || result._doc);
+    callback(err, result);
   });
 };
 
