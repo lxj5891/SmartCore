@@ -53,10 +53,10 @@ module.exports = {
    * smart核心机能
    */
   core: {
-    group:        require("./api/group")
-  , user:         require("./api/user")
-  , file:         require("./api/file")
-  , log:          require("./api/log")
+//    group:        require("./api/group")
+//  , user:         require("./api/user")
+//  , file:         require("./api/file")
+//  , log:          require("./api/log")
   },
 
   /**
@@ -67,7 +67,7 @@ module.exports = {
   , company:      require("./controllers/ctrl_company")
   , file:         require("./controllers/ctrl_file")
   , group:        require("./controllers/ctrl_group")
-  , log:          require("./controllers/ctrl_log")
+//  , log:          require("./controllers/ctrl_log")
   , master:       require("./controllers/ctrl_master")
   , user:         require("./controllers/ctrl_user")
   }
