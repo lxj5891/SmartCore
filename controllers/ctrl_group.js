@@ -237,10 +237,12 @@ exports.update = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回删除的组
  */
-exports.removeGroup = function(handler, callback) {
+exports.remove = function(handler, callback) {
 
   // TODO 如何删除组？
-  // 部门 刪除組及下位所有組，用戶怎么处理？（前提：一个用户可能属于多个部门组）
+  // 部门
+  //    方案1：刪除組及下位所有組，同时删除用户（一个用户可能属于多个部门组，如何处理？）
+  //    方案2：只要组下还有用户，就禁止删除
   // 自由创建 刪除組，不刪除用戶
   // 职位组 刪除組，不刪除用戶
 };
@@ -295,12 +297,12 @@ exports.get = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回下位组织列表
  */
-exports.getSubGroups = function(handler, callback) {
+exports.subGroups = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
 
-  var gid = params.groupId;
+  var gid = params.gid.toString();
   var recursive = params.recursive;
   var groupFields = params.groupFields;
 
@@ -314,11 +316,11 @@ exports.getSubGroups = function(handler, callback) {
         if(err) {
           return cb(err);
         } else {
-          resultGroups.concat(result);
+          resultGroups = resultGroups.concat(result);
           if(result.length > 0 && recursive === true) {
             var subGroupIds = [];
-            _.each(result, function(id) {
-              subGroupIds.push(id);
+            _.each(result, function(tmpGroup) {
+              subGroupIds.push(tmpGroup._id.toString());
             });
             return fetch(subGroupIds, cb);
           } else {
@@ -328,7 +330,7 @@ exports.getSubGroups = function(handler, callback) {
       });
   };
 
-  fetch(gid, function(err) {
+  fetch([gid], function(err) {
     if(err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
@@ -344,11 +346,11 @@ exports.getSubGroups = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回上位组织列表
  */
-exports.getPath = function(handler, callback) {
+exports.path = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
-  var gid = params.gid;
+  var gid = params.gid.toString();
 
   var resultGroups = [];
 
@@ -362,7 +364,7 @@ exports.getPath = function(handler, callback) {
 
       resultGroups.push(result);
       if(result && result.parent) {
-        fetch(result.parent, cb);
+        fetch(result.parent.toString(), cb);
       } else {
         cb(err);
       }

@@ -42,7 +42,7 @@ var User = new schema({
  */
 function model(code) {
 
-  return conn.model(code, "User", User);
+  return conn.model(code, constant.MODULES_NAME_USER, User);
 }
 
 /**
@@ -53,10 +53,10 @@ function model(code) {
  */
 exports.add = function(code, user, callback) {
 
-  var UserModel = model(code);
+  var User = model(code);
 
-  new UserModel(user).save(function(err, result){
-    callback(err, result);
+  new User(user).save(function(err, result){
+    callback(err, result || result._doc);
   });
 };
 
@@ -68,9 +68,10 @@ exports.add = function(code, user, callback) {
  */
 exports.get = function (code, uid, callback) {
 
-  var userModel = model(code);
+  var user = model(code);
 
-  userModel.findOne({"_id": uid, "valid": constant.VALID}, function (err, result) {
+  user.findById(uid, function (err, result) {
+
     callback(err, result);
   });
 };
@@ -83,9 +84,9 @@ exports.get = function (code, uid, callback) {
  */
 exports.total = function (code, condition, callback) {
 
-  var userModel = model(code);
+  var user = model(code);
 
-  userModel.count(condition, function (err, count) {
+  user.count(condition, function (err, count) {
     callback(err, count);
   });
 };
@@ -94,19 +95,17 @@ exports.total = function (code, condition, callback) {
  * 根据指定条件查询用户
  * @param {String} code 公司code
  * @param {Object} condition 查询条件
- * @param {String} fields 查询的字段，例如："_id first email"
  * @param {Number} skip 跳过的文书数，默认为0
  * @param {Number} limit 返回的文书的上限数目，默认为20
- * @param {String} order 排序，例如："first email"
+ * @param {String} order 排序
  * @param {Function} callback 回调函数，返回用户列表
  */
-exports.getList = function (code, condition, fields, skip, limit, order, callback) {
+exports.getList = function (code, condition, skip, limit, order, callback) {
 
-  var userModel = model(code);
+  var user = model(code);
 
-  userModel.find(condition)
-    .select(fields)
-    .skip(skip || 0)
+  user.find(condition)
+    .skip(skip || constant.MOD_DEFAULT_START)
     .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)
     .exec(function (err, result) {
@@ -118,14 +117,14 @@ exports.getList = function (code, condition, fields, skip, limit, order, callbac
  * 根据用户标识更新用户
  * @param {String} code 公司code
  * @param {String} uid 用户标识
- * @param {Object} command 更新命令
+ * @param {Object} newUser 更新用用户对象
  * @param {Function} callback 回调函数，返回更新后的用户
  */
-exports.update = function (code, uid, command, callback) {
+exports.update = function (code, uid, newUser, callback) {
 
-  var userModel = model(code);
+  var user = model(code);
 
-  userModel.findOneAndUpdate({"_id": uid, "valid": constant.VALID}, command, function (err, result) {
+  user.findByIdAndUpdate(uid, newUser, function (err, result) {
     callback(err, result);
   });
 };

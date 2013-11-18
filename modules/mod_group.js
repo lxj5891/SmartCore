@@ -38,7 +38,7 @@ var Group = new schema({
  */
 function model(code) {
 
-  return conn.model(code, "Group", Group);
+  return conn.model(code, constant.MODULES_NAME_GROUP, Group);
 }
 
 /**
@@ -49,9 +49,9 @@ function model(code) {
  */
 exports.add = function(code, group, callback) {
 
-  var GroupModel = model(code);
+  var Group = model(code);
 
-  new GroupModel(group).save(function(err, result){
+  new Group(group).save(function(err, result){
     callback(err, result);
   });
 };
@@ -64,9 +64,9 @@ exports.add = function(code, group, callback) {
  */
 exports.get = function (code, gid, callback) {
 
-  var groupModel = model(code);
+  var group = model(code);
 
-  groupModel.findOne({"_id": gid, "valid": constant.VALID}, function (err, result) {
+  group.findById(gid, function (err, result) {
     callback(err, result);
   });
 };
@@ -79,9 +79,9 @@ exports.get = function (code, gid, callback) {
  */
 exports.total = function (code, condition, callback) {
 
-  var groupModel = model(code);
+  var group = model(code);
 
-  groupModel.count(condition, function (err, count) {
+  group.count(condition, function (err, count) {
     callback(err, count);
   });
 };
@@ -90,19 +90,17 @@ exports.total = function (code, condition, callback) {
  * 根据指定条件查询组
  * @param {String} code 公司code
  * @param {Object} condition 查询条件
- * @param {String} fields 查询的字段，例如："_id name parent type"
  * @param {Number} skip 跳过的文书数，默认为0
  * @param {Number} limit 返回的文书的上限数目，默认为20
  * @param {String} order 排序，例如："name -type"
  * @param {Function} callback 回调函数，返回组列表
  */
-exports.getList = function (code, condition, fields, skip, limit, order, callback) {
+exports.getList = function (code, condition, skip, limit, order, callback) {
 
-  var groupModel = model(code);
+  var group = model(code);
 
-  groupModel.find(condition)
-    .select(fields)
-    .skip(skip || 0)
+  group.find(condition)
+    .skip(skip || constant.MOD_DEFAULT_START)
     .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)
     .exec(function (err, result) {
@@ -114,14 +112,14 @@ exports.getList = function (code, condition, fields, skip, limit, order, callbac
  * 根据组标识更新组
  * @param {String} code 公司code
  * @param {String} gid 组标识
- * @param {Object} command 更新命令
+ * @param {Object} newGroup 更新用的组对象
  * @param {Function} callback 回调函数，返回更新后的组
  */
-exports.update = function (code, gid, command, callback) {
+exports.update = function (code, gid, newGroup, callback) {
 
-  var groupModel = model(code);
+  var group = model(code);
 
-  groupModel.findOneAndUpdate({"_id": gid, "valid": constant.VALID}, command, function (err, result) {
+  group.findByIdAndUpdate(gid, newGroup, function (err, result) {
     callback(err, result);
   });
 };

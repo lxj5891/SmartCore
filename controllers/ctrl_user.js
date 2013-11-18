@@ -66,7 +66,6 @@ function updateCompletely(handler, isInsert, callback) {
     user.last = params.last || "";
 
     // 密码
-    // TODO 密码如何修改？
     user.password = params.password;
     check(user.password, __("user.error.emptyPwd")).notEmpty();
 
@@ -74,10 +73,6 @@ function updateCompletely(handler, isInsert, callback) {
     user.groups = params.groups || [];
     if(!util.isArray(user.groups)) {
       user.groups = [user.groups];
-    }
-    // TODO 用户是否必须属于某个组？
-    if(user.groups.length === 0) {
-      // throw __("user.error.emptyGroups");
     }
     // 将ObjectId转化为String
     for(var i = 0; i < user.groups.length; i++) {
@@ -328,10 +323,10 @@ exports.get = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回用户列表
  */
-exports.getUsersInGroup = function(handler, callback) {
+exports.usersInGroup = function(handler, callback) {
 
   var params = handler.params;
-  var gid = params.gid;
+  var gid = params.gid.toString();
   var recursive = params.recursive;
 
   ctrlGroup.exist(handler, function(err, exist) {
@@ -349,7 +344,7 @@ exports.getUsersInGroup = function(handler, callback) {
 
     if(recursive === true) { // 递归查找
       handler.addParams("groupFields", "_id");
-      ctrlGroup.getSubGroups(handler, function(err, groups) {
+      ctrlGroup.subGroups(handler, function(err, groups) {
         if(err) {
           log.error(err, handler.uid);
           return callback(new errors.InternalServer(err));
@@ -357,13 +352,13 @@ exports.getUsersInGroup = function(handler, callback) {
 
         var gids = [gid];
         _.each(groups, function(group) {
-          gids.push(group._id);
+          gids.push(group._id.toString());
         });
 
         return getUsersInGroups(handler, gids, callback);
       });
     } else {
-      getUsersInGroups(handler, gid, callback);
+      getUsersInGroups(handler, [gid], callback);
     }
   });
 };
@@ -385,6 +380,7 @@ exports.getListByKeywords = function (handler, callback) {
   }
 
   if(params.realName) { // 真实名
+    // TODO 大小写转换 正则
     var subCondition1 = { $where: "(this.first + this.middle + this.last).indexOf('" + params.realName + "') >= 0"};
     var subCondition2 = { $where: "(this.last + this.middle + this.first).indexOf('" + params.realName + "') >= 0"};
     conditions.push(subCondition1);

@@ -9,12 +9,13 @@
 require("../../core/test").befor();
 
 var _          = require("underscore")
+  , async        = require("async")
   , should     = require("should")
   , mock       = require("../../core/mock")
   , context    = require("../../core/context")
   , constant   = require("../../core/constant")
   , ctrlUser   = require("../../controllers/ctrl_user")
-  , ctrlGroup  = require("../../controllers/ctrl_group");
+  , ctrlGroup  = require("../../coverage/controllers/ctrl_group");
 
 function newUser() {
   return {
@@ -491,6 +492,158 @@ describe("controllers/ctrl_user.js", function() {
 
         done();
       });
+    });
+
+  });
+
+  describe("exist()", function() {
+
+    /*****************************************************************/
+    it("check group exist", function(done) {
+
+      var handler = newHandler("44", {gid: addedGroup._id.toString()});
+
+      ctrlGroup.exist(handler, function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.should.equal(true);
+
+        done();
+      });
+    });
+  });
+
+  describe("get()", function() {
+
+    /*****************************************************************/
+    it("correctly get group", function(done) {
+
+      var handler = newHandler("44", {gid: addedGroup._id.toString()});
+
+      ctrlGroup.get(handler, function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.should.have.property("_id");
+        result._id.toString().should.equal(addedGroup._id.toString());
+        result.should.have.property("name").and.equal("test");
+
+        done();
+      });
+    });
+
+    /*****************************************************************/
+    it("invalid group", function(done) {
+
+      var handler = newHandler("44", {gid: "5288b80f3ce4ee6819000005"});
+
+      ctrlGroup.get(handler, function(err, result) {
+
+        should.not.exist(result);
+        should.exist(err);
+
+        err.should.have.property("code").and.equal(404);
+
+        done();
+      });
+    });
+
+  });
+
+  var gids = [];
+
+  describe("subGroups()", function() {
+
+    /*****************************************************************/
+    it("get sub groups non-recursively", function(done) {
+
+      var addGroup = function(parent, cb) {
+        var group = newGroup();
+        group.parent = parent;
+        ctrlGroup.add(newHandler("123", group), function(err, result) {
+          gids.push(result._id.toString());
+          cb();
+        });
+      };
+
+      async.waterfall([
+        function(cb) {
+          addGroup(addedGroup._id.toString(), cb);
+        },
+        function(cb) {
+          addGroup(gids[0], cb);
+        },
+        function(cb) {
+          addGroup(gids[1], cb);
+        }
+      ], function() {
+        ctrlGroup.subGroups(newHandler("123", {gid: addedGroup._id.toString()}), function(err, result) {
+
+          should.not.exist(err);
+          should.exist(result);
+
+          result.length.should.equal(1);
+          result[0]._id.toString().should.equal(gids[0]);
+
+          done();
+        });
+      });
+
+    });
+
+    /*****************************************************************/
+    it("get sub groups recursively", function(done) {
+
+      ctrlGroup.subGroups(newHandler("123",
+        {gid: addedGroup._id.toString(), recursive: true, groupFields: "_id name type"}), function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.length.should.equal(3);
+        result[0]._id.toString().should.equal(gids[0]);
+        result[1]._id.toString().should.equal(gids[1]);
+        result[2]._id.toString().should.equal(gids[2]);
+
+        result[0].should.have.property("_id");
+        result[0].should.have.property("name");
+        result[0].should.have.property("type");
+
+        result[0].should.not.have.property("public");
+        result[0].should.not.have.property("owners");
+        result[0].should.not.have.property("extend");
+        result[0].should.not.have.property("valid");
+
+        done();
+      });
+
+    });
+
+  });
+
+  describe("path()", function() {
+
+    /*****************************************************************/
+    it("correctly get group path", function(done) {
+
+      ctrlGroup.path(newHandler("123", {gid: gids[2]}), function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.length.should.equal(4);
+
+        result[0]._id.toString().should.equal(addedGroup._id.toString());
+        result[1]._id.toString().should.equal(gids[0]);
+        result[2]._id.toString().should.equal(gids[1]);
+        result[3]._id.toString().should.equal(gids[2]);
+
+        done();
+      });
+
     });
 
   });

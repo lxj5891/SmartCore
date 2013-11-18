@@ -27,7 +27,7 @@ var ACLink = new schema({
  */
 function model(code) {
 
-  return conn().model(code, "ACLink", ACLink);
+  return conn.model(code, "ACLink", ACLink);
 }
 
 /**
@@ -36,7 +36,7 @@ function model(code) {
  * @param {String} type 类型
  * @param {String} main 主对象标识
  * @param {Array} subs 子对象标识列表
- * @param {Function} callback(err, boolean) 返回关联是否存在
+ * @param {Function} callback 返回关联是否存在
  */
 exports.exist = function(code, type, main, subs, callback) {
 
@@ -53,15 +53,16 @@ exports.exist = function(code, type, main, subs, callback) {
  * @param {String} type 类型
  * @param {String} main 主对象标识
  * @param {Array} subsToAdd 要添加的子对象标识的列表
- * @param {Function} callback(err) 返回添加的关联
+ * @param {Function} callback 返回添加的关联
  */
 exports.add = function(code, type, main, subsToAdd, callback) {
 
   var linkModel = model(code);
 
-  linkModel.update({"type": type, "main": main}, { $addToSet: { "subs": { $each: subsToAdd } } },
-    { upsert : true }, function(err, result) {
-    return callback(err, result);
+  linkModel.findOneAndUpdate({"type": type, "main": main},
+    { $addToSet: { "subs": { $each: subsToAdd } } }, { upsert : true }, function(err, doc) {
+
+    return callback(err, doc);
   });
 };
 
@@ -71,13 +72,13 @@ exports.add = function(code, type, main, subsToAdd, callback) {
  * @param {String} type 类型
  * @param {String} main 主对象标识
  * @param {Array} subsToReplace 新的子对象标识的列表
- * @param {Function} callback(err) 返回更新后的关联
+ * @param {Function} callback 返回更新后的关联
  */
 exports.update = function(code, type, main, subsToReplace, callback) {
 
   var linkModel = model(code);
 
-  linkModel.update({"type": type, "main": main}, { "subs": subsToReplace }, function(err, result) {
+  linkModel.findOneAndUpdate({"type": type, "main": main}, { "subs": subsToReplace }, function(err, result) {
     return callback(err, result);
   });
 };
@@ -88,13 +89,13 @@ exports.update = function(code, type, main, subsToReplace, callback) {
  * @param {String} type 类型
  * @param {String} main 主对象标识
  * @param {Array} subsToDel 要删除的子对象标识的列表
- * @param {Function} callback(err) 返回更新后的关联
+ * @param {Function} callback 返回更新后的关联
  */
 exports.remove = function(code, type, main, subsToDel, callback){
 
   var linkModel = model(code);
 
-  linkModel.update({"type": type, "main": main}, { $pullAll: { "subs": subsToDel } }, function(err, result) {
+  linkModel.findOneAndUpdate({"type": type, "main": main}, { $pullAll: { "subs": subsToDel } }, function(err, result) {
     return callback(err, result);
   });
 };
@@ -104,7 +105,7 @@ exports.remove = function(code, type, main, subsToDel, callback){
  * @param {String} code 公司code
  * @param {String} type 类型
  * @param {String} main 主对象标识
- * @param {Function} callback(err, link) 返回关联
+ * @param {Function} callback 返回关联
  */
 exports.get = function(code, type, main, callback) {
 
