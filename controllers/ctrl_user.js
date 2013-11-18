@@ -6,7 +6,8 @@
 
 "use strict";
 
-var async       = require("async")
+var _           = require("underscore")
+  , async       = require("async")
   , check       = require("validator").check
   , constant    = require("../core/constant")
   , errors      = require("../core/errors")
@@ -260,6 +261,10 @@ exports.getListByKeywords = function (handler, callback) {
         log.error(err, handler.uid);
         return callback(new errors.InternalServer(err));
       }
+
+      _.each(result, function(user) {
+        user.password = null;
+      });
 
       return callback(err, { totalItems: count, items: result });
     });
