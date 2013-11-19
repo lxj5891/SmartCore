@@ -158,12 +158,12 @@ exports.update = function(handler, callback) {
     }
 
     // 密码
-    if(params.password) {
+    if (params.password) {
       user.password = params.password;
     }
 
     // 所属组一览
-    if(params.groups) {
+    if (params.groups) {
       user.groups = params.groups;
       if (!util.isArray(user.groups)) {
         user.groups = [user.groups];
@@ -171,23 +171,23 @@ exports.update = function(handler, callback) {
     }
 
     // 电子邮件地址
-    if(params.email) {
+    if (params.email) {
       user.email = params.email;
       check(user.email, __("user.error.invalidEmail")).isEmail();
     }
 
     // 语言
-    if(params.lang) {
+    if (params.lang) {
       user.lang = params.lang;
     }
 
     // 时区 TODO : 检查时区有效性
-    if(params.timezone) {
+    if (params.timezone) {
       user.timezone = params.timezone;
     }
 
     // 状态
-    if(params.status) {
+    if (params.status) {
       user.status = params.status;
     }
 
@@ -212,7 +212,7 @@ exports.update = function(handler, callback) {
       return callback(new errors.InternalServer(err));
     }
 
-    if(result) {
+    if (result) {
       log.info("finished: update user " + result._id + " .", handler.uid);
       return callback(err, result);
     }
