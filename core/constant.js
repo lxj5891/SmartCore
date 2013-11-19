@@ -28,6 +28,9 @@ exports.MOD_GRIDSTORE_MODE_WRITE = "w";
 // read only. This is the default mode.
 exports.MOD_GRIDSTORE_MODE_READ = "r";
 
+/** 缺省的多国语言分类 */
+exports.MOD_DEFAULT_I18N_CATEGORY = "smart";
+
 /** 组类型 */
 exports.GROUP_TYPE_DEPARTMENT = "1"; // 部门（公司组织结构）
 exports.GROUP_TYPE_GROUP = "2"; // 组（自由创建）

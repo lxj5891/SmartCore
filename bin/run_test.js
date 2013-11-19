@@ -27,6 +27,9 @@ var target = [
   , "test/modules/test_mod_company.js"
   , "test/controllers/test_ctrl_company.js"
 
+  , "test/modules/test_mod_i18n.js"
+  , "test/controllers/test_ctrl_i18n.js"
+
   , "test/modules/test_mod_aclink.js"
   ];
 

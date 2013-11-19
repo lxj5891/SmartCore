@@ -41,6 +41,7 @@ exports.getResponse = function(uid, querys, bodys) {
     session: {
       user: {
         _id: uid
+      , lang: "en"
       }
     }
   , query: querys || {}
