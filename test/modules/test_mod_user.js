@@ -51,7 +51,7 @@ describe("modules/mod_user.js", function() {
         result.should.have.property("first").and.equal("名");
         result.should.have.property("middle").and.equal("中名");
         result.should.have.property("last").and.equal("姓");
-        result.should.have.property("password").and.equal("admin");
+        result.should.not.have.property("password");
         result.should.have.property("groups");
         result.groups[0].should.equal("0");
         result.groups[1].should.equal("1");
@@ -88,7 +88,7 @@ describe("modules/mod_user.js", function() {
         result.should.have.property("first").and.equal("名");
         result.should.have.property("middle").and.equal("中名");
         result.should.have.property("last").and.equal("姓");
-        result.should.have.property("password").and.equal("admin");
+        result.should.not.have.property("password");
         result.should.have.property("groups");
         result.groups[0].should.equal("0");
         result.groups[1].should.equal("1");
@@ -141,6 +141,7 @@ describe("modules/mod_user.js", function() {
         should.exist(result);
 
         result.length.should.above(1);
+        result[0].should.not.have.property("password");
 
         done();
       });
@@ -161,6 +162,7 @@ describe("modules/mod_user.js", function() {
         result.should.have.property("userName").and.equal(userName);
         result.should.have.property("extend");
         result.extend.QQ.should.equal("555");
+        result.should.not.have.property("password");
 
         done();
       });

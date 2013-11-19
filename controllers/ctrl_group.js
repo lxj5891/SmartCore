@@ -75,7 +75,7 @@ exports.add = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
-  var createBy = handler.uid;
+  var uid = handler.uid;
 
   var group = {};
   try {
@@ -122,23 +122,23 @@ exports.add = function(handler, callback) {
     var curDate = new Date();
     group.valid = constant.VALID;
     group.createAt = curDate;
-    group.createBy = createBy;
+    group.createBy = uid;
     group.updateAt = curDate;
-    group.updateBy = createBy;
+    group.updateBy = uid;
 
   } catch (e) {
-    log.error(e.message, handler.uid);
+    log.error(e.message, uid);
     callback(new errors.BadRequest(e.message));
     return;
   }
 
   modGroup.add(code, group, function(err, result) {
     if (err) {
-      log.error(err, handler.uid);
+      log.error(err, uid);
       return callback(new errors.InternalServer(err));
     }
 
-    log.debug("finished: add group.", handler.uid);
+    log.debug("finished: add group.", uid);
 
     return callback(err, result);
   });
@@ -147,10 +147,79 @@ exports.add = function(handler, callback) {
 
 /**
  * 更新组
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 回调函数，返回更新后的组
  */
-exports.update = function() {
+exports.update = function(handler, callback) {
 
-  // TODO
+  var code = handler.code;
+  var params = handler.params;
+  var uid = handler.uid;
+
+  var group = {};
+  try {
+
+    // 组名
+    if (params.name) {
+      group.name = params.name;
+      check(group.name, __("group.error.nameTooLong")).len(0, 128);
+    }
+
+    // 父组标识
+    if (params.parent) {
+      group.parent = params.parent;
+    }
+
+    // 描述
+    if (params.description) {
+      group.description = params.description;
+      check(group.description, __("group.error.descTooLong")).len(0, 256);
+    }
+
+    // 公开性, 1:私密，2:公开
+    if (params.public) {
+      group.public = params.public;
+      check(group.public, __("group.error.invalidPublic")).isIn([constant.GROUP_PRIVATE, constant.GROUP_PUBLIC]);
+    }
+
+    // 经理一览
+    if (params.owners) {
+      group.owners = params.owners;
+      if (!util.isArray(group.owners)) {
+        group.owners = [group.owners];
+      }
+    }
+
+    // 扩展属性
+    if (params.extend) {
+      group.extend = params.extend;
+    }
+
+    // Common
+    var curDate = new Date();
+    group.updateAt = curDate;
+    group.updateBy = uid;
+
+  } catch (e) {
+    log.error(e.message, uid);
+    callback(new errors.BadRequest(e.message));
+    return;
+  }
+
+  modGroup.update(code, params.gid, group, function(err, result) {
+    if (err) {
+      log.error(err, uid);
+      return callback(new errors.InternalServer(err));
+    }
+
+    if(result) {
+      log.info("finished: update group " + result._id + " .", uid);
+      return callback(err, result);
+    }
+
+    return callback(new errors.NotFound(__("group.error.notExist")));
+  });
+
 };
 
 /**
