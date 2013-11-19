@@ -9,7 +9,7 @@
 require("../../core/test").befor();
 
 var should  = require("should")
-  , company = require("../../modules/mod_company");
+  , company = require("../../coverage/modules/mod_company");
 
 /**
  * 测试代码

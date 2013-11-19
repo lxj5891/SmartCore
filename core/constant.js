@@ -44,6 +44,8 @@ exports.MODULES_NAME_FILE = "File";
 exports.MODULES_NAME_GROUP = "Group";
 exports.MODULES_NAME_MASTER = "Master";
 exports.MODULES_NAME_USER = "User";
+exports.MODULES_NAME_I18N = "I18n";
+exports.MODULES_NAME_COMPANY = "Company";
 
 
 
