@@ -126,6 +126,8 @@ exports.add = function(handler, callback) {
 
       log.info("finished: add user " + result._id + " .", handler.uid);
 
+      delete result._doc.password; // 擦除密码
+
       return callback(err, result);
     });
   });
@@ -213,7 +215,11 @@ exports.update = function(handler, callback) {
     }
 
     if (result) {
+
       log.info("finished: update user " + result._id + " .", handler.uid);
+
+      delete result._doc.password; // 擦除密码
+
       return callback(err, result);
     }
 
@@ -244,6 +250,8 @@ exports.remove = function(handler, callback) {
 
       log.info("finished: remove user " + result._id + " .", handler.uid);
 
+      delete result._doc.password; // 擦除密码
+
       return callback(err, result);
     }
 
@@ -269,7 +277,7 @@ exports.get = function(handler, callback) {
 
     if (result) {
 
-      result.password = null;
+      delete result._doc.password; // 擦除密码
 
       return callback(err, result);
     }
@@ -344,7 +352,7 @@ exports.getListByKeywords = function (handler, callback) {
       }
 
       _.each(result, function(user) {
-        user.password = null;
+        delete user._doc.password; // 擦除密码
       });
 
       return callback(err, { totalItems: count, items: result });

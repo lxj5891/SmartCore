@@ -87,7 +87,7 @@ describe("controllers/ctrl_user.js", function() {
           result.should.have.property("first").and.equal("名");
           result.should.have.property("middle").and.equal("中名");
           result.should.have.property("last").and.equal("姓");
-          result.should.have.property("password").and.equal("admin");
+          result.should.not.have.property("password");
           result.should.have.property("groups");
           result.groups[0].should.equal(group._id.toString());
           result.should.have.property("email").and.equal("zli_ray@sina.cn");
@@ -265,7 +265,7 @@ describe("controllers/ctrl_user.js", function() {
         result.should.have.property("first").and.equal("234");
         result.should.have.property("middle").and.equal("567");
         result.should.have.property("last").and.equal("890");
-        result.should.have.property("password").and.equal("ooo");
+        result.should.not.have.property("password");
         result.should.have.property("groups");
         result.groups.length.should.equal(0);
         result.should.have.property("email").and.equal("456@sina.cn");
@@ -405,6 +405,7 @@ describe("controllers/ctrl_user.js", function() {
             user.userName.indexOf("GMT").should.above(0);
             user.middle.indexOf("中名").should.equal(0);
             user.email.indexOf("sina").should.above(0);
+            user.should.not.have.property("password");
           });
 
           done();
@@ -493,6 +494,7 @@ describe("controllers/ctrl_user.js", function() {
         should.exist(result);
 
         result.should.have.property("valid").and.equal(0);
+        result.should.not.have.property("password");
 
         done();
       });
