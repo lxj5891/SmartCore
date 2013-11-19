@@ -213,7 +213,7 @@ exports.update = function(handler, callback) {
     }
 
     if(result) {
-      log.info("finished: add user " + result._id + " .", handler.uid);
+      log.info("finished: update user " + result._id + " .", handler.uid);
       return callback(err, result);
     }
 

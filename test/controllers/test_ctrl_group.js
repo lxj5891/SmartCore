@@ -264,6 +264,88 @@ describe("controllers/ctrl_group.js", function() {
 
   });
 
+  describe("update()", function() {
+
+    /*****************************************************************/
+    it("correctly update group", function(done) {
+
+      var group = {
+          gid          : addedGroup._id.toString()
+        , name         : "456"
+        , parent       : null
+        , description  : "789"
+        , type         : constant.GROUP_TYPE_GROUP
+        , public       : constant.GROUP_PUBLIC
+        , owners       : ["234"]
+        , extend       : {"QQ":"54654", "birthday": "221321"}
+        };
+
+      ctrlGroup.update(newHandler("456", group), function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        should.exist(result._id);
+        result.should.have.property("name").and.equal("456");
+        result.should.have.property("parent");
+        result.should.have.property("description").and.equal("789");
+        result.should.have.property("type").and.equal(constant.GROUP_TYPE_DEPARTMENT);
+        result.should.have.property("public").and.equal(constant.GROUP_PUBLIC);
+        result.should.have.property("owners");
+        result.owners.length.should.equal(1);
+        result.owners[0].should.equal("234");
+        result.should.have.property("extend");
+        result.extend.QQ.should.equal("54654");
+        result.extend.birthday.should.equal("221321");
+        result.should.have.property("valid").and.equal(1);
+        result.should.have.property("createAt");
+        result.should.have.property("updateAt");
+        result.should.have.property("createBy").and.equal("123");
+        result.should.have.property("updateBy").and.equal("456");
+
+        done();
+      });
+    });
+
+    /*****************************************************************/
+    it("description too long", function(done) {
+
+      var group = newGroup();
+      group.description = "";
+      for(var i = 0; i < 20; i++) {
+        group.description += "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+      }
+
+      ctrlGroup.update(newHandler("123", group), function(err, result) {
+
+        should.exist(err);
+        should.not.exist(result);
+
+        err.should.have.property("code").and.equal(400);
+
+        done();
+      });
+    });
+
+    /*****************************************************************/
+    it("invalid public", function(done) {
+
+      var group = newGroup();
+      group.public = "9";
+
+      ctrlGroup.update(newHandler("123", group), function(err, result) {
+
+        should.exist(err);
+        should.not.exist(result);
+
+        err.should.have.property("code").and.equal(400);
+
+        done();
+      });
+    });
+
+  });
+
   var gids = [];
 
   describe("getSubGroups()", function() {

@@ -281,8 +281,6 @@ describe("controllers/ctrl_user.js", function() {
         result.should.have.property("createBy").and.equal("12345678");
         result.should.have.property("updateBy").and.equal("555");
 
-        addedUser = result;
-
         done();
       });
     });
