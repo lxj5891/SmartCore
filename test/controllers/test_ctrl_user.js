@@ -230,6 +230,82 @@ describe("controllers/ctrl_user.js", function() {
 
   });
 
+  describe("update()", function() {
+
+    function newUser() {
+      return {
+          uid         : addedUser._id.toString()
+        , first       : "234"
+        , middle      : "567"
+        , last        : "890"
+        , password    : "ooo"
+        , groups      : []
+        , email       : "456@sina.cn"
+        , lang        : "zh"
+        , timezone    : "GMT+08:00"
+        , status      : 0
+        , extend      : {"QQ":"646546544", "birthday": "7987987"}
+        };
+    }
+
+
+    /*****************************************************************/
+    it("correctly update user", function(done) {
+
+      var handler = newHandler("555", newUser());
+
+      ctrlUser.update(handler, function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        // 全字段正确性检查
+        should.exist(result._id);
+        result.should.have.property("userName").and.equal(userName);
+        result.should.have.property("first").and.equal("234");
+        result.should.have.property("middle").and.equal("567");
+        result.should.have.property("last").and.equal("890");
+        result.should.have.property("password").and.equal("ooo");
+        result.should.have.property("groups");
+        result.groups.length.should.equal(0);
+        result.should.have.property("email").and.equal("456@sina.cn");
+        result.should.have.property("lang").and.equal("zh");
+        result.should.have.property("status").and.equal("0");
+        result.should.have.property("timezone").and.equal("GMT+08:00");
+        result.should.have.property("extend");
+        result.extend.QQ.should.equal("646546544");
+        result.extend.birthday.should.equal("7987987");
+        result.should.have.property("valid").and.equal(1);
+        result.should.have.property("createAt");
+        result.should.have.property("updateAt");
+        result.should.have.property("createBy").and.equal("12345678");
+        result.should.have.property("updateBy").and.equal("555");
+
+        addedUser = result;
+
+        done();
+      });
+    });
+
+    /*****************************************************************/
+    it("invalid email", function(done) {
+
+      var handler = newHandler("12345678", newUser());
+      handler.params.email = "AAA";
+
+      ctrlUser.update(handler, function(err, result) {
+
+        should.exist(err);
+        should.not.exist(result);
+
+        err.code.should.equal(400);
+
+        done();
+      });
+    });
+
+  });
+
   describe("exist()", function() {
 
     /*****************************************************************/

@@ -25,7 +25,6 @@ exports.add = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
-  var updateBy = handler.uid;
 
   var user = {};
 
@@ -83,9 +82,9 @@ exports.add = function(handler, callback) {
     var curDate = new Date();
     user.valid = constant.VALID;
     user.createAt = curDate;
-    user.createBy = updateBy;
+    user.createBy = handler.uid;
     user.updateAt = curDate;
-    user.updateBy = updateBy;
+    user.updateBy = handler.uid;
 
   } catch (e) {
     log.error(e.message, handler.uid);
@@ -134,10 +133,92 @@ exports.add = function(handler, callback) {
 
 /**
  * 更新用户
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 回调函数，返回更新后的用户
  */
-exports.update = function() {
+exports.update = function(handler, callback) {
 
-  // TODO
+  var code = handler.code;
+  var params = handler.params;
+
+  var user = {};
+
+  // 校验参数
+  try {
+
+    // 真实名
+    if (params.first) {
+      user.first = params.first;
+    }
+    if (params.middle) {
+      user.middle = params.middle;
+    }
+    if (params.last) {
+      user.last = params.last;
+    }
+
+    // 密码
+    if(params.password) {
+      user.password = params.password;
+    }
+
+    // 所属组一览
+    if(params.groups) {
+      user.groups = params.groups;
+      if (!util.isArray(user.groups)) {
+        user.groups = [user.groups];
+      }
+    }
+
+    // 电子邮件地址
+    if(params.email) {
+      user.email = params.email;
+      check(user.email, __("user.error.invalidEmail")).isEmail();
+    }
+
+    // 语言
+    if(params.lang) {
+      user.lang = params.lang;
+    }
+
+    // 时区 TODO : 检查时区有效性
+    if(params.timezone) {
+      user.timezone = params.timezone;
+    }
+
+    // 状态
+    if(params.status) {
+      user.status = params.status;
+    }
+
+    // 扩展属性
+    if (params.extend) {
+      user.extend = params.extend;
+    }
+
+    // Common
+    user.updateAt = new Date();
+    user.updateBy = handler.uid;
+
+  } catch (e) {
+    log.error(e.message, handler.uid);
+    callback(new errors.BadRequest(e.message));
+    return;
+  }
+
+  modUser.update(code, params.uid, user, function(err, result) {
+    if (err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
+    }
+
+    if(result) {
+      log.info("finished: add user " + result._id + " .", handler.uid);
+      return callback(err, result);
+    }
+
+    return callback(new errors.NotFound(__("user.error.notExist")));
+  });
 };
 
 /**
