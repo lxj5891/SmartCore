@@ -6,7 +6,8 @@
 
 "use strict";
 
-var mongo       = require("mongoose")
+var _           = require("underscore")
+  , mongo       = require("mongoose")
   , conn        = require("../core/connection")
   , constant    = require("../core/constant")
   , schema      = mongo.Schema
@@ -56,6 +57,11 @@ exports.add = function(code, user, callback) {
   var User = model(code);
 
   new User(user).save(function(err, result){
+
+    if(result) {
+      delete result._doc.password; // 擦除密码
+    }
+
     callback(err, result);
   });
 };
@@ -71,6 +77,10 @@ exports.get = function (code, uid, callback) {
   var user = model(code);
 
   user.findById(uid, function (err, result) {
+
+    if(result) {
+      delete result._doc.password; // 擦除密码
+    }
 
     callback(err, result);
   });
@@ -109,6 +119,13 @@ exports.getList = function (code, condition, skip, limit, order, callback) {
     .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)
     .exec(function (err, result) {
+
+      if(result) {
+        _.each(result, function(user) {
+          delete user._doc.password; // 擦除密码
+        });
+      }
+
       callback(err, result);
     });
 };
@@ -125,6 +142,11 @@ exports.update = function (code, uid, newUser, callback) {
   var user = model(code);
 
   user.findByIdAndUpdate(uid, newUser, function (err, result) {
+
+    if(result) {
+      delete result._doc.password; // 擦除密码
+    }
+
     callback(err, result);
   });
 };
