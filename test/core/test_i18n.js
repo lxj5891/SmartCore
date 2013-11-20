@@ -24,7 +24,6 @@ describe("Context", function() {
    * 初始化测试数据
    */
   var key = "jp.yukari.myword"
-    , category = "mycategory"
     , word = "我的词条3 - %s : %d : %j"
     , req = mock.getResponse("12345678", {}, {});
 
@@ -35,7 +34,7 @@ describe("Context", function() {
 
       var handler = new context().bind(req, mock.getRequest());
       handler.addParams("key", key);
-      handler.addParams("category", category);
+      handler.addParams("category", "smartcore");
       handler.addParams("lang", "zh");
       handler.addParams("value", word);
 
@@ -50,7 +49,7 @@ describe("Context", function() {
     /*****************************************************************/
     it("cache words", function(done) {
       req.session.user.lang = "zh";
-      i18n.init(req, category, function(cache) {
+      i18n.init(req, function(cache) {
 
         cache.should.include({ "jp.yukari.myword": "我的词条3 - %s : %d : %j" });
         done();

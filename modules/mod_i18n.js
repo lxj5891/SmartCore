@@ -18,7 +18,7 @@ var mongo       = require("mongoose")
  * @type {schema}
  */
 var I18n = new schema({
-    category      : { type: String, description: "分类", default:constant.MOD_DEFAULT_I18N_CATEGORY }
+    category      : { type: String, description: "分类", default:constant.DEFAULT_I18N_CATEGORY }
   , key           : { type: String, description: "词条key" }
   , lang          : { type: Mixed,  description: "翻译结果" }
   , valid         : { type: Number, description: "删除 0:无效 1:有效", default:constant.VALID }
@@ -38,6 +38,7 @@ function model(code) {
 
 /**
  * 获取词条一览
+ * @param {String} code 公司code
  * @param {Object} condition 条件
  * @param {Number} start 数据开始位置
  * @param {Number} limit 数据件数
@@ -45,6 +46,9 @@ function model(code) {
  * @param {Function} callback 回调函数，返回词条一览
  */
 exports.getList = function(code, condition, start, limit, order, callback){
+  console.log(code);
+  console.log(condition);
+  console.log(start);
 
   var i18n = model(code);
 
@@ -59,6 +63,7 @@ exports.getList = function(code, condition, start, limit, order, callback){
 
 /**
  * 获取一个词条
+ * @param {String} code 公司code
  * @param {String} key 词条的key
  * @param {Function} callback 回调函数，返回词条对象
  */
@@ -73,6 +78,7 @@ exports.get = function(code, key, callback) {
 
 /**
  * 添加词条, 如果已经存在则更新
+ * @param {String} code 公司code
  * @param {Object} word 新的词条对象
  * @param {Function} callback 回调函数，number：更新件数，update:true更新
  */

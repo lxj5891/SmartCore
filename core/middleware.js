@@ -1,40 +1,42 @@
 
-var i18n    = require("i18n")
-  , fs      = require("fs")
-  , confapp = require("config").app
+"use strict";
+
+var conf    = require("config").app
   , json    = require("./response")
   , errors  = require("./errors")
   , util    = require("./util")
+  , i18n    = require("./i18n")
   , log     = require("./log");
 
 /**
- * 设定语言
+ * 注册ejs用全局国际化函数
+ * 缓存数据库中的词条（仅在没有缓存过时，才进行）
+ * @param {Object} req 请求
+ * @param {Object} res 响应
+ * @param {Function} next 是否执行后续操作的回调方法
  */
 exports.lang = function(req, res, next) {
 
-  // set default
-  if(req.session.user && req.session.user.lang){
-    //console.log(req.session.user);
-    i18n.setLocale(req, req.session.user.lang);
-    if(req.session.localJS){
-      res.locals.i18n = req.session.localJS;
-    }else{
-      var local = fs.readFileSync("locales/" + req.session.user.lang + ".js","utf8");
-      local = local.replace(/[\r\n]/g,"").replace(/"/g,"'");
-      res.locals.i18n = local;
-      req.session.localJS = local;
-    }
-  }
-  
-  res.locals.i = function() {
-    return i18n.__.apply(req, arguments);
-  };
-  res.locals.n = function() {
-    return i18n.__n.apply(req, arguments);
-  };
+  // 已经被缓存，则直接返回
+  if (i18n.isCached()) {
+    res.locals.i = function() {
+      return i18n.__.apply(req, arguments);
+    };
 
-  next();
-}
+    next();
+  } else {
+
+    // 初始化
+    i18n.init(req, function() {
+
+      res.locals.i = function() {
+        return i18n.__.apply(req, arguments);
+      };
+
+      next();
+    });
+  }
+};
 
 /**
  * 未捕获的异常
@@ -141,7 +143,7 @@ exports.timeout = function(req, res, next) {
   isUpload = isUpload || req.url.match(/^\/download\//i);
 
   if (!isUpload) {
-    req.connection.setTimeout(confapp.timeout * 1000);
+    req.connection.setTimeout(conf.timeout * 1000);
   }
 
   next();

@@ -9,6 +9,7 @@ module.exports = {
     i18n: {
       "cache": "memory"
     , "lang": "zh"
+    , "category": "smartcore"
     }
   },
 
