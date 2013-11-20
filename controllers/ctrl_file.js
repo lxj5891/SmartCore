@@ -22,7 +22,7 @@ exports.add = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
-    , code = params.code
+    , code = handler.code
     , files = params.files;
 
   log.debug("begin: add file.", uid);
@@ -77,7 +77,7 @@ exports.get = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
-    , code = params.code
+    , code = handler.code
     , fileInfoId = params.fileInfoId;
 
   log.debug("begin: get fileInfo.", uid);
@@ -105,7 +105,7 @@ exports.getFile = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
-    , code = params.code
+    , code = handler.code
     , fileId = params.fileId;
 
   log.debug("begin: get file.", uid);
@@ -134,7 +134,7 @@ exports.getList = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
-    , code = params.code
+    , code = handler.code
     , start = params.start
     , limit = params.limit
     , condition = params.condition
@@ -178,7 +178,7 @@ exports.update = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
-    , code = params.code
+    , code = handler.code
     , fileInfoId = params.fileInfoId
     , updateFile = params.updateFile;
 
@@ -211,7 +211,7 @@ exports.updateFile = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
-    , code = params.code
+    , code = handler.code
     , fileInfoId = params.fileInfoId
     , updateFile = params.updateFile
     , fileName = params.fileName
@@ -250,7 +250,7 @@ exports.remove = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
-    , code = params.code
+    , code = handler.code
     , fileInfoId = params.fileInfoId
     , updateFile = params.updateFile;
 
@@ -283,7 +283,7 @@ exports.total = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
-    , code = params.code
+    , code = handler.code
     , condition = params.condition;
 
   log.debug("begin: total.", uid);

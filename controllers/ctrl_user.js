@@ -25,6 +25,11 @@ exports.add = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
+  var uid = handler.uid;
+
+  log.debug("begin: add user.", uid);
+  log.debug("userName: " + params.userName, uid);
+  log.debug("email: " + params.email, uid);
 
   var user = {};
 
@@ -82,12 +87,12 @@ exports.add = function(handler, callback) {
     var curDate = new Date();
     user.valid = constant.VALID;
     user.createAt = curDate;
-    user.createBy = handler.uid;
+    user.createBy = uid;
     user.updateAt = curDate;
-    user.updateBy = handler.uid;
+    user.updateBy = uid;
 
   } catch (e) {
-    log.error(e.message, handler.uid);
+    log.error(e.message, uid);
     callback(new errors.BadRequest(e.message));
     return;
   }
@@ -113,18 +118,18 @@ exports.add = function(handler, callback) {
   async.waterfall(tasks, function(err) {
 
     if (err) {
-      log.error(err, handler.uid);
+      log.error(err, uid);
       callback(err);
       return;
     }
 
     modUser.add(code, user, function(err, result) {
       if (err) {
-        log.error(err, handler.uid);
+        log.error(err, uid);
         return callback(new errors.InternalServer(err));
       }
 
-      log.info("finished: add user " + result._id + " .", handler.uid);
+      log.debug("finished: add user " + result._id + " .", uid);
 
       return callback(err, result);
     });
@@ -140,6 +145,8 @@ exports.update = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
+
+  log.debug("begin: update user " + params.uid + ".", handler.uid);
 
   var user = {};
 
@@ -214,7 +221,7 @@ exports.update = function(handler, callback) {
 
     if (result) {
 
-      log.info("finished: update user " + result._id + " .", handler.uid);
+      log.debug("finished: update user " + result._id + " .", handler.uid);
 
       return callback(err, result);
     }
@@ -232,6 +239,8 @@ exports.remove = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
+
+  log.debug("begin: remove user " + params.uid + ".", handler.uid);
 
   var newUser = {"valid": constant.INVALID, "updateAt": (new Date()), "updateBy": handler.uid};
 
@@ -310,15 +319,14 @@ exports.getListByKeywords = function (handler, callback) {
     conditions.push({ email : { $regex : params.email, $options: "i" } });
   }
 
-  if (conditions.length === 0) {
-    callback(new errors.BadRequest(__("user.error.emptySearchCondition")));
-    return;
-  }
-
-  if (params.and === false) {
-    conditions = {$or : conditions};
+  if(conditions.length > 0) {
+    if (params.and === false) {
+      conditions = {$or : conditions};
+    } else {
+      conditions = {$and : conditions};
+    }
   } else {
-    conditions = {$and : conditions};
+    conditions = {};
   }
 
   modUser.total(code, conditions, function(err, count) {
@@ -370,3 +378,28 @@ exports.exist = function(handler, callback) {
     return callback(err, count > 0);
   });
 };
+
+/**
+ * 检查能否登陆（用户名和密码是否匹配）
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 回调函数，返回跟用户名和密码匹配的用户
+ */
+exports.canLogin = function(handler, callback) {
+
+  var userName = handler.params.userName;
+  var password = handler.params.password;
+  var code = handler.params.code;
+
+  modUser.getList(code, {"userName": userName, "password": password,
+    "valid": constant.VALID}, 0, 1, null, function(err, result) {
+
+    if (err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
+    }
+
+    return callback(err, result[0]);
+  });
+};
+
+

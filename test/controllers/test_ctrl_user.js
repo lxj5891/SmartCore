@@ -357,6 +357,40 @@ describe("controllers/ctrl_user.js", function() {
 
   });
 
+  describe("canLogin()", function() {
+
+    /*****************************************************************/
+    it("can login", function(done) {
+
+      var handler = newHandler("44", {userName: userName, password: "ooo"});
+
+      ctrlUser.canLogin(handler, function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result._id.toString().should.equal(addedUser._id.toString());
+
+        done();
+      });
+    });
+
+    /*****************************************************************/
+    it("can not login", function(done) {
+
+      var handler = newHandler("44", {userName: userName, password: "123"});
+
+      ctrlUser.canLogin(handler, function(err, result) {
+
+        should.not.exist(err);
+        should.not.exist(result);
+
+        done();
+      });
+    });
+
+  });
+
   describe("getListByKeywords()", function() {
 
 //    var user1 = {
@@ -446,10 +480,10 @@ describe("controllers/ctrl_user.js", function() {
 
       ctrlUser.getListByKeywords(handler, function(err, result) {
 
-        should.exist(err);
-        should.not.exist(result);
+        should.not.exist(err);
+        should.exist(result);
 
-        err.code.should.equal(400);
+        result.should.have.property("totalItems").and.above(0);
 
         done();
       });

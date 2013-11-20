@@ -77,6 +77,10 @@ exports.add = function(handler, callback) {
   var params = handler.params;
   var uid = handler.uid;
 
+  log.debug("begin: add group.", uid);
+  log.debug("name: " + params.name, uid);
+  log.debug("type: " + params.type, uid);
+
   var group = {};
   try {
 
@@ -138,7 +142,7 @@ exports.add = function(handler, callback) {
       return callback(new errors.InternalServer(err));
     }
 
-    log.debug("finished: add group.", uid);
+    log.debug("finished: add group " + result._id + ".", uid);
 
     return callback(err, result);
   });
@@ -155,6 +159,8 @@ exports.update = function(handler, callback) {
   var code = handler.code;
   var params = handler.params;
   var uid = handler.uid;
+
+  log.debug("begin: update group " + params.gid + ".", uid);
 
   var group = {};
   try {
@@ -213,7 +219,7 @@ exports.update = function(handler, callback) {
     }
 
     if(result) {
-      log.info("finished: update group " + result._id + " .", uid);
+      log.debug("finished: update group " + result._id + " .", uid);
       return callback(err, result);
     }
 
@@ -225,14 +231,27 @@ exports.update = function(handler, callback) {
 /**
  * 删除组
  */
-exports.remove = function() {
+exports.remove = function(handler, callback) {
 
-  // TODO 如何删除组？
-  // 部门
-  //    方案1：刪除組及下位所有組，同时删除用户（一个用户可能属于多个部门组，如何处理？）
-  //    方案2：只要组下还有用户，就禁止删除
-  // 自由创建 刪除組，不刪除用戶
-  // 职位组 刪除組，不刪除用戶
+  var code = handler.code;
+  var uid = handler.uid;
+  var gid = handler.params.gid;
+
+  log.debug("begin: remove group " + gid + ".", uid);
+
+  modGroup.update(code, gid, {valid: 0}, function(err, result) {
+    if (err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
+    }
+
+    if(result) {
+      log.debug("finished: remove group " + result._id + " .", uid);
+      return callback(err, result);
+    }
+
+    return callback(new errors.NotFound(__("group.error.notExist")));
+  });
 };
 
 /**
@@ -360,7 +379,7 @@ exports.getSubGroups = function(handler, callback) {
 };
 
 /**
- * 查询查询从根组到指定组的路径（包含本身）
+ * 查询从根组到指定组的路径（包含本身）
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回上位组织标识列表
  */
