@@ -53,9 +53,9 @@ exports.add = function(handler, callback) {
   var subsToAdd = params.subsToAdd;
 
   log.debug("begin: add aclink.", uid);
-  log.debug("type: " + type + ".", uid);
-  log.debug("main: " + main + ".", uid);
-  log.debug("subsToAdd: " + subsToAdd + ".", uid);
+  log.debug("type: " + type, uid);
+  log.debug("main: " + main, uid);
+  log.debug("subsToAdd: " + subsToAdd, uid);
 
   modAclink.add(code, type, main, subsToAdd, function(err, result) {
 
@@ -86,9 +86,9 @@ exports.update = function(handler, callback) {
   var subsToReplace = params.subsToReplace;
 
   log.debug("begin: update aclink.", uid);
-  log.debug("type: " + type + ".", uid);
-  log.debug("main: " + main + ".", uid);
-  log.debug("subsToReplace: " + subsToReplace + ".", uid);
+  log.debug("type: " + type, uid);
+  log.debug("main: " + main, uid);
+  log.debug("subsToReplace: " + subsToReplace, uid);
 
   modAclink.update(code, type, main, subsToReplace, function(err, result) {
 
@@ -124,9 +124,9 @@ exports.remove = function(handler, callback){
   var subsToDel = params.subsToDel;
 
   log.debug("begin: remove aclink.", uid);
-  log.debug("type: " + type + ".", uid);
-  log.debug("main: " + main + ".", uid);
-  log.debug("subsToDel: " + subsToDel + ".", uid);
+  log.debug("type: " + type, uid);
+  log.debug("main: " + main, uid);
+  log.debug("subsToDel: " + subsToDel, uid);
 
   modAclink.remove(code, type, main, subsToDel, function(err, result) {
 
@@ -186,9 +186,6 @@ exports.hasPermission = function(handler, callback) {
 
   var uid = params.uid;
   var permissions = params.permissions;
-  if(!util.isArray(permissions)) {
-    permissions = [permissions];
-  }
 
   modAclink.exist(code, constant.ACLINK_TYPE_USER_PERMISSION, uid, permissions, function(err, exist) {
 
