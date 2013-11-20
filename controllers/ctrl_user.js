@@ -28,6 +28,8 @@ exports.add = function(handler, callback) {
   var uid = handler.uid;
 
   log.debug("begin: add user.", uid);
+  log.debug("userName: " + params.userName, uid);
+  log.debug("email: " + params.email, uid);
 
   var user = {};
 
@@ -144,7 +146,7 @@ exports.update = function(handler, callback) {
   var code = handler.code;
   var params = handler.params;
 
-  log.debug("begin: update user.", handler.uid);
+  log.debug("begin: update user " + params.uid + ".", handler.uid);
 
   var user = {};
 
@@ -238,7 +240,7 @@ exports.remove = function(handler, callback) {
   var code = handler.code;
   var params = handler.params;
 
-  log.debug("begin: remove user.", handler.uid);
+  log.debug("begin: remove user " + params.uid + ".", handler.uid);
 
   var newUser = {"valid": constant.INVALID, "updateAt": (new Date()), "updateBy": handler.uid};
 

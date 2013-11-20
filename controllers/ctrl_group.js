@@ -78,6 +78,8 @@ exports.add = function(handler, callback) {
   var uid = handler.uid;
 
   log.debug("begin: add group.", uid);
+  log.debug("name: " + params.name, uid);
+  log.debug("type: " + params.type, uid);
 
   var group = {};
   try {
@@ -377,7 +379,7 @@ exports.getSubGroups = function(handler, callback) {
 };
 
 /**
- * 查询查询从根组到指定组的路径（包含本身）
+ * 查询从根组到指定组的路径（包含本身）
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回上位组织标识列表
  */
