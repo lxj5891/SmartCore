@@ -77,6 +77,8 @@ exports.add = function(handler, callback) {
   var params = handler.params;
   var uid = handler.uid;
 
+  log.debug("begin: add group.", uid);
+
   var group = {};
   try {
 
@@ -138,7 +140,7 @@ exports.add = function(handler, callback) {
       return callback(new errors.InternalServer(err));
     }
 
-    log.debug("finished: add group.", uid);
+    log.debug("finished: add group " + result._id + ".", uid);
 
     return callback(err, result);
   });
@@ -155,6 +157,8 @@ exports.update = function(handler, callback) {
   var code = handler.code;
   var params = handler.params;
   var uid = handler.uid;
+
+  log.debug("begin: update group " + params.gid + ".", uid);
 
   var group = {};
   try {
@@ -213,7 +217,7 @@ exports.update = function(handler, callback) {
     }
 
     if(result) {
-      log.info("finished: update group " + result._id + " .", uid);
+      log.debug("finished: update group " + result._id + " .", uid);
       return callback(err, result);
     }
 

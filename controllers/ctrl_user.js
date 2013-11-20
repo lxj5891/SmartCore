@@ -25,6 +25,9 @@ exports.add = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
+  var uid = handler.uid;
+
+  log.debug("begin: add user.", uid);
 
   var user = {};
 
@@ -82,12 +85,12 @@ exports.add = function(handler, callback) {
     var curDate = new Date();
     user.valid = constant.VALID;
     user.createAt = curDate;
-    user.createBy = handler.uid;
+    user.createBy = uid;
     user.updateAt = curDate;
-    user.updateBy = handler.uid;
+    user.updateBy = uid;
 
   } catch (e) {
-    log.error(e.message, handler.uid);
+    log.error(e.message, uid);
     callback(new errors.BadRequest(e.message));
     return;
   }
@@ -113,18 +116,18 @@ exports.add = function(handler, callback) {
   async.waterfall(tasks, function(err) {
 
     if (err) {
-      log.error(err, handler.uid);
+      log.error(err, uid);
       callback(err);
       return;
     }
 
     modUser.add(code, user, function(err, result) {
       if (err) {
-        log.error(err, handler.uid);
+        log.error(err, uid);
         return callback(new errors.InternalServer(err));
       }
 
-      log.info("finished: add user " + result._id + " .", handler.uid);
+      log.debug("finished: add user " + result._id + " .", uid);
 
       return callback(err, result);
     });
@@ -140,6 +143,8 @@ exports.update = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
+
+  log.debug("begin: update user.", handler.uid);
 
   var user = {};
 
@@ -214,7 +219,7 @@ exports.update = function(handler, callback) {
 
     if (result) {
 
-      log.info("finished: update user " + result._id + " .", handler.uid);
+      log.debug("finished: update user " + result._id + " .", handler.uid);
 
       return callback(err, result);
     }
@@ -232,6 +237,8 @@ exports.remove = function(handler, callback) {
 
   var code = handler.code;
   var params = handler.params;
+
+  log.debug("begin: remove user.", handler.uid);
 
   var newUser = {"valid": constant.INVALID, "updateAt": (new Date()), "updateBy": handler.uid};
 
