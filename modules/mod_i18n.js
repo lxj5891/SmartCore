@@ -7,6 +7,7 @@
 "use strict";
 
 var mongo       = require("mongoose")
+  , _           = require("underscore")
   , constant    = require("../core/constant")
   , conn        = require("../core/connection")
   , schema      = mongo.Schema
@@ -17,7 +18,7 @@ var mongo       = require("mongoose")
  * @type {schema}
  */
 var I18n = new schema({
-    category      : { type: String, description: "分类" }
+    category      : { type: String, description: "分类", default:constant.MOD_DEFAULT_I18N_CATEGORY }
   , key           : { type: String, description: "词条key" }
   , lang          : { type: Mixed,  description: "翻译结果" }
   , valid         : { type: Number, description: "删除 0:无效 1:有效", default:constant.VALID }
@@ -71,15 +72,42 @@ exports.get = function(code, key, callback) {
 };
 
 /**
- * 添加词条，如果存在则更新
- * @param {Object} keyword 新的公司对象
+ * 添加词条, 如果已经存在则更新
+ * @param {Object} word 新的词条对象
  * @param {Function} callback 回调函数，number：更新件数，update:true更新
  */
-exports.add = function(code, keyword, callback){
+exports.add = function(code, word, callback){
 
-  var i18n = model(code);
+  var I18n = model(code);
 
-  i18n.update({ key: keyword.key }, keyword, { upsert: true }, function(err, number, update) {
-    return callback(err, number, update.updatedExisting);
+  exports.get(code, word.key, function(err, result) {
+
+    if (result) {
+
+      // $set操作符没起作用，所以重新拷贝了一份（可以优化）
+      var newLang = result.lang;
+      _.each(word.lang, function(val, key) {
+        newLang[key] = val;
+      });
+
+      var newWord = {
+        lang: newLang
+      , updateAt: word.updateAt
+      , updateBy: word.updateBy
+      };
+
+      if (word.category) {
+        newWord.category = word.category;
+      }
+
+      I18n.findByIdAndUpdate(result._id, newWord, function(err, result) {
+        return callback(err, result);
+      });
+
+    } else {
+      new I18n(word).save(function(err, result) {
+        return callback(err, result);
+      });
+    }
   });
 };

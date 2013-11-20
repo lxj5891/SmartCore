@@ -122,6 +122,16 @@ Object.defineProperty(Handler.prototype, "user", {
 });
 
 /**
+ * 语言信息
+ * TODO: 添加单元测试代码
+ */
+Object.defineProperty(Handler.prototype, "lang", {
+  get: function () {
+    return this.req.session.user.lang;
+  }
+});
+
+/**
  * 异步操作里，有可能产生异常时，使用该domain执行对象代码
  * 注意！当异步函数产生异常时，会结束进程
  */
