@@ -186,9 +186,6 @@ exports.hasPermission = function(handler, callback) {
 
   var uid = params.uid;
   var permissions = params.permissions;
-  if(!util.isArray(permissions)) {
-    permissions = [permissions];
-  }
 
   modAclink.exist(code, constant.ACLINK_TYPE_USER_PERMISSION, uid, permissions, function(err, exist) {
 
