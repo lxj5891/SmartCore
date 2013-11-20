@@ -47,6 +47,8 @@ module.exports = {
   , middleware:   require("./core/middleware")
   , util:         require("./core/util")
   , context:      require("./core/context")
+  , constant:     require("../core/constant")
+  , connection:   require("../core/connection")
   },
 
   /**
