@@ -446,10 +446,10 @@ describe("controllers/ctrl_user.js", function() {
 
       ctrlUser.getListByKeywords(handler, function(err, result) {
 
-        should.exist(err);
-        should.not.exist(result);
+        should.not.exist(err);
+        should.exist(result);
 
-        err.code.should.equal(400);
+        result.should.have.property("totalItems").and.above(0);
 
         done();
       });

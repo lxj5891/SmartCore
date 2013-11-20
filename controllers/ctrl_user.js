@@ -310,15 +310,14 @@ exports.getListByKeywords = function (handler, callback) {
     conditions.push({ email : { $regex : params.email, $options: "i" } });
   }
 
-  if (conditions.length === 0) {
-    callback(new errors.BadRequest(__("user.error.emptySearchCondition")));
-    return;
-  }
-
-  if (params.and === false) {
-    conditions = {$or : conditions};
+  if(conditions.length > 0) {
+    if (params.and === false) {
+      conditions = {$or : conditions};
+    } else {
+      conditions = {$and : conditions};
+    }
   } else {
-    conditions = {$and : conditions};
+    conditions = {};
   }
 
   modUser.total(code, conditions, function(err, count) {
