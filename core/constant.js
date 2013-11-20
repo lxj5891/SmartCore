@@ -12,6 +12,8 @@
 exports.VALID = 1;
 exports.INVALID = 0;
 
+exports.DEFAULT_LANG = "en";
+
 /**
  * Modules层用常量
  */

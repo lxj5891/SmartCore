@@ -46,9 +46,9 @@ function model(code) {
  */
 exports.getList = function(code, condition, start, limit, order, callback){
 
-  var comp = model(code);
+  var i18n = model(code);
 
-  comp.find(condition)
+  i18n.find(condition)
     .skip(start || constant.MOD_DEFAULT_START)
     .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)

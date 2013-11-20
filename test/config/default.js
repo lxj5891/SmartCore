@@ -1,6 +1,17 @@
 
 module.exports = {
 
+  "app": {
+
+    /**
+     * 多过语言关联设定
+     */
+    i18n: {
+      "cache": "memory"
+    , "lang": "zh"
+    }
+  },
+
   /**
    * 测试数据库连接信息
    */
