@@ -522,6 +522,35 @@ describe("controllers/ctrl_group.js", function() {
 
   });
 
+  describe("remove()", function() {
+
+    /*****************************************************************/
+    it("correctly remove group", function(done) {
+
+      ctrlGroup.remove(newHandler("123", {gid: gids[2]}), function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.should.have.property("valid").and.equal(0);
+
+        var handler = newHandler("44", {gid: result._id.toString()});
+
+        ctrlGroup.exist(handler, function(err, result) {
+
+          should.not.exist(err);
+          should.exist(result);
+
+          result.should.equal(false);
+
+          done();
+        });
+      });
+
+    });
+
+  });
+
 });
 
 
