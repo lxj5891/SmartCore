@@ -46,10 +46,6 @@ function model(code) {
  * @param {Function} callback 回调函数，返回词条一览
  */
 exports.getList = function(code, condition, start, limit, order, callback){
-  console.log(code);
-  console.log(condition);
-  console.log(start);
-
   var i18n = model(code);
 
   i18n.find(condition)

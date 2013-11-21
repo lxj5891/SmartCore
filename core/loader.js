@@ -11,6 +11,7 @@ var path        = require("path")
   , express     = require("express")
   , store       = require("connect-mongo")(express)
   , ejs         = require("ejs")
+  , i18n        = require("./i18n")
   , log         = require("./log");
 
 /**
@@ -105,6 +106,10 @@ function initExpress(app) {
  * 调用初始化函数
  */
 exports.initialize = function() {
+
+  // 多国语全局变量注册
+  global.__ = i18n.__;
+
 };
 
 /**

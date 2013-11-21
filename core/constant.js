@@ -16,6 +16,8 @@ exports.INVALID = 0;
 exports.DEFAULT_I18N_LANG = "en";
 exports.DEFAULT_I18N_CATEGORY = "smart";
 
+exports.DEFAULT_USER = "-";
+
 /**
  * Modules层用常量
  */
