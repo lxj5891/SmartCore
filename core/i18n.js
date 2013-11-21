@@ -28,9 +28,9 @@ var cache = {};
 
 /**
  * 将所有的词条缓存到内存里
- * @param req
- * @param lang
- * @param callback
+ * @param {Object} req 请求
+ * @param {String} lang 语言
+ * @param {Function} callback 缓存的内容
  */
 function load(handler, lang, callback) {
 
@@ -60,6 +60,11 @@ function load(handler, lang, callback) {
   }
 }
 
+/**
+ * 判断当前用户需要使用的语言
+ * @param {Object} handler 上下文对象
+ * @returns {String} 语言
+ */
 function getLang(handler) {
 
   // 如果session存在，返回用户的语言
@@ -76,6 +81,12 @@ function getLang(handler) {
   return constant.DEFAULT_I18N_LANG;
 }
 
+/**
+ * 初始化
+ * 从数据库读取所有内容，并加载到内存
+ * @param {Object} req 请求
+ * @param {Function} callback 返回缓存的内容
+ */
 exports.init = function(req, callback) {
 
   if (_.isEmpty(cache) === true) {
@@ -94,21 +105,45 @@ exports.init = function(req, callback) {
   }
 };
 
+/**
+ * 检查词语是否被缓存
+ * @returns {Boolean} true的时候，说明已经被缓存
+ */
 exports.isCached = function() {
   return !_.isEmpty(cache);
 };
 
+/**
+ * 更新一个词条
+ * @param {String} key 词条key
+ * @param {String} phrase 翻译
+ */
 exports.update = function(key, phrase) {
 
+  log.debug(util.format("i18n cache updated. key:%s", ""), undefined);
   cache[key] = phrase;
 };
 
+/**
+ * 从新加载缓存的所有词条
+ * @param {Object} req 请求
+ * @param {Function} callback 返回缓存的内容
+ */
 exports.reload = function(req, callback) {
 
   var handler = new context().bind(req);
   load(handler, getLang(handler), callback);
 };
 
+/**
+ * 获取词条的内容，可以通过添加参数替换内容，格式如下
+ *  %s - String.
+ *  %d - Number (both integer and float).
+ *  %j - JSON.
+ *  %  - Single percent sign ('%'). This does not consume an argument.
+ *  引自node的util.format
+ * @returns {String} 词条的内容
+ */
 exports.__ = function() {
 
   if (_.isEmpty(arguments)) {

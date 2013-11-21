@@ -8,7 +8,7 @@
 
 var check       = require("validator").check
   , errors      = require("../core/errors")
-  , errors      = require("../core/errors")
+  , i18nUtil    = require("../core/i18n")
   , log         = require("../core/log")
   , i18n        = require("../modules/mod_i18n");
 
@@ -16,8 +16,7 @@ var check       = require("validator").check
  * 添加词条
  * 语言可以明确指定，如果没有指定则使用Session中得用户信息的lang
  * @param {Object} handler 上下文对象
- * @param {Function} callback 回调函数，返回添加的公司
- * @returns {*} 无
+ * @param {Function} callback 回调函数，返回添加的词条
  */
 exports.add = function(handler, callback) {
 
@@ -63,6 +62,9 @@ exports.add = function(handler, callback) {
       return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     }
 
+    // 更新缓存
+    i18nUtil.update(params.key, params.value);
+
     log.debug("finished: add keyword.", uid);
     return callback(err, result._doc);
   });
@@ -70,8 +72,8 @@ exports.add = function(handler, callback) {
 
 /**
  * 获取词条一览
- * @param handler
- * @param callback
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 回调函数，返回翻译结果一览
  */
 exports.getList = function(handler ,callback) {
 
@@ -96,8 +98,8 @@ exports.getList = function(handler ,callback) {
  * 获取词条
  * 语言可以明确指定，如果没有指定则使用Session中得用户信息的lang
  * 如果该key的内容不存在，则返回key本身
- * @param handler 上下文对象
- * @param callback 回调函数，返回翻译结果
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 回调函数，返回翻译结果
  */
 exports.get = function(handler ,callback) {
 
