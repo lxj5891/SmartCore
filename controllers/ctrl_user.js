@@ -6,15 +6,14 @@
 
 "use strict";
 
-var _           = require("underscore")
-  , async       = require("async")
+var async       = require("async")
+  , _           = require("underscore")
   , check       = require("validator").check
   , constant    = require("../core/constant")
   , errors      = require("../core/errors")
   , log         = require("../core/log")
   , util        = require("../core/util")
-  , modUser     = require("../modules/mod_user")
-  , __          = global.__;
+  , modUser     = require("../modules/mod_user");
 
 /**
  * 创建用户
@@ -57,10 +56,7 @@ exports.add = function(handler, callback) {
     check(user.password, __("user.error.emptyPwd")).notEmpty();
 
     // 所属组一览
-    user.groups = params.groups || [];
-    if (!util.isArray(user.groups)) {
-      user.groups = [user.groups];
-    }
+    user.groups = params.groups;
 
     // 电子邮件地址
     user.email = params.email;
@@ -172,9 +168,6 @@ exports.update = function(handler, callback) {
     // 所属组一览
     if (params.groups) {
       user.groups = params.groups;
-      if (!util.isArray(user.groups)) {
-        user.groups = [user.groups];
-      }
     }
 
     // 电子邮件地址
@@ -380,25 +373,36 @@ exports.exist = function(handler, callback) {
 };
 
 /**
- * 检查能否登陆（用户名和密码是否匹配）
+ * 检查用户名和密码是否匹配
  * @param {Object} handler 上下文对象
  * @param {Function} callback 回调函数，返回跟用户名和密码匹配的用户
  */
-exports.canLogin = function(handler, callback) {
+exports.isPasswordRight = function(handler, callback) {
 
   var userName = handler.params.userName;
   var password = handler.params.password;
   var code = handler.params.code;
 
-  modUser.getList(code, {"userName": userName, "password": password,
-    "valid": constant.VALID}, 0, 1, null, function(err, result) {
+  modUser.getOne(code, {"userName": userName, "valid": constant.VALID}, function(err, result) {
 
     if (err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     }
 
-    return callback(err, result[0]);
+    // 用户不存在
+    if (!result) {
+      return callback(new errors.NotFound(__("user.error.notExist")));
+    }
+
+    // 用户密码不正确
+    if (result.password !== password) {
+      return callback(new errors.BadRequest(__("user.error.passwordIncorrect")));
+    }
+
+    delete result._doc.password; // 擦除密码
+
+    return callback(err, result);
   });
 };
 
