@@ -34,7 +34,6 @@ var cache = {};
  */
 function load(handler, lang, callback) {
 
-  console.log(lang);
   if (conf && conf.i18n && conf.i18n.cache === "memory") {
 
     var condition = {
