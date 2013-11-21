@@ -9,7 +9,7 @@
 require("../../core/test").befor();
 
 var should   = require("should")
-  , util  = require("../../core/util")
+  , util     = require("../../core/util")
   , modUser  = require("../../coverage/modules/mod_user");
 
 describe("modules/mod_user.js", function() {
