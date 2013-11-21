@@ -67,7 +67,7 @@ exports.add = function(code, user, callback) {
 };
 
 /**
- * 根据用户标识查询用户
+ * 根据用户标识(_id)查询用户
  * @param {String} code 公司code
  * @param {String} uid 用户标识
  * @param {Function} callback 回调函数，返回用户信息
@@ -81,6 +81,22 @@ exports.get = function (code, uid, callback) {
     if(result) {
       delete result._doc.password; // 擦除密码
     }
+
+    callback(err, result);
+  });
+};
+
+/**
+ * 根据指定条件查询用户(只返回第一个有效的结果)
+ * @param {String} code 公司code
+ * @param {Object} condition 查询条件
+ * @param {Function} callback 回调函数，返回用户信息
+ */
+exports.getOne = function (code, condition, callback) {
+
+  var user = model(code);
+
+  user.findOne(condition, function (err, result) {
 
     callback(err, result);
   });
