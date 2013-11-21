@@ -117,7 +117,7 @@ exports.add = function(code, fileName, filePath, options, newFile, callback) {
  * @param {String} fileInfoId 文件ID
  * @param {Function} callback 返回文件元数据
  */
-exports.get = function (code, fileInfoId, callback) {
+exports.getInfo = function (code, fileInfoId, callback) {
 
   var file = model(code);
 

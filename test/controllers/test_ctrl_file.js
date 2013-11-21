@@ -70,8 +70,24 @@ describe("controllers/ctrl_file.js", function() {
 
   /*****************************************************************/
   describe("get()", function() {
+    it("should return OK when fileInfoid exists", function(done) {
+      file.add(handler, function(err, fileList) {
+        handler.params.fileInfoId = fileList[0]._id;
+        file.get(handler, function(err, result) {
+          should.not.exist(err);
+          should(result).not.eql(null);
+          result.should.have.property("_id").and.eql(fileList[0]._id);
+          delete handler.params.fileInfoId;
+          done();
+        });
+      });
+    });
+  });
+
+  /*****************************************************************/
+  describe("getInfo()", function() {
     it("should return err when fileInfoid not exists", function(done) {
-      file.get(handler, function(err, result) {
+      file.getInfo(handler, function(err, result) {
         should.exist(err);
         should(result).eql(null);
         done();
@@ -81,7 +97,7 @@ describe("controllers/ctrl_file.js", function() {
     it("should return OK when fileInfoid exists", function(done) {
       file.add(handler, function(err, fileList) {
         handler.params.fileInfoId = fileList[0]._id;
-        file.get(handler, function(err, result) {
+        file.getInfo(handler, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.should.have.property("_id").and.eql(fileList[0]._id);

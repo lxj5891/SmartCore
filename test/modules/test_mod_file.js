@@ -114,6 +114,27 @@ describe("modules/mod_file.js", function() {
   });
 
   /*****************************************************************/
+  describe("getInfo()", function() {
+    it("should return OK", function(done) {
+      file.add(dbCode, fileName, filePath, options, newFile, function(err, fileInfo) {
+        file.getInfo(dbCode, fileInfo._id, function(err, result) {
+          should.not.exist(err);
+          should(result).not.eql(null);
+          result.should.have.property("length").and.eql(fileInfo.length);
+          result.should.have.property("filename").and.eql(fileInfo.filename);
+          result.should.have.property("contentType").and.eql(fileInfo.contentType);
+          result.should.have.property("valid").and.eql(fileInfo.valid);
+          result.should.have.property("createAt").and.eql(fileInfo.createAt);
+          result.should.have.property("createBy").and.eql(fileInfo.createBy);
+          result.should.have.property("updateAt").and.eql(fileInfo.updateAt);
+          result.should.have.property("updateBy").and.eql(fileInfo.updateBy);
+          done();
+        });
+      });
+    });
+  });
+
+  /*****************************************************************/
   describe("getFile()", function() {
 
     it("should return err when the dbCode is an invalid", function(done) {

@@ -73,7 +73,7 @@ exports.add = function(handler, callback) {
  * @param {Object} handler 上下文对象
  * @param {Function} callback 返回文件元数据
  */
-exports.get = function(handler, callback) {
+exports.getInfo = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
@@ -84,7 +84,7 @@ exports.get = function(handler, callback) {
   log.debug("DB code: ", code);
   log.debug("fileInfo id: ", fileInfoId);
 
-  file.get(code, fileInfoId, function(err, result) {
+  file.getInfo(code, fileInfoId, function(err, result) {
     if (err) {
       log.error(err, uid);
       return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
@@ -108,9 +108,9 @@ exports.getFile = function(handler, callback) {
     , code = handler.code
     , fileId = params.fileId;
 
-  log.debug("begin: get file.", uid);
+  log.debug("begin: get file data.", uid);
   log.debug("DB code: ", code);
-  log.debug("file id: ", fileId);
+  log.debug("gridfs id: ", fileId);
 
   file.getFile(code, fileId, function(err, result) {
     // TODO 404错误
@@ -119,9 +119,60 @@ exports.getFile = function(handler, callback) {
       return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
       log.debug(result, uid);
-      log.debug("finished: get file.", uid);
+      log.debug("finished: get file data.", uid);
       return callback(err, result);
     }
+  });
+};
+
+/**
+ * 存储的文件是图片时,获取图片
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 返回文件实体
+ */
+exports.get = function(handler, callback) {
+
+  var params = handler.params
+    , uid = handler.uid
+    , code = handler.code
+    , fileInfoId = params.fileInfoId;
+
+  log.debug("begin: get file.", uid);
+  log.debug("DB code: ", code);
+  log.debug("file id: ", fileInfoId);
+
+  var result = {};
+  sync.waterfall([
+
+    // 1.读取照片元数据
+    function(done) {
+      file.getInfo(code, fileInfoId, function(err, fileInfoData) {
+        if (err) {
+          log.error(err, uid);
+          return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+        } else {
+          result.fileInfo = fileInfoData;
+          done(err, fileInfoData);
+        }
+      });
+    },
+
+    // 2.读取照片本体
+    function(fileInfoData, done) {
+      file.getFile(code, fileInfoData.fileId, function(err, fileData) {
+        if (err) {
+          log.error(err, uid);
+          return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+        } else {
+          result.fileData = fileData;
+          done(err, fileData);
+        }
+      });
+    }
+  ], function(err) {
+    log.debug("result:" + result, uid);
+    log.debug("finished: get file.", uid);
+    callback(err, result);
   });
 };
 
