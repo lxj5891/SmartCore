@@ -28,7 +28,7 @@ exports.exist = function(handler, callback) {
 
   modAclink.exist(code, type, main, subs, function(err, exist) {
 
-    if(err) {
+    if (err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     }
@@ -50,16 +50,16 @@ exports.add = function(handler, callback) {
 
   var type = params.type;
   var main = params.main;
-  var subsToAdd = params.subsToAdd;
+  var subs = params.subs;
 
   log.debug("begin: add aclink.", uid);
   log.debug("type: " + type, uid);
   log.debug("main: " + main, uid);
-  log.debug("subsToAdd: " + subsToAdd, uid);
+  log.debug("subs: " + subs, uid);
 
-  modAclink.add(code, type, main, subsToAdd, function(err, result) {
+  modAclink.add(code, type, main, subs, function(err, result) {
 
-    if(err) {
+    if (err) {
       log.error(err, uid);
       return callback(new errors.InternalServer(err));
     }
@@ -83,21 +83,21 @@ exports.update = function(handler, callback) {
 
   var type = params.type;
   var main = params.main;
-  var subsToReplace = params.subsToReplace;
+  var subs = params.subs;
 
   log.debug("begin: update aclink.", uid);
   log.debug("type: " + type, uid);
   log.debug("main: " + main, uid);
-  log.debug("subsToReplace: " + subsToReplace, uid);
+  log.debug("subs: " + subs, uid);
 
-  modAclink.update(code, type, main, subsToReplace, function(err, result) {
+  modAclink.update(code, type, main, subs, function(err, result) {
 
-    if(err) {
+    if (err) {
       log.error(err, uid);
       return callback(new errors.InternalServer(err));
     }
 
-    if(result) {
+    if (result) {
 
       log.debug("finished: update aclink " + result._id + " .", uid);
 
@@ -121,21 +121,21 @@ exports.remove = function(handler, callback){
 
   var type = params.type;
   var main = params.main;
-  var subsToDel = params.subsToDel;
+  var subs = params.subs;
 
   log.debug("begin: remove aclink.", uid);
   log.debug("type: " + type, uid);
   log.debug("main: " + main, uid);
-  log.debug("subsToDel: " + subsToDel, uid);
+  log.debug("subsToDel: " + subs, uid);
 
-  modAclink.remove(code, type, main, subsToDel, function(err, result) {
+  modAclink.remove(code, type, main, subs, function(err, result) {
 
-    if(err) {
+    if (err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     }
 
-    if(result) {
+    if (result) {
 
       log.debug("finished: remove aclink " + result._id + " .", uid);
 
@@ -161,12 +161,12 @@ exports.get = function(handler, callback) {
 
   modAclink.get(code, type, main, function(err, result) {
 
-    if(err) {
+    if (err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     }
 
-    if(result) {
+    if (result) {
       return callback(err, result);
     }
 
@@ -189,7 +189,7 @@ exports.hasPermission = function(handler, callback) {
 
   modAclink.exist(code, constant.ACLINK_TYPE_USER_PERMISSION, uid, permissions, function(err, exist) {
 
-    if(err) {
+    if (err) {
       log.error(err, handler.uid);
       return callback(new errors.InternalServer(err));
     }

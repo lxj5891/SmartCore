@@ -12,6 +12,10 @@
 exports.VALID = 1;
 exports.INVALID = 0;
 
+/** 缺省的多国语言分类 */
+exports.DEFAULT_I18N_LANG = "en";
+exports.DEFAULT_I18N_CATEGORY = "smart";
+
 /**
  * Modules层用常量
  */
@@ -28,8 +32,6 @@ exports.MOD_GRIDSTORE_MODE_WRITE = "w";
 // read only. This is the default mode.
 exports.MOD_GRIDSTORE_MODE_READ = "r";
 
-/** 缺省的多国语言分类 */
-exports.MOD_DEFAULT_I18N_CATEGORY = "smart";
 
 /** 组类型 */
 exports.GROUP_TYPE_DEPARTMENT = "1"; // 部门（公司组织结构）

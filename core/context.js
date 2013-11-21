@@ -17,7 +17,8 @@ var _             = require("underscore")
   , domain        = require("domain")
   , emitter       = require("events").EventEmitter
   , response      = require("./response")
-  , log           = require("./log");
+  , log           = require("./log")
+  , constant      = require("./constant");
 
 /**
  * Context实例，为了能通过该类发送异常，所以继承EventEmitter
@@ -31,7 +32,7 @@ util.inherits(Handler, emitter);
 /**
  * 使用req与res对context进行初始化
  * @param req 请求
- * @param res 相应
+ * @param res 响应
  * @returns {*} context实例
  */
 Handler.prototype.bind = function(req, res) {
@@ -98,7 +99,12 @@ Object.defineProperty(Handler.prototype, "params", {
 Object.defineProperty(Handler.prototype, "uid", {
     enumerable: true
   , get: function () {
-      return this.req.session.user._id;
+
+      if (this.req && this.req.session && this.req.session.user) {
+        return this.req.session.user._id;
+      }
+
+      return undefined;
     }
   });
 
@@ -108,7 +114,11 @@ Object.defineProperty(Handler.prototype, "uid", {
 Object.defineProperty(Handler.prototype, "code", {
     enumerable: true
   , get: function () {
-      return this.req.session.user.companycode;
+      if (this.req && this.req.session && this.req.session.user) {
+        return this.req.session.user.companycode;
+      }
+
+      return undefined;
     }
   });
 
@@ -117,7 +127,11 @@ Object.defineProperty(Handler.prototype, "code", {
  */
 Object.defineProperty(Handler.prototype, "user", {
   get: function () {
-    return this.req.session.user;
+    if (this.req && this.req.session) {
+      return this.req.session.user;
+    }
+
+    return undefined;
   }
 });
 
@@ -127,7 +141,11 @@ Object.defineProperty(Handler.prototype, "user", {
  */
 Object.defineProperty(Handler.prototype, "lang", {
   get: function () {
-    return this.req.session.user.lang;
+    if (this.req && this.req.session && this.req.session.user) {
+      return this.req.session.user.companycode;
+    }
+
+    return constant.DEFAULT_I18N_LANG;
   }
 });
 

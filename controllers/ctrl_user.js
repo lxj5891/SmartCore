@@ -378,3 +378,28 @@ exports.exist = function(handler, callback) {
     return callback(err, count > 0);
   });
 };
+
+/**
+ * 检查能否登陆（用户名和密码是否匹配）
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 回调函数，返回跟用户名和密码匹配的用户
+ */
+exports.canLogin = function(handler, callback) {
+
+  var userName = handler.params.userName;
+  var password = handler.params.password;
+  var code = handler.params.code;
+
+  modUser.getList(code, {"userName": userName, "password": password,
+    "valid": constant.VALID}, 0, 1, null, function(err, result) {
+
+    if (err) {
+      log.error(err, handler.uid);
+      return callback(new errors.InternalServer(err));
+    }
+
+    return callback(err, result[0]);
+  });
+};
+
+
