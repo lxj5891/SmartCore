@@ -57,6 +57,8 @@ function load(handler, lang, callback) {
         callback(cache);
       }
     });
+  } else {
+    callback(undefined);
   }
 }
 
