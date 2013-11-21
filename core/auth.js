@@ -1,56 +1,90 @@
 
 "use strict";
 
-var crypto = require('crypto')
-  , confapp = require('config').app
-  , confcookie = require('config').cookie
-  , log = require('./log');
+var crypto      = require("crypto")
+  , conf        = require("config").app
+  , context     = require("../core/context")
+  , constant    = require("../core/constant")
+  , user        = require("../controllers/ctrl_user");
 
-var spliter = "\t";
+/**
+ * 基于Cookie，Session的简易登陆功能
+ * 将用户信息保存到session当中
+ * 用户ID保存到header中
+ * @param {Object} req 请求
+ * @param {Object} res 响应
+ * @param {Function} callback 回调函数，验证成功返回用户信息
+ */
+exports.simpleLogin = function(req, res, callback) {
+
+  var handler = new context().bind(req, res);
+
+  user.isPasswordRight(handler, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+
+    // 用户信息保存到session中
+    req.session.user = result;
+
+    // 将用户ID保存到头信息里，用于移动终端开发。
+    res.setHeader(constant.HEADER_UID_NAME, result._id);
+
+    return callback(err, result);
+  });
+};
 
 /**
  * Calculates the digest of all of the passed data to the hmac.
- * 可选的algorithm - 'sha1', 'md5', 'sha256', 'sha512'
- * 可选的encoding - 'hex', 'binary', 'base64'
+ *  algorithm - 'sha1', 'md5', 'sha256', 'sha512'
+ *  encoding - 'hex', 'binary', 'base64'
+ * @param {String} str source string
+ * @returns {String} result string
  */
 exports.sha256 = function(str){
-  return crypto.createHmac('sha256', confapp.hmackey).update(str).digest('hex');
+  return crypto.createHmac("sha256", conf.hmackey).update(str).digest("hex");
 };
 
 
-/**
- * 发行Cookie，cookie内容加密，并设定有效期限
- * 包含以下内容：用户ID，邮件地址（存放邮件地址的目的是，为了对应将来有可能支持的邮件地址作为ID登陆）
- */
-exports.issueCookie = function(user, res) {
-  var encrypted = exports.encrypt(user._id + spliter + user.email, confcookie.secret);
-  // res.cookie(confcookie.key, encrypted, {"maxAge": confcookie.timeout, "httpOnly": false});
-  res.cookie(confcookie.key, encrypted);
-};
+//------------------------ 以下未整理
+
+var spliter = "\t";
 
 
-/**
- * 清除Cookie
- */
-exports.clearCookie = function(res) {
-  res.clearCookie(confcookie.key);
-};
+
+///**
+// * 发行Cookie，cookie内容加密，并设定有效期限
+// * 包含以下内容：用户ID，邮件地址（存放邮件地址的目的是，为了对应将来有可能支持的邮件地址作为ID登陆）
+// */
+//exports.issueCookie = function(user, res) {
+//  var encrypted = exports.encrypt(user._id + spliter + user.email, confcookie.secret);
+//  // res.cookie(confcookie.key, encrypted, {"maxAge": confcookie.timeout, "httpOnly": false});
+//  res.cookie(confcookie.key, encrypted);
+//};
+//
+//
+///**
+// * 清除Cookie
+// */
+//exports.clearCookie = function(res) {
+//  res.clearCookie(confcookie.key);
+//};
 
 
-/**
- * 抽取Cookie
- */
-exports.passCookie = function(req) {
-
-  // var cookie = req.signedCookies[confcookie.key];
-  var cookie = req.cookies[confcookie.key];
-  if (!cookie) {
-    return null;
-  }
-
-  var decrypted = exports.decrypt(cookie, confcookie.secret);
-  return decrypted.split(spliter);
-};
+///**
+// * 抽取Cookie
+// */
+//exports.passCookie = function(req) {
+//
+//  // var cookie = req.signedCookies[confcookie.key];
+//  var cookie = req.cookies[confcookie.key];
+//  if (!cookie) {
+//    return null;
+//  }
+//
+//  var decrypted = exports.decrypt(cookie, confcookie.secret);
+//  return decrypted.split(spliter);
+//};
 
 
 /**
