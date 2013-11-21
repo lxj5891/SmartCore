@@ -100,9 +100,6 @@ exports.init = function(req, callback) {
 
     // 从数据库读取内容，并加载到内存
     load(handler, lang, callback);
-
-    // 注册全局变量
-    global.__ = exports.__;
   }
 };
 
@@ -147,14 +144,13 @@ exports.reload = function(req, callback) {
  */
 exports.__ = function() {
 
-  if (_.isEmpty(arguments)) {
+  if (_.isEmpty(cache) || _.isEmpty(arguments)) {
     return "";
   }
 
   var phrase = cache[arguments[0]] || arguments[0];
   if (arguments.length > 1) {
     arguments[0] = phrase;
-    console.log(cache);
     return util.format.apply(this, arguments);
   }
 
