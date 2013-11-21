@@ -400,6 +400,8 @@ exports.isPasswordRight = function(handler, callback) {
       return callback(new errors.BadRequest(__("user.error.passwordIncorrect")));
     }
 
+    delete result._doc.password; // 擦除密码
+
     return callback(err, result);
   });
 };

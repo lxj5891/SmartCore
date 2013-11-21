@@ -6,7 +6,10 @@
 
 "use strict";
 
-var sync        = require("async")
+var ph          = require("path")
+  , fs          = require("fs")
+  , sync        = require("async")
+  , conf        = require("config").app
   , constant    = require("../core/constant")
   , errors      = require("../core/errors")
   , log         = require("../core/log")
@@ -33,8 +36,9 @@ exports.add = function(handler, callback) {
 
   sync.forEach(files, function(fileIndex, callback) {
 
-    var filePath = fileIndex.path;
-    var fileName = fileIndex.name;
+    var fileName = ph.basename( fileIndex.name);
+    var filePath = fs.realpathSync(ph.join(conf.tmp, ph.basename(fileIndex.path)));
+
     var date = new Date();
     var newFile = {
         valid: constant.VALID

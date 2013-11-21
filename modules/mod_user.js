@@ -76,11 +76,7 @@ exports.get = function (code, uid, callback) {
 
   var user = model(code);
 
-  user.findById(uid, function (err, result) {
-
-    if(result) {
-      delete result._doc.password; // 擦除密码
-    }
+  user.findById(uid, "-password", function (err, result) {
 
     callback(err, result);
   });
@@ -131,16 +127,11 @@ exports.getList = function (code, condition, skip, limit, order, callback) {
   var user = model(code);
 
   user.find(condition)
+    .select("-password")
     .skip(skip || constant.MOD_DEFAULT_START)
     .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)
     .exec(function (err, result) {
-
-      if(result) {
-        _.each(result, function(user) {
-          delete user._doc.password; // 擦除密码
-        });
-      }
 
       callback(err, result);
     });

@@ -56,7 +56,7 @@ function model(code) {
  */
 exports.add = function(code, fileName, filePath, options, newFile, callback) {
 
-  var db = new Db(code, new Server(conf.host, conf.port, constant.MOD_DB_SERVER_OPTIONS), constant.MOD_DB_OPTIONS);
+  var db = new Db(code || conf.dbname, new Server(conf.host, conf.port, constant.MOD_DB_SERVER_OPTIONS), constant.MOD_DB_OPTIONS);
 
   db.open(function(err, db) {
 
@@ -122,7 +122,7 @@ exports.getInfo = function (code, fileInfoId, callback) {
   var file = model(code);
 
   file.findById(fileInfoId, function(err, result) {
-    callback(err, result);
+    callback(err, result._doc);
   });
 };
 
@@ -135,7 +135,7 @@ exports.getInfo = function (code, fileInfoId, callback) {
 exports.getFile = function(code, fileId, callback) {
 
   // 从GridFS中读取文件本体
-  var db = new Db(code, new Server(conf.host, conf.port, constant.MOD_DB_SERVER_OPTIONS), constant.MOD_DB_OPTIONS);
+  var db = new Db(code || conf.dbname, new Server(conf.host, conf.port, constant.MOD_DB_SERVER_OPTIONS), constant.MOD_DB_OPTIONS);
 
   db.open(function(err, db) {
     GridStore.exist(db, fileId, function(err, exists) {
@@ -194,7 +194,7 @@ exports.getList = function(code, conditions, start, limit, order, callback) {
     .limit(limit || constant.MOD_DEFAULT_LIMIT)
     .sort(order)
     .exec(function(err, result) {
-      return callback(err, result);
+      return callback(err, result._doc);
     });
 };
 
@@ -226,7 +226,7 @@ exports.update = function(code, fileInfoId, updateFile, callback) {
  */
 exports.updateFile = function(code, fileInfoId, updateFile, fileName, filePath, options, callback) {
 
-  var db = new Db(code, new Server(conf.host, conf.port, constant.MOD_DB_SERVER_OPTIONS), constant.MOD_DB_OPTIONS);
+  var db = new Db(code || conf.dbname, new Server(conf.host, conf.port, constant.MOD_DB_SERVER_OPTIONS), constant.MOD_DB_OPTIONS);
 
   db.open(function(err, db) {
 
