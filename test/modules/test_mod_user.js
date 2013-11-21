@@ -111,6 +111,41 @@ describe("modules/mod_user.js", function() {
   });
 
   /*****************************************************************/
+  describe("getOne()", function() {
+    it("correctly get user", function(done) {
+
+      modUser.getOne(null, {userName: data.userName, valid:1}, function(err, result) {
+
+        should.not.exist(err);
+        should.exist(result);
+
+        result.should.have.property("userName");
+        result.should.have.property("first").and.equal("名");
+        result.should.have.property("middle").and.equal("中名");
+        result.should.have.property("last").and.equal("姓");
+        result.should.have.property("password");
+        result.should.have.property("groups");
+        result.groups[0].should.equal("0");
+        result.groups[1].should.equal("1");
+        result.should.have.property("email").and.equal("zli_ray@sina.cn");
+        result.should.have.property("lang").and.equal("ja");
+        result.should.have.property("status").and.equal("0");
+        result.should.have.property("timezone").and.equal("GMT+09:00");
+        result.should.have.property("extend");
+        result.extend.QQ.should.equal("123456789");
+        result.extend.birthday.should.equal("19850302");
+        result.should.have.property("valid").and.equal(1);
+        result.should.have.property("createAt");
+        result.should.have.property("updateAt");
+        result.should.have.property("createBy").and.equal("123");
+        result.should.have.property("updateBy").and.equal("456");
+
+        done();
+      });
+    });
+  });
+
+  /*****************************************************************/
   describe("total()", function() {
     it("correctly get user count", function(done) {
 
