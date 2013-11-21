@@ -23,7 +23,6 @@ module.exports = {
   , config:       require("config")
   , log4js:       require("log4js")
   , amqp:         require("amqp")
-  , i18n:         require("i18n")
   , express:      require("express")
   , ejs:          require("ejs")
   , mongodb:      require("mongodb")        // MongoDB Nodejs Driver

@@ -6,29 +6,12 @@
 
 "use strict";
 
-var i18n        = require("i18n")
-  , path        = require("path")
+var path        = require("path")
   , conf        = require("config")
   , express     = require("express")
   , store       = require("connect-mongo")(express)
   , ejs         = require("ejs")
   , log         = require("./log");
-
-/**
- * 初始化多国语言，固定支持中日英3种语言
- * @param defaultLang 语言名
- */
-function initI18n(defaultLang) {
-
-  log.debug("initialize i18n : " + defaultLang);
-
-  // TODO: 语言可以自由追加
-  i18n.configure({"locales": ["en", "ja", "zh"]
-    , "register": global
-    , "updateFiles": true
-  });
-  i18n.setLocale(defaultLang);
-}
 
 /**
  * 初始化Express，依赖的配置文件参数有
@@ -122,7 +105,6 @@ function initExpress(app) {
  * 调用初始化函数
  */
 exports.initialize = function() {
-  initI18n("ja");
 };
 
 /**
