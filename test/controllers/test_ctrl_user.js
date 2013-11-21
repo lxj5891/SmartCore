@@ -370,6 +370,9 @@ describe("controllers/ctrl_user.js", function() {
         should.exist(result);
 
         result._id.toString().should.equal(addedUser._id.toString());
+        result.should.not.have.property("password");
+
+        console.log(result);
 
         done();
       });
