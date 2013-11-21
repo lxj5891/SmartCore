@@ -6,10 +6,9 @@
 
 "use strict";
 
-var errors      = require("../core/errors")
-  , constant    = require("../core/constant")
+var constant    = require("../core/constant")
+  , errors      = require("../core/errors")
   , log         = require("../core/log")
-  , util        = require("../core/util")
   , modAclink   = require("../modules/mod_aclink");
 
 /**

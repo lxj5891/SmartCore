@@ -6,12 +6,12 @@
 
 "use strict";
 
-var _           = require("underscore")
-  , mongo       = require("mongoose")
-  , conn        = require("../core/connection")
-  , constant    = require("../core/constant")
+var mongo       = require("mongoose")
   , schema      = mongo.Schema
-  , mixed       = schema.Types.Mixed;
+  , mixed       = schema.Types.Mixed
+  , _           = require("underscore")
+  , conn        = require("../core/connection")
+  , constant    = require("../core/constant");
 
 /**
  * 用户schema
