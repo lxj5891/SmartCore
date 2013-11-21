@@ -112,10 +112,7 @@ exports.add = function(handler, callback) {
     check(group.public, __("group.error.invalidPublic")).isIn([constant.GROUP_PRIVATE, constant.GROUP_PUBLIC]);
 
     // 经理一览
-    group.owners = params.owners || [];
-    if (!util.isArray(group.owners)) {
-      group.owners = [group.owners];
-    }
+    group.owners = params.owners;
 
     // 扩展属性
     if (params.extend) {

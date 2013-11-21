@@ -7,10 +7,10 @@
 "use strict";
 
 var mongo       = require("mongoose")
-  , conn        = require("../core/connection")
-  , constant    = require("../core/constant")
   , schema      = mongo.Schema
-  , mixed       = schema.Types.Mixed;
+  , mixed       = schema.Types.Mixed
+  , conn        = require("../core/connection")
+  , constant    = require("../core/constant");
 
 /**
  * 组schema
@@ -92,7 +92,7 @@ exports.total = function (code, condition, callback) {
  * @param {Object} condition 查询条件
  * @param {Number} skip 跳过的文书数，默认为0
  * @param {Number} limit 返回的文书的上限数目，默认为20
- * @param {String} order 排序，例如："name -type"
+ * @param {String} order 排序
  * @param {Function} callback 回调函数，返回组列表
  */
 exports.getList = function (code, condition, skip, limit, order, callback) {

@@ -6,15 +6,14 @@
 
 "use strict";
 
-var _           = require("underscore")
-  , async       = require("async")
+var async       = require("async")
+  , _           = require("underscore")
   , check       = require("validator").check
   , constant    = require("../core/constant")
   , errors      = require("../core/errors")
   , log         = require("../core/log")
   , util        = require("../core/util")
-  , modUser     = require("../modules/mod_user")
-  , __          = global.__;
+  , modUser     = require("../modules/mod_user");
 
 /**
  * 创建用户
@@ -57,10 +56,7 @@ exports.add = function(handler, callback) {
     check(user.password, __("user.error.emptyPwd")).notEmpty();
 
     // 所属组一览
-    user.groups = params.groups || [];
-    if (!util.isArray(user.groups)) {
-      user.groups = [user.groups];
-    }
+    user.groups = params.groups;
 
     // 电子邮件地址
     user.email = params.email;
@@ -172,9 +168,6 @@ exports.update = function(handler, callback) {
     // 所属组一览
     if (params.groups) {
       user.groups = params.groups;
-      if (!util.isArray(user.groups)) {
-        user.groups = [user.groups];
-      }
     }
 
     // 电子邮件地址

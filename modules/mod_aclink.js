@@ -7,9 +7,9 @@
 "use strict";
 
 var mongo       = require("mongoose")
+  , schema      = mongo.Schema
   , conn        = require("../core/connection")
-  , constant    = require("../core/constant")
-  , schema      = mongo.Schema;
+  , constant    = require("../core/constant");
 
 /**
  * 访问控制关联schema
