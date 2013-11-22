@@ -6,13 +6,10 @@
 
 "use strict";
 
-var util          = require("util")
-  , _             = require("underscore")
+var  _             = require("underscore")
   , master        = require("../controllers/ctrl_master")
-  , constant      = require("../core/constant")
   , context       = require("../core/context")
-  , log           = require("./log")
-  , conf          = require("config").app;
+  , log           = require("./log");
 
 /**
  * 缓存词条
@@ -21,7 +18,7 @@ var cache = {};
 
 /**
  * 将所有的master内容缓存到内存里
- * @param {Object} req 请求
+ * @param {Object} handler 上下文对象
  * @param {Function} callback 缓存的内容
  */
 function load(handler, callback) {
@@ -32,7 +29,7 @@ function load(handler, callback) {
 
   master.getList(handler, function(err, result) {
       if (err) {
-        return log.error(err, handler);
+        return log.error(err, handler.uid);
       }
 
       _.each(result, function(row) {
@@ -73,11 +70,6 @@ exports.init = function(req, callback) {
 
 /**
  * 获取词条的内容，可以通过添加参数替换内容，格式如下
- *  %s - String.
- *  %d - Number (both integer and float).
- *  %j - JSON.
- *  %  - Single percent sign ('%'). This does not consume an argument.
- *  引自node的util.format
  * @returns {String} 词条的内容
  */
 exports.get = function(masterCode, masterType) {
