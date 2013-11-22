@@ -9,8 +9,8 @@
 var constant    = require("../core/constant")
   , errors      = require("../core/errors")
   , log         = require("../core/log")
+  , masterUtil  = require("../core/master")
   , master      = require("../modules/mod_master.js");
-
 
 /**
  * 添加分类
@@ -21,10 +21,14 @@ exports.add = function(handler, callback) {
 
   var params = handler.params
     , uid = handler.uid
-    , newMaster = params.master;
+    , newMaster = params.master
+    , masterType = params.masterType
+    , masterCode = params.masterCode;
 
   log.debug("begin: add master.", uid);
   log.debug("master: ", master);
+  log.debug("master Type: ", masterType);
+  log.debug("master Code: ", masterCode);
 
   var date = new Date();
   newMaster.valid = constant.VALID;
@@ -33,16 +37,30 @@ exports.add = function(handler, callback) {
   newMaster.updateAt = date;
   newMaster.updateBy = uid;
 
-  //TODO check没有追加 masterCode,fieldCode,masterType不能重复？
+  handler.addParams("masterType", masterType);
+  handler.addParams("masterCode", masterCode);
+  handler.addParams("cache", false);
 
-  master.add(newMaster, function(err, result) {
+  exports.getByKey(handler, function(err, result) {
+
     if (err) {
       log.error(err, uid);
-      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+      callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
-      log.debug(result, uid);
-      log.debug("finished: add master.", uid);
-      return callback(err, result);
+      if (result) {
+        callback(err);
+      } else {
+        master.add(newMaster, function(err, result) {
+          if (err) {
+            log.error(err, uid);
+            callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+          } else {
+            log.debug(result, uid);
+            log.debug("finished: add master.", uid);
+            callback(err, result);
+          }
+        });
+      }
     }
   });
 };
@@ -71,6 +89,80 @@ exports.get = function(handler, callback) {
       return callback(err, result);
     }
   });
+};
+
+/**
+ * 获取分类
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 返回分类
+ */
+exports.getByKey = function(handler, callback) {
+
+  var params = handler.params
+    , uid = handler.uid
+    , masterType = params.masterType
+    , masterCode = params.masterCode
+    , cache = params.cache; // true:从缓存读取,没有时从DB中读取,并写入缓存.false:从DB读取
+
+  log.debug("begin: get master.", uid);
+  log.debug("master Type: ", masterType);
+  log.debug("master Code: ", masterCode);
+  log.debug("master cache: ", cache);
+
+  if (cache === true) {
+    var masterContent = masterUtil.get(masterType, masterCode);
+    if (masterContent) {
+      callback(masterContent);
+    } else {
+
+      // 缓冲中没有,从DB中读取,并且写入缓存.
+      master.getByKey(masterType, masterCode, function(err, result) {
+        if (err) {
+          log.error(err, uid);
+          callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+        } else {
+          log.debug(result, uid);
+
+          //包装返回结果,DB中没有时,返回undefined.
+          if (result) {
+            var tempKey = result.masterType + result.masterCode;
+            var tempCache = {
+                trsKey : result.masterTrsKey
+              , fieldSet : result.fieldSet
+              };
+            masterUtil.update(tempKey, tempCache);
+            log.debug("finished: get master by key.", uid);
+            callback(err, tempCache);
+          } else {
+            log.debug("finished: get master by key.", uid);
+            callback(undefined);
+          }
+        }
+      });
+    }
+  } else {
+
+    // 缓冲中没有,或者从DB中读取时,执行
+    master.getByKey(masterType, masterCode, function(err, result) {
+      if (err) {
+        log.error(err, uid);
+        callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+      } else {
+        log.debug(result, uid);
+        if (result) {
+          var tempCache = {
+              trsKey : result.masterTrsKey
+            , fieldSet : result.fieldSet
+            };
+          log.debug("finished: get master by key.", uid);
+          callback(err, tempCache);
+        } else {
+          log.debug("finished: get master by key.", uid);
+          callback(undefined);
+        }
+      }
+    });
+  }
 };
 
 /**
@@ -124,16 +216,28 @@ exports.update = function(handler, callback) {
   log.debug("master Id: ", masterId);
   log.debug("update master: ", updateMaster);
 
-  //TODO check没有追加 masterCode,fieldCode,masterType不能重复？
-
   master.update(masterId, updateMaster,  function(err, result) {
     if (err) {
       log.error(err, uid);
-      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+      callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
       log.debug(result, uid);
       log.debug("finished: update master.", uid);
-      return callback(err, result);
+
+      if (result) {
+        var masterContent = masterUtil.get(result.masterType, result.masterCode);
+
+        // 如果缓存中有时,更新缓存.
+        if (masterContent) {
+          var tempKey = result.masterType + result.masterCode;
+          var tempCache = {
+              trsKey : result.masterTrsKey
+            , fieldSet : result.fieldSet
+            };
+          masterUtil.update(tempKey, tempCache);
+        }
+      }
+      callback(err, result);
     }
   });
 };
@@ -160,11 +264,20 @@ exports.remove = function(handler, callback) {
   master.remove(masterId, updateMaster, function(err, result) {
     if (err) {
       log.error(err, uid);
-      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
+      callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
       log.debug(result, uid);
       log.debug("finished: remove master.", uid);
-      return callback(err, result);
+      if (result) {
+        var masterContent = masterUtil.get(result.masterType, result.masterCode);
+
+        // 如果缓存中有时,更新缓存.
+        if (masterContent) {
+          var tempKey = result.masterType + result.masterCode;
+          masterUtil.delete(tempKey);
+        }
+      }
+      callback(err, result);
     }
   });
 };

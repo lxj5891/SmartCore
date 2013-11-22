@@ -88,6 +88,19 @@ describe("modules/mod_master.js", function() {
   });
 
   /*****************************************************************/
+  describe("getByKey()", function() {
+    it("should return OK", function(done) {
+      master.add(newMaster, function(err, masterData) {
+        master.getByKey(masterData.masterType, masterData.masterCode, function(err, result) {
+          should.not.exist(err);
+          should(result).not.eql(null);
+          done();
+        });
+      });
+    });
+  });
+
+  /*****************************************************************/
   describe("getList()", function() {
     it("should return OK", function(done) {
       master.add(newMaster, function(err, masterData) {

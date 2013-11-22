@@ -51,7 +51,7 @@ exports.add = function(newMaster, callback) {
   var Maser = model();
 
   new Maser(newMaster).save(function(err, result) {
-    return callback(err, result);
+    return callback(err, result._doc);
   });
 };
 
@@ -70,6 +70,25 @@ exports.get = function(masterId, callback) {
 };
 
 /**
+ * 通过类型和Code获取指定分类
+ * @param {String} masterType 类型
+ * @param {String} masterCode 分类Code
+ * @param {Function} callback 回调函数，返回指定分类
+ */
+exports.getByKey = function(masterType, masterCode, callback) {
+
+  var master = model();
+  var conditions = {
+      masterType : masterType
+    , masterCode : masterCode
+    };
+
+  master.find(conditions , function(err, result) {
+    callback(err, result._doc);
+  });
+};
+
+/**
  * 获取分类一览
  * @param {Object} condition 条件
  * @param {Number} start 数据开始位置
@@ -77,7 +96,7 @@ exports.get = function(masterId, callback) {
  * @param {Number} order 排序
  * @param {Function} callback 回调函数，返回分类一览
  */
-exports.getList = function(condition, start, limit, order, callback){
+exports.getList = function(condition, start, limit, order, callback) {
 
   var master = model();
 
@@ -101,7 +120,7 @@ exports.update = function(masterId, updateMaster, callback) {
   var master = model();
 
   master.findByIdAndUpdate(masterId, updateMaster, function(err, result) {
-    return callback(err, result);
+    return callback(err, result._doc);
   });
 };
 
@@ -119,7 +138,7 @@ exports.remove = function(masterId, updateMaster, callback) {
   updateMaster.valid = constant.INVALID;
 
   master.findByIdAndUpdate(masterId, updateMaster, function(err, result) {
-    return callback(err, result);
+    return callback(err, result._doc);
   });
 };
 

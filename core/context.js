@@ -55,14 +55,15 @@ Handler.prototype.bind = function(req, res) {
   });
 
   //
-  if (this.req.files instanceof Array) {
-    _.each(this.req.files, function(val, key) {
+  var reqFiles = this.req.files;
+  if (reqFiles instanceof Array) {
+    _.each(reqFiles, function(val, key) {
       self.attributes[key] = val;
     });
-  } else {
+  } else if (reqFiles.hasOwnProperty("files")){
     // TODO 写法不好,files没有的时候,没有判断
     var files = [];
-    files.push(this.req.files.files);
+    files.push(reqFiles.files);
     this.addParams("files",files);
   }
 
