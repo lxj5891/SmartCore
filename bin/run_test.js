@@ -27,6 +27,12 @@ var target = [
   , "test/modules/test_mod_company.js"
   , "test/controllers/test_ctrl_company.js"
 
+  , "test/modules/test_mod_master.js"
+  , "test/controllers/test_ctrl_master.js"
+
+  , "test/modules/test_mod_file.js"
+  , "test/controllers/test_ctrl_file.js"
+
   , "test/modules/test_mod_i18n.js"
   , "test/controllers/test_ctrl_i18n.js"
 
