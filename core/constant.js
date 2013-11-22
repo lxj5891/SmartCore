@@ -18,6 +18,8 @@ exports.DEFAULT_I18N_CATEGORY = "smart";
 
 exports.DEFAULT_USER = "-";
 
+exports.HEADER_UID_NAME = "userid";
+
 /**
  * Modules层用常量
  */

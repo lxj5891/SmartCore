@@ -357,33 +357,54 @@ describe("controllers/ctrl_user.js", function() {
 
   });
 
-  describe("canLogin()", function() {
+  describe("isPasswordRight()", function() {
 
     /*****************************************************************/
-    it("can login", function(done) {
+    it("password is right", function(done) {
 
       var handler = newHandler("44", {userName: userName, password: "ooo"});
 
-      ctrlUser.canLogin(handler, function(err, result) {
+      ctrlUser.isPasswordRight(handler, function(err, result) {
 
         should.not.exist(err);
         should.exist(result);
 
         result._id.toString().should.equal(addedUser._id.toString());
+        result.should.not.have.property("password");
+
+        console.log(result);
 
         done();
       });
     });
 
     /*****************************************************************/
-    it("can not login", function(done) {
+    it("password is wrong", function(done) {
 
       var handler = newHandler("44", {userName: userName, password: "123"});
 
-      ctrlUser.canLogin(handler, function(err, result) {
+      ctrlUser.isPasswordRight(handler, function(err, result) {
 
-        should.not.exist(err);
+        should.exist(err);
         should.not.exist(result);
+
+        err.should.have.property("code").and.equal(400);
+
+        done();
+      });
+    });
+
+    /*****************************************************************/
+    it("user not exist", function(done) {
+
+      var handler = newHandler("44", {userName: "987654321", password: "123"});
+
+      ctrlUser.isPasswordRight(handler, function(err, result) {
+
+        should.exist(err);
+        should.not.exist(result);
+
+        err.should.have.property("code").and.equal(404);
 
         done();
       });

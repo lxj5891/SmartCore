@@ -379,7 +379,7 @@ exports.exist = function(handler, callback) {
  */
 exports.isPasswordRight = function(handler, callback) {
 
-  var userName = handler.params.userName;
+  var userName = handler.params.name;
   var password = handler.params.password;
   var code = handler.params.code;
 
