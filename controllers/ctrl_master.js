@@ -93,25 +93,15 @@ exports.getList = function(handler, callback) {
   log.debug("condition: ", condition);
   log.debug("order: ", order);
 
-  // 获取件数
-  master.total(condition, function(err, count) {
+  // 获取一览
+  master.getList(condition, start, limit, order, function(err, result) {
     if (err) {
       log.error(err, uid);
-      callback(new errors.InternalServer(__("js.ctr.common.system.error")));
-      return;
+      return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     }
-
-    // 获取一览
-    master.getList(condition, start, limit, order, function(err, result) {
-      if (err) {
-        log.error(err, uid);
-        return callback(new errors.InternalServer(__("js.ctr.common.system.error")));
-      }
-      log.debug("result:" + result, uid);
-      log.debug("count:" + count, uid);
-      log.debug("finished: get master list.", uid);
-      return callback(err,  { totalItems: count, items: result });
-    });
+    log.debug("result:" + result, uid);
+    log.debug("finished: get master list.", uid);
+    return callback(err,  result);
   });
 };
 
