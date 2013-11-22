@@ -43,12 +43,34 @@ Handler.prototype.bind = function(req, res) {
 
   // 缓存参数
   var self = this;
+
+  //
   _.each(this.req.query, function(val, key) {
     self.attributes[key] = val;
   });
+
+  //
   _.each(this.req.body, function(val, key) {
     self.attributes[key] = val;
   });
+
+  //
+  if (this.req.files instanceof Array) {
+    _.each(this.req.files, function(val, key) {
+      self.attributes[key] = val;
+    });
+  } else {
+    // TODO 写法不好,files没有的时候,没有判断
+    var files = [];
+    files.push(this.req.files.files);
+    this.addParams("files",files);
+  }
+
+  for(var key in this.req.params) {
+    if (this.req.params.hasOwnProperty(key)) {
+      self.attributes[key] = this.req.params[key];
+    }
+  }
 
   // 将异常转换为响应，并通过res送出
   this.on("error", function(error){
