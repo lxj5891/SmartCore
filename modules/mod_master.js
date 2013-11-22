@@ -17,10 +17,10 @@ var mongo       = require("mongoose")
  */
 
 var  Master = new schema({
-    masterCode         : { type: String,   description: "分类Code:pro,sex,", required: true}
+    masterCode         : { type: String,   description: "分类Code:pro,sex,", required: true, unique: true }
   , masterDescription  : { type: String,   description: "分类描述" }
-  , masterTrsKey       : { type: String,   description: "翻译Key" }
-  , masterType         : { type: String,   description: "类型:Smart,Yukari,FR等" , required: true}
+  , masterTrsKey       : { type: String,   description: "翻译Key", unique: true }
+  , masterType         : { type: String,   description: "类型:Smart,Yukari,FR等" , required: true }
   , fieldSet           : [ {
       fieldCode        : { type: String,   description: "属性Key" }
     , fieldObject      : { type: Mixed,    description: "属性对象" }
