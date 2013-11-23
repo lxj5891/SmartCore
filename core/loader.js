@@ -9,6 +9,8 @@
 var path        = require("path")
   , conf        = require("config")
   , express     = require("express")
+  , _           = require("underscore")
+  , validator   = require("validator").Validator
   , store       = require("connect-mongo")(express)
   , ejs         = require("ejs")
   , i18n        = require("./i18n")
@@ -103,6 +105,114 @@ function initExpress(app) {
 }
 
 /**
+ * 判断config项目是否存在
+ * 含子元素的项目，用该方法来检查
+ * @param {Object} item 被检测项目
+ * @param {String} info log里输出的项目名称
+ * @param {Function} print 打印方法
+ * @returns {boolean} 项目不存在返回true
+ */
+function checkExist(item, info, print) {
+  if (_.isEmpty(item)) {
+    print(info + " is empty!");
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * 判断config项目是否为数字
+ * @param {Object} item 被检测项目
+ * @param {String} info log里输出的项目名称
+ * @param {Function} print 打印方法
+ * @returns {boolean} 项目不是数字返回true
+ */
+function checkNumber(item, info, print) {
+
+  if (_.isNumber(item)) {
+    log.info(info + " " + item);
+    return false;
+  }
+
+  print(info + " is not a number!");
+  return true;
+}
+
+/**
+ * 判断config项目是否为字符
+ * @param {Object} item 被检测项目
+ * @param {String} info log里输出的项目名称
+ * @param {Function} print 打印方法
+ * @returns {boolean} 项目不是数字返回true
+ */
+function checkString(item, info, print) {
+
+  if (_.isString(item)) {
+    log.info(info + " " + item);
+    return false;
+  }
+
+  print(info + " is empty!");
+  return true;
+}
+
+/**
+ * 校验config文件
+ */
+function validateConfig() {
+
+  var hasError = false;
+
+  // DB config
+  if (!checkExist(conf.db, "config/db", log.error)) {
+    hasError = hasError || checkString(conf.db.host, "config/db/host", log.error);
+    hasError = hasError || checkNumber(conf.db.port, "config/db/port", log.error);
+    hasError = hasError || checkString(conf.db.dbname, "config/db/dbname", log.error);
+
+    checkString(conf.db.prefix, "config/db/prefix", log.warn);
+    checkNumber(conf.db.pool, "config/db/pool", log.warn);
+    checkExist(conf.db.schema, "conf.db.schema", log.warn);
+  }
+
+  // APP config
+  if (!checkExist(conf.app, "config/app", log.error)) {
+
+    checkNumber(conf.app.port, "config/app/port", log.warn);
+
+    hasError = hasError || checkString(conf.app.views, "config/app/views", log.error);
+    hasError = hasError || checkString(conf.app.cookieSecret, "config/app/cookieSecret", log.error);
+    hasError = hasError || checkString(conf.app.sessionSecret, "config/app/sessionSecret", log.error);
+    hasError = hasError || checkString(conf.app.sessionKey, "config/app/sessionKey", log.error);
+    hasError = hasError || checkNumber(conf.app.sessionTimeout, "config/app/sessionTimeout", log.error);
+    hasError = hasError || checkString(conf.app.tmp, "config/app/tmp", log.error);
+    hasError = hasError || checkString(conf.app.hmackey, "config/app/hmackey", log.error);
+
+    if (!checkExist(conf.app.i18n, "conf.app.i18n", log.warn)) {
+      checkString(conf.app.i18n.cache, "config/app/i18n/cache", log.warn);
+      checkString(conf.app.i18n.lang, "config/app/i18n/lang", log.warn);
+      checkString(conf.app.i18n.category, "config/app/i18n/category", log.warn);
+    }
+  }
+
+  // LOG config
+  if (!checkExist(conf.log, "config/log", log.warn)) {
+    if (!checkExist(conf.log.fluent, "config/log/fluent", log.warn)) {
+      checkString(conf.log.fluent.enable, "config/log/fluent/enable", log.warn);
+      checkString(conf.log.fluent.tag, "config/log/fluent/tag", log.warn);
+      checkString(conf.log.fluent.host, "config/log/fluent/host", log.warn);
+      checkNumber(conf.log.fluent.port, "config/log/fluent/port", log.warn);
+      checkNumber(conf.log.fluent.timeout, "config/log/fluent/timeout", log.warn);
+    }
+  }
+
+  // 如果必须向有错误，则拒绝启动
+  if (hasError) {
+    process.exit(1);
+  }
+}
+
+/**
  * 调用初始化函数
  */
 exports.initialize = function() {
@@ -110,6 +220,7 @@ exports.initialize = function() {
   // 多国语全局变量注册
   global.__ = i18n.__;
 
+  validateConfig();
 };
 
 /**
