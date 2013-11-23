@@ -82,6 +82,29 @@ Handler.prototype.bind = function(req, res) {
 };
 
 /**
+ * 输出参数情报
+ * TODO: 添加单元测试代码
+ * @param {Function} printer log输出方法
+ */
+Handler.prototype.print = function(printer) {
+
+  _.each(this.params, function(val, key) {
+
+    // TODO: 感觉写法有点诡异
+    var line = "";
+    if (_.isNumber(val)) {
+      line = util.format("context.params - %s: %d", key, val);
+    } else if (_.isObject(val)) {
+      line = util.format("context.params - %s: %f", key, val);
+    } else {
+      line = util.format("context.params - %s: %s", key, val);
+    }
+
+    printer(line);
+  });
+};
+
+/**
  * 抛出异常，使用事件机制发送异常
  * @param error 异常
  */
