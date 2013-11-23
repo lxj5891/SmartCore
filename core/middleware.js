@@ -1,10 +1,10 @@
 
 "use strict";
 
-var conf    = require("config").app
+var _       = require("underscore")
+  , conf    = require("config").app
   , json    = require("./response")
   , errors  = require("./errors")
-  , util    = require("./util")
   , i18n    = require("./i18n")
   , log     = require("./log");
 
@@ -39,80 +39,50 @@ exports.lang = function(req, res, next) {
 };
 
 /**
- * 未捕获的异常
- */
-exports.parseError = function(err, req, res, next) {
-  console.log(err);
-  json.send(res, new errors.InternalServer());
-}
-
-/**
  * Authenticate:
  *  Check the approval status.
  *  The configure of app.js, the handle has been registered.
+ * @param {Object} req 请求
+ * @param {Object} res 响应
+ * @param {Function} next 是否执行后续操作的回调方法
+ * @returns {*} 无
  */
 exports.authenticate = function(req, res, next) {
 
   log.debug("middleware : authenticate");
 
-  // 不需要验证的页面（TODO: 将list移到配置文件里）
-  var safety = true;
+  var safety = false;
 
-  // Static
-  safety = safety || req.url.match(/^\/stylesheets/i);
-  safety = safety || req.url.match(/^\/javascripts/i);
-  safety = safety || req.url.match(/^\/vendor/i);
-  safety = safety || req.url.match(/^\/images/i);
-  safety = safety || req.url.match(/^\/video/i);
+  // URL是否与不需要认证的路径匹配（配置文件中定义）
+  _.each(conf.ignoreAuth, function(path) {
+    var regexPath = new RegExp(path, "i");
+    safety = safety || !_.isNull(req.url.match(regexPath));
+  });
 
-  // Login
-  safety = safety || req.url.match(/^\/$/i);
-  safety = safety || req.url.match(/^\/simplelogin.*/i);
-  safety = safety || req.url.match(/^\/simplelogout.*/i);
-  safety = safety || req.url.match(/^\/login.*/i);
-
-  // Register
-  safety = safety || req.url.match(/^\/register.*/i);
-  safety = safety || req.url.match(/^\/download.*/i);
-  safety = safety || req.url.match(/^\/device\/register\.json.*/i);
-
+  // 不做检测的URL
   if (safety) {
     return next();
   }
 
   // 确认Session里是否有用户情报
   if (req.session.user) {
-//    var user = req.session.user;
-//    var code = req.params ? req.params.code: undefined;
-//    if(user.type == 0 || user.type == 1) { // Company's general user  and system user
-//      var company_code = user.company ? user.company.code : undefined;
-//       if(!code || code != company_code) {
-//         return next(new errors.InternalServer("没有权限登陆"));
-//       }
-//    }
-
     return next();
-  }
-
-  // 确认cookie，生成Session情报
-  //var cookie = auth.passCookie(req)
-  //if (cookie) {
-  //  user.at(cookie[0], function(err, result){
-  //    if (!err && result) {
-  //      req.session.user = result;
-  //      return next();  
-  //    }
-  //  });
-  //}
-
-  // TODO: 在API内，不应该有迁移控制，应该拿到客户端实现。和Oauth一起实现
-  if (util.isBrowser(req)) {
-    return res.redirect("/login");
   }
 
   // 401 Unauthorized
   throw new errors.Unauthorized("Not logged in");
 };
+
+// --------------- 以下未整理
+
+/**
+ * 未捕获的异常
+ */
+exports.parseError = function(err, req, res, next) {
+  console.log(err);
+  json.send(res, new errors.InternalServer());
+};
+
 
 /**
  * Csrftoken:
