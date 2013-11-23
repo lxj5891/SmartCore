@@ -10,7 +10,6 @@ var path        = require("path")
   , conf        = require("config")
   , express     = require("express")
   , _           = require("underscore")
-  , validator   = require("validator").Validator
   , store       = require("connect-mongo")(express)
   , ejs         = require("ejs")
   , i18n        = require("./i18n")
