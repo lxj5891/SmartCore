@@ -7,7 +7,7 @@
 "use strict";
 
 var should  = require("should")
-  , master    = require("../../coverage/controllers/ctrl_master");
+  , master    = require("../../controllers/ctrl_master");
 /**
  * 测试代码
  */
@@ -69,6 +69,24 @@ describe("controllers/ctrl_master.js", function() {
       master.add(handler, function(err, masterData) {
         handler.params.masterId = masterData._id;
         master.get(handler, function(err, result) {
+          should.not.exist(err);
+          should(result).not.eql(null);
+          result.should.have.property("_id").and.eql(masterData._id);
+          delete handler.params.masterId;
+          done();
+        });
+      });
+    });
+  });
+
+  /*****************************************************************/
+  describe("getByKey()", function() {
+    it("should return OK ", function(done) {
+      master.add(handler, function(err, masterData) {
+        handler.params.masterId = masterData._id;
+        handler.params.masterType = masterData.masterType;
+        handler.params.masterType = masterData.masterCode;
+        master.getByKey(handler, function(err, result) {
           should.not.exist(err);
           should(result).not.eql(null);
           result.should.have.property("_id").and.eql(masterData._id);

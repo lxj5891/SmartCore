@@ -14,6 +14,7 @@ var path        = require("path")
   , store       = require("connect-mongo")(express)
   , ejs         = require("ejs")
   , i18n        = require("./i18n")
+  , master      = require("./master")
   , log         = require("./log");
 
 /**
@@ -219,6 +220,7 @@ exports.initialize = function() {
 
   // 多国语全局变量注册
   global.__ = i18n.__;
+  global.master = master.get;
 
   validateConfig();
 };
