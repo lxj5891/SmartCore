@@ -6,8 +6,10 @@
 
 "use strict";
 
-var should  = require("should")
-  , master    = require("../../controllers/ctrl_master");
+var should    = require("should")
+  , context   = require("../../core/context")
+  , mock      = require("../../core/mock")
+  , master    = require("../../coverage/controllers/ctrl_master");
 /**
  * 测试代码
  */
@@ -18,9 +20,10 @@ describe("controllers/ctrl_master.js", function() {
    */
   var date = new Date();
   var newMaster = {
-      masterCode    : "Company Type"
+      masterCode    : "3"
     , masterDescription: "公司类型"
     , masterType : "Smart"
+    , masterTrsKey : "trsKey"
     , fieldSet : [
         {
           fieldCode : 0
@@ -42,12 +45,10 @@ describe("controllers/ctrl_master.js", function() {
     , updateBy    : "sl_say"
     };
 
-  var handler = {
-      uid : "sl_say"
-    , params : {
-        master : newMaster
-      }
-    };
+  var req = mock.getResponse("12345678", {}, {});
+  var handler = new context().bind(req, mock.getRequest());
+  handler.addParams("uid", "sl_say");
+  handler.addParams("master", newMaster);
   /**
    * 执行测试case
    */
@@ -81,18 +82,75 @@ describe("controllers/ctrl_master.js", function() {
 
   /*****************************************************************/
   describe("getByKey()", function() {
-    it("should return OK ", function(done) {
+    it("should return OK when cache [false] ", function(done) {
       master.add(handler, function(err, masterData) {
-        handler.params.masterId = masterData._id;
         handler.params.masterType = masterData.masterType;
-        handler.params.masterType = masterData.masterCode;
+        handler.params.masterCode = masterData.masterCode;
         master.getByKey(handler, function(err, result) {
           should.not.exist(err);
-          should(result).not.eql(null);
-          result.should.have.property("_id").and.eql(masterData._id);
-          delete handler.params.masterId;
+          result.should.have.property("trsKey").and.eql(masterData.masterTrsKey);
+          delete handler.params.masterType;
+          delete handler.params.masterCode;
           done();
         });
+      });
+    });
+
+    it("should return undefined when cache [false]", function(done) {
+      handler.params.masterType = "not exists";
+      handler.params.masterCode = "not exists";
+      master.getByKey(handler, function(err, result) {
+        should.not.exist(err);
+        should(result).eql(undefined);
+        delete handler.params.masterType;
+        delete handler.params.masterCode;
+        done();
+      });
+    });
+
+    it("should return OK when cache [true] ", function(done) {
+      master.add(handler, function(err, masterData) {
+        handler.params.masterType = masterData.masterType;
+        handler.params.masterCode = masterData.masterCode;
+        handler.params.cache = true;
+        master.getByKey(handler, function(err, result) {
+          should.not.exist(err);
+          result.should.have.property("trsKey").and.eql(masterData.masterTrsKey);
+          delete handler.params.masterType;
+          delete handler.params.masterCode;
+          delete handler.params.cache;
+          done();
+        });
+      });
+    });
+
+//    it("should return OK when cache [true] ", function(done) {
+//      // 从缓存中取值
+//      handler.params.masterType = "Smart";
+//      handler.params.masterCode = "compType";
+//      handler.params.cache = true;
+//      console.log(masterUtil.get("Smart", "compType"));
+//      master.getByKey(handler, function(err, result) {
+//        should.not.exist(err);
+//        result.should.have.property("trsKey").and.eql("trsKey");
+//        delete handler.params.masterType;
+//        delete handler.params.masterCode;
+//        delete handler.params.cache;
+//        done();
+//      });
+//    });
+
+    it("should return undefined when cache [true]", function(done) {
+      handler.params.masterType = "not exists";
+      handler.params.masterCode = "not exists";
+      handler.params.cache = true;
+      master.getByKey(handler, function(err, result) {
+        should.not.exist(err);
+        should(result).eql(undefined);
+        delete handler.params.masterType;
+        delete handler.params.masterCode;
+        delete handler.params.cache;
+        done();
       });
     });
   });
@@ -119,8 +177,9 @@ describe("controllers/ctrl_master.js", function() {
     it("should return OK", function(done) {
       master.add(handler, function(err, masterData) {
         var updateMaster = {
-          masterType : "SmartCode"
-        };
+            masterType : "SmartCode"
+          , masterCode : "UpdateSmart"
+          };
         handler.params.masterId = masterData._id;
         handler.params.updateMaster = updateMaster;
         master.update(handler, function(err, result) {
@@ -138,21 +197,22 @@ describe("controllers/ctrl_master.js", function() {
 
   /*****************************************************************/
   describe("remove()", function() {
-
     it("should return OK", function(done) {
       master.add(handler, function(err, masterData) {
         var updateMaster = {
-          masterType : "SmartCode"
+          masterCode : "removeSmart111"
         };
         handler.params.masterId = masterData._id;
         handler.params.updateMaster = updateMaster;
         master.remove(handler, function(err, result) {
+          console.log(result);
           should.not.exist(err);
           should(result).not.eql(null);
 //          result.should.have.property("_id").and.eql(masterData._id);
           result.should.have.property("valid").and.eql(0);
           delete handler.params.masterId;
           delete handler.params.updateMaster;
+//          delete handler.params.master;
           done();
         });
       });

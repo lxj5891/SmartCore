@@ -19,7 +19,7 @@ describe("modules/mod_master.js", function() {
    */
   var date = new Date();
   var newMaster = {
-      masterCode    : "Company Type"
+      masterCode    : "ModlesType"
     , masterDescription: "公司类型"
     , masterType : "Smart"
     , fieldSet : [

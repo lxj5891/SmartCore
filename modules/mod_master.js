@@ -19,7 +19,7 @@ var mongo       = require("mongoose")
 var  Master = new schema({
     masterCode         : { type: String,   description: "分类Code:pro,sex,", required: true, unique: true }
   , masterDescription  : { type: String,   description: "分类描述" }
-  , masterTrsKey       : { type: String,   description: "翻译Key", unique: true }
+  , masterTrsKey       : { type: String,   description: "翻译Key" }
   , masterType         : { type: String,   description: "类型:Smart,Yukari,FR等" , required: true }
   , fieldSet           : [ {
       fieldCode        : { type: String,   description: "属性Key" }
@@ -51,7 +51,7 @@ exports.add = function(newMaster, callback) {
   var Maser = model();
 
   new Maser(newMaster).save(function(err, result) {
-    return callback(err, result._doc);
+    return callback(err, result);
   });
 };
 
@@ -83,8 +83,8 @@ exports.getByKey = function(masterType, masterCode, callback) {
     , masterCode : masterCode
     };
 
-  master.find(conditions , function(err, result) {
-    callback(err, result._doc);
+  master.findOne(conditions , function(err, result) {
+    callback(err, result);
   });
 };
 
@@ -120,7 +120,7 @@ exports.update = function(masterId, updateMaster, callback) {
   var master = model();
 
   master.findByIdAndUpdate(masterId, updateMaster, function(err, result) {
-    return callback(err, result._doc);
+    return callback(err, result);
   });
 };
 
@@ -138,7 +138,7 @@ exports.remove = function(masterId, updateMaster, callback) {
   updateMaster.valid = constant.INVALID;
 
   master.findByIdAndUpdate(masterId, updateMaster, function(err, result) {
-    return callback(err, result._doc);
+    return callback(err, result);
   });
 };
 

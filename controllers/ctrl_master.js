@@ -22,8 +22,8 @@ exports.add = function(handler, callback) {
   var params = handler.params
     , uid = handler.uid
     , newMaster = params.master
-    , masterType = params.masterType
-    , masterCode = params.masterCode;
+    , masterType = newMaster.masterType
+    , masterCode = newMaster.masterCode;
 
   log.debug("begin: add master.", uid);
   log.debug("master: ", master);
@@ -41,14 +41,14 @@ exports.add = function(handler, callback) {
   handler.addParams("masterCode", masterCode);
   handler.addParams("cache", false);
 
-  exports.getByKey(handler, function(err, result) {
+  master.getByKey(masterType,masterCode, function(err, result) {
 
     if (err) {
-      log.error(err, uid);
+      log.error(err,uid);
       callback(new errors.InternalServer(__("js.ctr.common.system.error")));
     } else {
       if (result) {
-        callback(err);
+        callback(err, result);
       } else {
         master.add(newMaster, function(err, result) {
           if (err) {
@@ -102,12 +102,13 @@ exports.getByKey = function(handler, callback) {
     , uid = handler.uid
     , masterType = params.masterType
     , masterCode = params.masterCode
-    , cache = params.cache; // true:从缓存读取,没有时从DB中读取,并写入缓存.false:从DB读取
+    , cache = params.cache || false; // true:从缓存读取,没有时从DB中读取,并写入缓存.false:从DB读取
 
   log.debug("begin: get master.", uid);
   log.debug("master Type: ", masterType);
   log.debug("master Code: ", masterCode);
-  log.debug("master cache: ", cache);
+  // TODO boolean时 有bug，值不能显示
+  log.debug("master cache: "  + cache, uid);
 
   if (cache === true) {
     var masterContent = masterUtil.get(masterType, masterCode);
