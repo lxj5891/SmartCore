@@ -6,19 +6,19 @@
     {
       "category": "operation"
       , "type": "dateFile"
-      , "filename": "logs/operation.log"
+      , "filename": "test/logs/operation.log"
       , "pattern": "-yyyyMMdd"
     },
     {
       "category": "application"
       , "type": "dateFile"
-      , "filename": "logs/application.log"
+      , "filename": "test/logs/application.log"
       , "pattern": "-yyyyMMdd"
     },
     {
       "category": "audit"
       , "type": "dateFile"
-      , "filename": "logs/audit.log"
+      , "filename": "test/logs/audit.log"
       , "pattern": "-yyyyMMdd"
     }
   ],

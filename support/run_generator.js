@@ -27,7 +27,7 @@ function showHelp() {
   program.on("--help", function(){
     console.log("  Examples:");
     console.log("");
-    console.log("    $ node bin/run_generator.js -acmu --name=hello --author=r2space@gmail.com");
+    console.log("    $ node support/run_generator.js -acmu --name=hello --author=r2space@gmail.com");
     console.log("");
   });
 

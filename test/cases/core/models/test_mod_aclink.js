@@ -1,19 +1,19 @@
 /**
- * @file 单体测试对象：modules/mod_aclink.js
+ * @file 单体测试对象：models/mod_aclink.js
  * @author lizheng
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../../coverage/lib/test").befor();
 
 var should     = require("should")
-  , modAcLink  = require("../../coverage/modules/mod_aclink");
+  , modAcLink  = require("../../../coverage/lib/models/mod_aclink");
 
 var main = new Date().getTime() + "";
 
-describe("modules/mod_aclink.js", function() {
+describe("models/mod_aclink.js", function() {
 
   var data = {
       type    : "1"

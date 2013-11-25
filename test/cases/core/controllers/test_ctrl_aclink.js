@@ -6,13 +6,13 @@
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../../coverage/lib/test").befor();
 
 var should     = require("should")
-  , mock       = require("../../core/mock")
-  , context    = require("../../core/context")
-  , ctrlUser   = require("../../controllers/ctrl_user")
-  , ctrlAclink = require("../../coverage/controllers/ctrl_aclink");
+  , mock       = require("../../../coverage/lib/mock")
+  , context    = require("../../../coverage/lib/context")
+  , ctrlUser   = require("../../../coverage/lib/controllers/ctrl_user")
+  , ctrlAclink = require("../../../coverage/lib/controllers/ctrl_aclink");
 
 /**
  * 测试代码

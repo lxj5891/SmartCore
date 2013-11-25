@@ -1,18 +1,20 @@
 /**
- * @file 单体测试对象：modules/mod_master.js
+ * @file 单体测试对象：models/mod_master.js
  * @author sl_say@hotmail.com
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
+require("../../../coverage/lib/test").befor();
+
 var should        = require("should")
-  , master        = require("../../coverage/modules/mod_master");
+  , master        = require("../../../coverage/lib/models/mod_master");
 
 /**
  * 测试代码
  */
-describe("modules/mod_master.js", function() {
+describe("models/mod_master.js", function() {
 
   /**
    * 初始化测试数据

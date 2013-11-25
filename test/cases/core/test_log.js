@@ -7,6 +7,8 @@
 
 "use strict";
 
+require("../../coverage/lib/test").befor();
+
 var should    = require("should")
   , fs        = require("fs");
 
@@ -34,9 +36,9 @@ function lineCount(file, callback) {
  */
 function removeLogFile() {
 
-  var application = process.cwd() + "/logs/application.log";
-  var audit = process.cwd() + "/logs/audit.log";
-  var operation = process.cwd() + "/logs/operation.log";
+  var application = process.cwd() + "/test/logs/application.log";
+  var audit       = process.cwd() + "/test/logs/audit.log";
+  var operation   = process.cwd() + "/test/logs/operation.log";
   if (fs.existsSync(application)) {
     fs.unlinkSync(application);
   }
@@ -49,7 +51,7 @@ function removeLogFile() {
 }
 
 removeLogFile();
-var log = require("../../coverage/core/log");
+var log = require("../../coverage/lib/log");
 
 /**
  * 测试代码
@@ -59,9 +61,9 @@ describe("Log", function() {
   /**
    * 初始化测试数据
    */
-  var appliLog = process.cwd() + "/logs/application.log"
-    , auditLog = process.cwd() + "/logs/audit.log"
-    , operaLog = process.cwd() + "/logs/operation.log";
+  var appliLog = process.cwd() + "/test/logs/application.log"
+    , auditLog = process.cwd() + "/test/logs/audit.log"
+    , operaLog = process.cwd() + "/test/logs/operation.log";
 
   /**
    * 执行测试case

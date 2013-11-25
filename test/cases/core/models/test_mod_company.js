@@ -1,20 +1,20 @@
 /**
- * @file 单体测试对象：modules/mod_company.js
+ * @file 单体测试对象：models/mod_company.js
  * @author r2space@gmail.com
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../../coverage/lib/test").befor();
 
 var should  = require("should")
-  , company = require("../../coverage/modules/mod_company");
+  , company = require("../../../coverage/lib/models/mod_company");
 
 /**
  * 测试代码
  */
-describe("modules/mod_company.js", function() {
+describe("models/mod_company.js", function() {
 
   /**
    * 初始化测试数据

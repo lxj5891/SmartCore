@@ -5,7 +5,7 @@ var fs        = require("fs")
   , os        = require("os")
   , path      = require("path")
   , exec      = require("child_process").exec
-  , test      = require("../core/test")
+  , test      = require("../lib/test")
   , home      = path.resolve(__dirname , "..");
 
 /**
@@ -14,29 +14,29 @@ var fs        = require("fs")
  * @type {Array}
  */
 var target = [
-    "test/core/test_log.js"
-  , "test/core/test_context.js"
-  , "test/core/test_errors.js"
-  , "test/core/test_connection.js"
+    "test/cases/core/test_log.js"
+  , "test/cases/core/test_context.js"
+  , "test/cases/core/test_errors.js"
+  , "test/cases/core/test_connection.js"
 
-  , "test/modules/test_mod_user.js"
-  , "test/modules/test_mod_group.js"
-  , "test/controllers/test_ctrl_user.js"
-  , "test/controllers/test_ctrl_group.js"
+  , "test/cases/models/test_mod_user.js"
+  , "test/cases/models/test_mod_group.js"
+  , "test/cases/controllers/test_ctrl_user.js"
+  , "test/cases/controllers/test_ctrl_group.js"
 
-  , "test/modules/test_mod_company.js"
-  , "test/controllers/test_ctrl_company.js"
+  , "test/cases/models/test_mod_company.js"
+  , "test/cases/controllers/test_ctrl_company.js"
 
-  , "test/modules/test_mod_master.js"
-  , "test/controllers/test_ctrl_master.js"
+  , "test/cases/models/test_mod_master.js"
+  , "test/cases/controllers/test_ctrl_master.js"
 
-  , "test/modules/test_mod_file.js"
-  , "test/controllers/test_ctrl_file.js"
+  , "test/cases/models/test_mod_file.js"
+  , "test/cases/controllers/test_ctrl_file.js"
 
-  , "test/modules/test_mod_i18n.js"
-  , "test/controllers/test_ctrl_i18n.js"
+  , "test/cases/models/test_mod_i18n.js"
+  , "test/cases/controllers/test_ctrl_i18n.js"
 
-  , "test/modules/test_mod_aclink.js"
+  , "test/cases/models/test_mod_aclink.js"
   ];
 
 /**
@@ -57,11 +57,7 @@ function runCommand(command, callback) {
  * 变换工作路径
  */
 process.chdir(home);
-if (!fs.existsSync("coverage")) {
-  fs.mkdirSync("coverage");
-}
-
-var rm = "Windows_NT" === os.type() ? "rd /S /Q coverage" : "rm -rf coverage";
+var rm = "Windows_NT" === os.type() ? "rd /S /Q test/coverage" : "rm -rf test/coverage";
 
 /**
  * 清除文件，生成converage代码，并执行测试case
@@ -73,26 +69,20 @@ runCommand(rm, function(err) {
   }
 
   // 创建文件夹
-  fs.mkdirSync("coverage");
+  fs.mkdirSync("test/coverage");
 
   // 生成converage代码
-  var routes      = "jscoverage routes/ coverage/routes/";
-  var api         = "jscoverage api/ coverage/api/";
-  var controllers = "jscoverage controllers/ coverage/controllers/";
-  var modules     = "jscoverage modules/ coverage/modules/";
-  var core        = "jscoverage core/ coverage/core/";
-  runCommand(routes, function() {});
-  runCommand(api, function() {});
-  runCommand(controllers, function() {});
-  runCommand(modules, function() {});
-  runCommand(core, function() {});
+  var app = "jscoverage app/ test/coverage/app/";
+  var lib = "jscoverage lib/ test/coverage/lib/";
+  runCommand(app, function() {});
+  runCommand(lib, function() {});
 
   // 执行测试代码，生成报告
-  var mocha = "mocha " + target.join(" ") + " -R html-cov > coverage/coverage.html";
+  var mocha = "mocha " + target.join(" ") + " -R html-cov > test/coverage/coverage.html";
 
   // 在环境变量里添加测试标识，数据库连接时根据该标识切换要使用的数据库
   test.befor();
-
+  console.log(require("fs").realpathSync("."));
   runCommand(mocha, function(err) {
     if (err) {
       console.log(err);

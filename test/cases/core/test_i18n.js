@@ -7,13 +7,13 @@
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../coverage/lib/test").befor();
 
 var should    = require("should")
-  , ctrl      = require("../../controllers/ctrl_i18n")
-  , context   = require("../../core/context")
-  , mock      = require("../../core/mock")
-  , i18n      = require("../../core/i18n");
+  , ctrl      = require("../../coverage/lib/controllers/ctrl_i18n")
+  , context   = require("../../coverage/lib/context")
+  , mock      = require("../../coverage/lib/mock")
+  , i18n      = require("../../coverage/lib/i18n");
 
 /**
  * 测试代码

@@ -7,8 +7,10 @@
 
 "use strict";
 
+require("../../coverage/lib/test").befor();
+
 var should    = require("should")
-  , errors    = require("../../coverage/core/errors");
+  , errors    = require("../../coverage/lib/errors");
 
 /**
  * 测试代码
