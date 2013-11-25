@@ -362,7 +362,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("password is right", function(done) {
 
-      var handler = newHandler("44", {userName: userName, password: "ooo"});
+      var handler = newHandler("44", {name: userName, password: "ooo"});
 
       ctrlUser.isPasswordRight(handler, function(err, result) {
 
@@ -372,8 +372,6 @@ describe("controllers/ctrl_user.js", function() {
         result._id.toString().should.equal(addedUser._id.toString());
         result.should.not.have.property("password");
 
-        console.log(result);
-
         done();
       });
     });
@@ -381,7 +379,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("password is wrong", function(done) {
 
-      var handler = newHandler("44", {userName: userName, password: "123"});
+      var handler = newHandler("44", {name: userName, password: "123"});
 
       ctrlUser.isPasswordRight(handler, function(err, result) {
 
@@ -397,7 +395,7 @@ describe("controllers/ctrl_user.js", function() {
     /*****************************************************************/
     it("user not exist", function(done) {
 
-      var handler = newHandler("44", {userName: "987654321", password: "123"});
+      var handler = newHandler("44", {name: "987654321", password: "123"});
 
       ctrlUser.isPasswordRight(handler, function(err, result) {
 
@@ -442,7 +440,7 @@ describe("controllers/ctrl_user.js", function() {
       ctrlUser.add(handler2, function() {
         var condition = {
           "userName": "GMT",
-          "realName": "中名",
+          "realName": "2中",
           "email": "sina.cn",
           "and": true
         };
@@ -458,7 +456,7 @@ describe("controllers/ctrl_user.js", function() {
 
           _.each(result.items, function(user) {
             user.userName.indexOf("GMT").should.above(0);
-            user.middle.indexOf("中名").should.equal(0);
+            user.middle.indexOf("2中").should.equal(0);
             user.email.indexOf("sina").should.above(0);
             user.should.not.have.property("password");
           });
