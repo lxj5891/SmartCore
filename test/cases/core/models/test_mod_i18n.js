@@ -1,20 +1,20 @@
 /**
- * @file 单体测试对象：modules/mod_i18n.js
+ * @file 单体测试对象：models/mod_i18n.js
  * @author r2space@gmail.com
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../../coverage/lib/test").befor();
 
 var should  = require("should")
-  , i18n    = require("../../coverage/modules/mod_i18n");
+  , i18n    = require("../../../coverage/lib/models/mod_i18n");
 
 /**
  * 测试代码
  */
-describe("modules/mod_i18n.js", function() {
+describe("models/mod_i18n.js", function() {
 
   /**
    * 初始化测试数据

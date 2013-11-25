@@ -6,16 +6,16 @@
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../../coverage/lib/test").befor();
 
 var async      = require("async")
   , should     = require("should")
-  , mock       = require("../../core/mock")
-  , context    = require("../../core/context")
-  , constant   = require("../../core/constant")
-  , util       = require("../../core/util")
-  , ctrlUser   = require("../../controllers/ctrl_user")
-  , ctrlGroup  = require("../../coverage/controllers/ctrl_group");
+  , mock       = require("../../../coverage/lib/mock")
+  , context    = require("../../../coverage/lib/context")
+  , constant   = require("../../../coverage/lib/constant")
+  , util       = require("../../../coverage/lib/util")
+  , ctrlUser   = require("../../../coverage/lib/controllers/ctrl_user")
+  , ctrlGroup  = require("../../../coverage/lib/controllers/ctrl_group");
 
 function newGroup() {
   return {

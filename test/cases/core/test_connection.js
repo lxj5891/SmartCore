@@ -6,10 +6,12 @@
 
 "use strict";
 
+require("../../coverage/lib/test").befor();
+
 var should      = require("should")
   , mongo       = require("mongoose")
   , schema      = mongo.Schema
-  , connection  = require("../../coverage/core/connection");
+  , connection  = require("../../coverage/lib/connection");
 
 /**
  * 测试代码

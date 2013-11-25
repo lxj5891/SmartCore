@@ -6,12 +6,12 @@
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../../coverage/lib/test").befor();
 
 var should  = require("should")
-  , mock    = require("../../core/mock")
-  , context = require("../../core/context")
-  , i18n    = require("../../coverage/controllers/ctrl_i18n");
+  , mock    = require("../../../coverage/lib/mock")
+  , context = require("../../../coverage/lib/context")
+  , i18n    = require("../../../coverage/lib/controllers/ctrl_i18n");
 
 /**
  * 测试代码

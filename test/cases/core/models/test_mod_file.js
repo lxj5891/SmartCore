@@ -1,19 +1,21 @@
 /**
- * @file 单体测试对象：modules/mod_file.js
+ * @file 单体测试对象：models/mod_file.js
  * @author sl_say@hotmail.com
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
+require("../../../coverage/lib/test").befor();
+
 var should     = require("should")
   , conf        = require("config").db
-  , file        = require("../../coverage/modules/mod_file");
+  , file        = require("../../../coverage/lib/models/mod_file");
 
 /**
  * 测试代码
  */
-describe("modules/mod_file.js", function() {
+describe("models/mod_file.js", function() {
   /**
    * 初始化测试数据
    */

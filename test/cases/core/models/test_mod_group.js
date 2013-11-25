@@ -1,17 +1,17 @@
 /**
- * @file 单体测试对象：modules/mod_group.js
+ * @file 单体测试对象：models/mod_group.js
  * @author lizheng
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../../coverage/lib/test").befor();
 
 var should   = require("should")
-  , modGroup  = require("../../coverage/modules/mod_group");
+  , modGroup  = require("../../../coverage/lib/models/mod_group");
 
-describe("modules/mod_group.js", function() {
+describe("models/mod_group.js", function() {
 
   var date = new Date();
   var gid;

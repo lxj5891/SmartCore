@@ -6,14 +6,14 @@
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../../coverage/lib/test").befor();
 
 var _         = require("underscore")
   , should    = require("should")
-  , mock      = require("../../core/mock")
-  , context   = require("../../core/context")
-  , ctrlUser  = require("../../coverage/controllers/ctrl_user")
-  , modGroup  = require("../../modules/mod_group");
+  , mock      = require("../../../coverage/lib/mock")
+  , context   = require("../../../coverage/lib/context")
+  , ctrlUser  = require("../../../coverage/lib/controllers/ctrl_user")
+  , modGroup  = require("../../../coverage/lib/models/mod_group");
 
 var userName = new Date().toLocaleString();
 

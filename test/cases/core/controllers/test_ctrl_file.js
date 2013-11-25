@@ -6,8 +6,10 @@
 
 "use strict";
 
+require("../../../coverage/lib/test").befor();
+
 var should  = require("should")
-  , file    = require("../../coverage/controllers/ctrl_file");
+  , file    = require("../../../coverage/lib/controllers/ctrl_file");
 /**
  * 测试代码
  */

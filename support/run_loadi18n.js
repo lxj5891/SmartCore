@@ -11,10 +11,10 @@ var fs        = require("fs")
   , program   = require("commander")
   , argv      = require("optimist").argv
   , sync      = require("async")
-  , context   = require("../core/context")
-  , loader    = require("../core/loader")
-  , constant  = require("../core/constant")
-  , ctrl      = require("../controllers/ctrl_i18n");
+  , context   = require("../lib/context")
+  , loader    = require("../lib/loader")
+  , constant  = require("../lib/constant")
+  , ctrl      = require("../lib/controllers/ctrl_i18n");
 
 
 var file = argv.f

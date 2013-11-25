@@ -1,18 +1,18 @@
 /**
- * @file 单体测试对象：modules/mod_user.js
+ * @file 单体测试对象：models/mod_user.js
  * @author lizheng
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
-require("../../core/test").befor();
+require("../../../coverage/lib/test").befor();
 
 var should   = require("should")
-  , util     = require("../../core/util")
-  , modUser  = require("../../coverage/modules/mod_user");
+  , util     = require("../../../coverage/lib/util")
+  , modUser  = require("../../../coverage/lib/models/mod_user");
 
-describe("modules/mod_user.js", function() {
+describe("models/mod_user.js", function() {
 
   var date = new Date();
   var uid;
