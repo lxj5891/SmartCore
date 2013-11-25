@@ -17,7 +17,7 @@ module.exports = {
    * 测试数据库连接信息
    */
   "testdb": {
-    "host": "mongo"
+    "host": "127.0.0.1"
   , "port": 27017
   , "dbname": "developer"
   , "pool": 2
@@ -41,7 +41,7 @@ module.exports = {
      * 将应用程序日志输出到fluent的设定信息
      */
     "fluent": {
-      "enable": "true"
+      "enable": "false"
     , "tag": "node"
     , "host": "10.2.8.228"
     , "port": 24224
