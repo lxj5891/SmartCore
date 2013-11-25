@@ -36,40 +36,29 @@ module.exports = {
    * smart工具模块
    */
   framework: {
-    loader:       require("./core/loader")
-  , amqp:         require("./core/amqp")
-  , auth:         require("./core/auth")
-  , errors:       require("./core/errors")
-  , response:     require("./core/response")
-  , log:          require("./core/log")
-  , mail:         require("./core/mail")
-  , middleware:   require("./core/middleware")
-  , util:         require("./core/util")
-  , context:      require("./core/context")
-  , constant:     require("./core/constant")
-  , connection:   require("./core/connection")
+    loader:       require("./lib/loader")
+  , amqp:         require("./lib/amqp")
+  , auth:         require("./lib/auth")
+  , errors:       require("./lib/errors")
+  , response:     require("./lib/response")
+  , log:          require("./lib/log")
+  , mail:         require("./lib/mail")
+  , middleware:   require("./lib/middleware")
+  , util:         require("./lib/util")
+  , context:      require("./lib/context")
+  , constant:     require("./lib/constant")
+  , connection:   require("./lib/connection")
   },
 
   /**
-   * smart核心机能
-   */
-  core: {
-//    group:        require("./api/group")
-//  , user:         require("./api/user")
-//  , file:         require("./api/file")
-//  , log:          require("./api/log")
-  },
-
-  /**
-   * TODO:smart核心机能(通过ctrl开放？)
+   * TODO:smart核心机能(通过ctrl开放)
    */
   ctrl: {
-    aclink:       require("./controllers/ctrl_aclink")
-  , company:      require("./controllers/ctrl_company")
-  , file:         require("./controllers/ctrl_file")
-  , group:        require("./controllers/ctrl_group")
-//  , log:          require("./controllers/ctrl_log")
-  , master:       require("./controllers/ctrl_master")
-  , user:         require("./controllers/ctrl_user")
+    aclink:       require("./lib/controllers/ctrl_aclink")
+  , company:      require("./lib/controllers/ctrl_company")
+  , file:         require("./lib/controllers/ctrl_file")
+  , group:        require("./lib/controllers/ctrl_group")
+  , master:       require("./lib/controllers/ctrl_master")
+  , user:         require("./lib/controllers/ctrl_user")
   }
 };
