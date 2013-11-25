@@ -17,7 +17,7 @@ module.exports = {
    * 测试数据库连接信息
    */
   "testdb": {
-    "host": "127.0.0.1"
+    "host": "mongo"
   , "port": 27017
   , "dbname": "developer"
   , "pool": 2
