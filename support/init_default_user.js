@@ -10,7 +10,8 @@ process.env.NODE_CONFIG_DIR = __dirname + "/config";
 process.env.LOG4JS_CONFIG = __dirname + "/config/log4js.json";
 
 var program   = require("commander")
-  , cmd       = require("../lib/command");
+  , cmd       = require("../lib/command")
+  , argv      = require("optimist").argv;
 
 /**
  * 显示帮助信息
@@ -46,13 +47,14 @@ function insertUserData() {
     , "email": "admin@dreamarts.co.jp"
     , "lang" : "ja"
     , "timezone": "GMT+09:00"
+    , "valid": 1
     , "createAt": new Date()
     , "createBy": "script"
     , "updateAt": new Date()
     , "updateBy": "script"
     };
 
-  cmd.insertData("yukari", "users", userData, function(err) {
+  cmd.insertData(argv.d || "salesfloor", "users", userData, function(err) {
     if (err) {
       return console.log(err);
     }
