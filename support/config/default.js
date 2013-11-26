@@ -2,14 +2,18 @@
 module.exports = {
 
   "app": {
-
-    /**
-     * 多过语言关联设定
-     */
-    "i18n": {
+    "port": 3000
+  , "views": "views"
+  , "cookieSecret": "smartcore"
+  , "sessionSecret": "smartcore"
+  , "sessionKey": "smartcore.sid"
+  , "sessionTimeout": 720 // 24 * 30 一个月
+  , "tmp": "/tmp"
+  , "hmackey": "smartcore"
+  , "i18n": {
       "cache": "memory"
     , "lang": "zh"
-    , "category": "smartcore"
+    , "category": "diandian"
     }
   },
 
@@ -19,14 +23,13 @@ module.exports = {
   "db": {
     "host": "mongo"
   , "port": 27017
-  , "dbname": "yukari"
+  , "dbname": "diandian"
   , "pool": 2
 
     /**
      * 默认的collection名称前面会自动添加prefix
      * 如果需要指定自定义的名称，则可以在schema里明确指出
      */
-  , "prefix": "yi"
   , "schema": {
       "Test1": "HelloTest1"
     }
