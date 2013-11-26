@@ -1,9 +1,11 @@
-/**
- * Routes
- * Copyright (c) 2012 Author Name li
- */
+
+"use strict";
+
 
 exports.guidingApi = function(app){
 
-  console.log(app);
+  app.get("/", function (req, res) {
+
+    res.render("admin_home", {"title": "title"});
+  });
 }

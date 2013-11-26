@@ -41,7 +41,7 @@ module.exports = {
      * 将应用程序日志输出到fluent的设定信息
      */
     "fluent": {
-      "enable": "true"
+      "enable": "false"
     , "tag": "node"
     , "host": "10.2.8.228"
     , "port": 24224
