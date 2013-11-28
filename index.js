@@ -58,6 +58,7 @@ module.exports = {
   , company:      require("./lib/controllers/ctrl_company")
   , file:         require("./lib/controllers/ctrl_file")
   , group:        require("./lib/controllers/ctrl_group")
+  , i18n:         require("./lib/controllers/ctrl_i18n")
   , master:       require("./lib/controllers/ctrl_master")
   , user:         require("./lib/controllers/ctrl_user")
   }

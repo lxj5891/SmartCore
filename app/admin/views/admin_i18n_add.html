@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+
+  <% include admin_required.html %>
+
+  <script type="text/javascript" src="/javascripts/admin_i18n_add.js"></script>
+
+  <style>
+    .corner {
+      position: absolute;
+      right: 22px;
+      top:5px;
+      cursor: pointer;
+    }
+  </style>
+
+</head>
+<body>
+
+<% include admin_header.html %>
+
+<div class="row contents">
+  <div class="sidebar">
+    <ul>
+      <li class="active" title="添加翻译">
+        <a href="#">
+          <span>添加翻译</span>
+        </a>
+      </li>
+    </ul>
+  </div><!-- sidebar -->
+
+  <div class="content">
+    <div class="row">
+      <div class="col-lg-12">
+        <div style="padding: 20px;">
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label for="inputCategory" class="col-lg-2 control-label">分类</label>
+              <div class="col-lg-2">
+                <input type="text" class="form-control" id="inputCategory">
+              </div>
+              <div class="btn-group">
+                <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">选择 <span class="caret"></span></button>
+                <ul class="dropdown-menu" id="categoryUl">
+                </ul>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="password" class="col-lg-2 control-label">词条key</label>
+              <div class="col-lg-5">
+                <input type="text" class="form-control" id="password">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="password" class="col-lg-2 control-label">翻译</label>
+              <div class="col-lg-4">
+                <div class="btn-group">
+                  <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">追加语言 <span class="caret"></span></button>
+                  <ul class="dropdown-menu" id="langUl">
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <hr>
+              <div class="col-lg-offset-2 col-lg-4">
+                <button id="save" type="submit" class="btn btn-default">保存</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- content -->
+</div>
+
+<% include admin_footer.html %>
+
+<script type="text/template" id="tmpl_category_li">
+  <li><a href="#" onclick="selectCategory('{{category}}');">{{category}}</a></li>
+</script>
+
+<script type="text/template" id="tmpl_lang_li">
+  <li><a href="#" onclick="addLang('{{langCode}}', '{{langName}}');">{{langName}}</a></li>
+</script>
+
+<script type="text/template" id="tmpl_lang_row">
+  <div class="form-group" id="row_{{langCode}}">
+    <label for="password" class="col-lg-2 control-label"></label>
+    <div class="col-lg-5">
+      <div class="input-group">
+        <span class="input-group-addon">{{langName}}</span>
+        <input type="text" class="form-control" id="{{langCode}}Text">
+        <div class="input-group-btn">
+          <button tabindex="-1" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul role="menu" class="dropdown-menu pull-right">
+            <li><a href="#" onclick="clearLang('{{langCode}}')">清空</a></li>
+            <li><a href="#" onclick="removeLang('{{langCode}}')">删除</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script>
+  var i18n = {
+      "js.common.dialog.ok": "<%=i('js.common.dialog.ok') %>"
+    , "js.common.dialog.cancel": "<%=i('js.common.dialog.cancel') %>"
+    , "js.common.delete.confirm": "<%=i('js.common.delete.confirm') %>"
+    , "js.common.add.error": "<%=i('js.common.add.error') %>"
+    , "js.common.update.error": "<%=i('js.common.update.error') %>"
+    , "js.common.delete.error": "<%=i('js.common.delete.error') %>"
+  };
+
+</script>
+
+</body>
+</html>
