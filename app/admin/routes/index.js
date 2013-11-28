@@ -39,4 +39,9 @@ exports.guidingApi = function(app){
 
     i18n.getLangs(req, res);
   });
+
+  app.post("/i18n/add.json", function (req, res) {
+
+    i18n.add(req, res);
+  });
 };

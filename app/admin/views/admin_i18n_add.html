@@ -5,7 +5,7 @@
 
   <% include admin_required.html %>
 
-  <script type="text/javascript" src="/javascripts/admin_i18n_add.js"></script>
+  <script type="text/javascript" src="/admin/public/javascripts/admin_i18n_add.js"></script>
 
   <style>
     .corner {
@@ -49,13 +49,13 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="password" class="col-lg-2 control-label">词条key</label>
+              <label for="inputKey" class="col-lg-2 control-label">词条key</label>
               <div class="col-lg-5">
-                <input type="text" class="form-control" id="password">
+                <input type="text" class="form-control" id="inputKey">
               </div>
             </div>
-            <div class="form-group">
-              <label for="password" class="col-lg-2 control-label">翻译</label>
+            <div class="form-group" id="langDiv">
+              <label class="col-lg-2 control-label">翻译</label>
               <div class="col-lg-4">
                 <div class="btn-group">
                   <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">追加语言 <span class="caret"></span></button>
@@ -85,16 +85,16 @@
 </script>
 
 <script type="text/template" id="tmpl_lang_li">
-  <li><a href="#" onclick="addLang('{{langCode}}', '{{langName}}');">{{langName}}</a></li>
+  <li id="{{langCode}}Li"><a href="#" onclick="addLang('{{langCode}}', '{{langName}}');">{{langName}}</a></li>
 </script>
 
 <script type="text/template" id="tmpl_lang_row">
-  <div class="form-group" id="row_{{langCode}}">
+  <div class="form-group" id="{{langCode}}Row">
     <label for="password" class="col-lg-2 control-label"></label>
     <div class="col-lg-5">
       <div class="input-group">
         <span class="input-group-addon">{{langName}}</span>
-        <input type="text" class="form-control" id="{{langCode}}Text">
+        <input type="text" class="form-control" id="{{langCode}}Text" name="langText" langCode="{{langCode}}">
         <div class="input-group-btn">
           <button tabindex="-1" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
             <span class="caret"></span>
