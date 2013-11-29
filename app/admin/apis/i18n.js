@@ -86,3 +86,26 @@ exports.add = function(req, res){
   });
 
 };
+
+/**
+ * 获取词条
+ * @param {Object} req 请求对象
+ * @param {Object} res 响应对象
+ * @returns {*} 无
+ */
+exports.get = function(req, res){
+
+  var handler = new context().bind(req, res);
+  handler.addParams("limit", 1);
+  handler.addParams("condition", {key: handler.params.key, valid: 1});
+
+  ctrI18n.getList(handler, function(err, result) {
+
+    if(result) {
+      result = result[0];
+    }
+
+    return response.send(res, err, result);
+  });
+
+};

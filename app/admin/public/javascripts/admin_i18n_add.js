@@ -9,6 +9,8 @@ $(function () {
 
 });
 
+var langCache = {};
+
 function render() {
 
   smart.doget("/i18n/categorys.json" , function(err, result) {
@@ -34,13 +36,31 @@ function render() {
       var tmpl = $('#tmpl_lang_li').html();
 
       _.each(result, function(lang) {
+        langCache[lang.langCode] = lang.langName;
         $("#langUl").append(_.template(tmpl, {
-          "langCode": lang.langCode
+            "langCode": lang.langCode
           , "langName": lang.langName
         }));
       });
     }
   });
+
+  var key = $("#key").val();
+  if(key) {
+    smart.doget("/i18n/get.json?key=" + key, function(err, result) {
+      if (err) {
+        smart.error(err, i18n["js.common.search.error"], false);
+      } else {
+        $("#inputCategory").val(result.category);
+        $("#inputKey").val(key);
+        var lang = result.lang;
+        var langCodes = _.keys(lang);
+        _.each(langCodes, function(langCode) {
+          addLang(langCode, langCache[langCode], lang[langCode]);
+        });
+      }
+    });
+  }
 
 }
 
@@ -52,7 +72,7 @@ function events() {
 function save() {
 
   var category = $("#inputCategory").val();
-  var key = _.trim($("#inputKey").val());
+  var key = _.str.trim($("#inputKey").val());
 
   if(key === "") {
     alert("词条key不能为空！");
@@ -72,7 +92,7 @@ function save() {
   }
 
   var data = {
-      category: category
+    category: category
     , key: key
     , trans: trans
   };
@@ -92,7 +112,7 @@ function selectCategory(category) {
   $("#inputCategory").val(category);
 }
 
-function addLang(langCode, langName) {
+function addLang(langCode, langName, langText) {
 
   $("#" + langCode + "Li").hide();
 
@@ -101,7 +121,8 @@ function addLang(langCode, langName) {
   $("#langDiv").after(_.template(tmpl, {
       "langCode": langCode
     , "langName": langName
-  }));
+    , "langText": langText ? langText : ""
+    }));
 }
 
 function clearLang(langCode) {
@@ -112,3 +133,19 @@ function removeLang(langCode) {
   $("#" + langCode + "Row").remove();
   $("#" + langCode + "Li").show();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
