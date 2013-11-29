@@ -27,7 +27,12 @@ exports.guidingApi = function(app){
 
   app.get("/i18n/edit/:key", function (req, res) {
 
-    res.render("admin_i18n_add", {"title": "添加翻译", "key": req.params.key});
+    res.render("admin_i18n_add", {"title": "更新翻译", "key": req.params.key});
+  });
+
+  app.get("/i18n/list", function (req, res) {
+
+    res.render("admin_i18n_list", {"title": "翻译一览", "key": req.params.key});
   });
 
   app.get("/i18n/categorys.json", function (req, res) {
@@ -48,5 +53,10 @@ exports.guidingApi = function(app){
   app.post("/i18n/add.json", function (req, res) {
 
     i18n.add(req, res);
+  });
+
+  app.get("/i18n/list.json", function (req, res) {
+
+    i18n.getList(req, res);
   });
 };

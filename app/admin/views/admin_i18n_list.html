@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%=title %></title>
+
+  <% include admin_required.html %>
+
+  <script type="text/javascript" src="/admin/public/javascripts/admin_i18n_list.js"></script>
+
+  <style>
+    .untransed {
+      color: red;
+    }
+    .transed {
+      color: green;
+    }
+  </style>
+
+</head>
+<body>
+
+<% include admin_header.html %>
+
+<input type="hidden" id="key" value="<%=key %>" >
+
+<div class="row contents">
+  <div class="sidebar">
+    <ul>
+      <li class="active" title="翻译一览">
+        <a href="/i18n/list">
+          <span>翻译一览</span>
+        </a>
+      </li>
+      <li title="添加翻译">
+        <a href="/i18n/add">
+          <span>添加翻译</span>
+        </a>
+      </li>
+    </ul>
+  </div><!-- sidebar -->
+
+  <div class="content" style="padding: 20px;">
+    <div class="row">
+      <div class="form-group">
+        <div class="col-lg-2">
+          <select class="form-control" id="inputCategory">
+            <option value="">&lt; 分类 &gt;</option>
+          </select>
+        </div>
+        <div class="col-lg-4">
+          <input type="text" class="form-control" id="inputKey" placeholder="词条key">
+        </div>
+        <div class="col-lg-2">
+          <select class="form-control" id="inputLang">
+            <option value="">&lt; 语言 &gt;</option>
+          </select>
+        </div>
+        <div class="col-lg-1">
+          <button id="search" type="button" class="btn btn-default"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;"></div>
+
+    <div class="row">
+      <div class="col-lg-12">
+          <div class="row">
+            <div class="col-lg-12">
+              <table class="table table-hover table-condensed">
+                <thead id="tableHead">
+                </thead>
+                <tbody id="tableRows"></tbody>
+              </table>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div><!-- content -->
+</div>
+
+<% include admin_footer.html %>
+
+<script type="text/template" id="tmpl_category_option">
+  <option value="{{category}}">{{category}}</option>
+</script>
+
+<script type="text/template" id="tmpl_lang_option">
+  <option value="{{langCode}}">{{langName}}</option>
+</script>
+
+<script type="text/template" id="tmpl_tablehead_detail">
+  <tr>
+    <th>分类</th>
+    <th>词条key</th>
+    <th>{{langName}}翻译</th>
+    <th>操作</th>
+  </tr>
+</script>
+
+<script type="text/template" id="tmpl_tablehead_status">
+  <tr>
+    <th>分类</th>
+    <th>词条key</th>
+    <th>翻译状态</th>
+    <th>操作</th>
+  </tr>
+</script>
+
+<script type="text/template" id="tmpl_tablerow">
+  <tr>
+    <th>{{category}}</th>
+    <th>{{key}}</th>
+    <th id="{{_id}}">{{value}}</th>
+    <th><a href="/i18n/edit/{{key}}" class="btn btn-default btn-sm">編集</a></th>
+  </tr>
+</script>
+
+<script>
+  var i18n = {
+      "js.common.dialog.ok": "<%=i('js.common.dialog.ok') %>"
+    , "js.common.dialog.cancel": "<%=i('js.common.dialog.cancel') %>"
+    , "js.common.delete.confirm": "<%=i('js.common.delete.confirm') %>"
+    , "js.common.add.error": "<%=i('js.common.add.error') %>"
+    , "js.common.update.error": "<%=i('js.common.update.error') %>"
+    , "js.common.delete.error": "<%=i('js.common.delete.error') %>"
+  };
+
+</script>
+
+</body>
+</html>

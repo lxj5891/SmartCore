@@ -13,6 +13,7 @@ var langCache = {};
 
 function render() {
 
+  // 1.获取分类
   smart.doget("/i18n/categorys.json" , function(err, result) {
     if (err) {
       smart.error(err, i18n["js.common.search.error"], false);
@@ -28,6 +29,7 @@ function render() {
     }
   });
 
+  // 2.获取语言
   smart.doget("/i18n/langs.json" , function(err, result) {
     if (err) {
       smart.error(err, i18n["js.common.search.error"], false);
@@ -37,16 +39,22 @@ function render() {
 
       _.each(result, function(lang) {
         langCache[lang.langCode] = lang.langName;
-        $("#langUl").append(_.template(tmpl, {
+        if(!key && lang.isDefault === true) { // 默认语言
+          addLang(lang.langCode, lang.langName);
+        } else {
+          $("#langUl").append(_.template(tmpl, {
             "langCode": lang.langCode
-          , "langName": lang.langName
-        }));
+            , "langName": lang.langName
+          }));
+        }
       });
     }
   });
 
   var key = $("#key").val();
   if(key) {
+    // 3.加载词条
+    // TODO 应该放到“2.获取语言”的回调函数中
     smart.doget("/i18n/get.json?key=" + key, function(err, result) {
       if (err) {
         smart.error(err, i18n["js.common.search.error"], false);

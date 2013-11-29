@@ -11,6 +11,7 @@ var smart       = require("../../../index")
   , context     = smart.framework.context
   , response    = smart.framework.response
   , async       = smart.util.async
+  , config      = smart.util.config
   , _           = smart.util.underscore;
 
 /**
@@ -42,13 +43,27 @@ exports.getCategorys = function(req, res){
  */
 exports.getLangs = function(req, res){
 
+  // TODO langs 应该从Master获得
   var langs = [
       {langCode: "zh", langName: "中文"}
     , {langCode: "en", langName: "英文"}
     , {langCode: "ja", langName: "日文"}
     ];
 
+  var defaultLang = config.app.i18n.lang; // 默认语言
+  _.each(langs, function(lang) {
+    if(lang.langCode === defaultLang) {
+      lang.isDefault = true;
+    }
+  });
+
   langs.sort(function(a, b) {
+    if(a.isDefault === true) {
+      return -1;
+    }
+    if(b.isDefault === true) {
+      return 1;
+    }
     return a.langName > b.langName;
   });
 
@@ -109,3 +124,52 @@ exports.get = function(req, res){
   });
 
 };
+
+/**
+ * 获取词条一览
+ * @param {Object} req 请求对象
+ * @param {Object} res 响应对象
+ * @returns {*} 无
+ */
+exports.getList = function(req, res){
+
+  var handler = new context().bind(req, res);
+  var params = handler.params;
+
+  var condition = {"valid": 1};
+  if(params.category) {
+    condition.category = params.category;
+  }
+  if(params.key) {
+    condition.key = { $regex : params.key, $options: "i" };
+  }
+
+  handler.addParams("condition", condition);
+  handler.addParams("order", "category key");
+
+  ctrI18n.getList(handler, function(err, result) {
+
+    if(result) {
+      var langCode = params.lang;
+      if(langCode) { // 擦除多余的语言
+        _.each(result, function(item) {
+          var tempLang = item.lang;
+          item.lang = {};
+          item.lang[langCode] = tempLang[langCode];
+        });
+      }
+    }
+
+    return response.send(res, err, result);
+  });
+
+};
+
+
+
+
+
+
+
+
+
