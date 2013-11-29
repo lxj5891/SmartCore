@@ -1,25 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title></title>
+  <title><%=title %></title>
 
   <% include admin_required.html %>
 
   <script type="text/javascript" src="/admin/public/javascripts/admin_i18n_add.js"></script>
 
-  <style>
-    .corner {
-      position: absolute;
-      right: 22px;
-      top:5px;
-      cursor: pointer;
-    }
-  </style>
-
 </head>
 <body>
 
 <% include admin_header.html %>
+
+<input type="hidden" id="key" value="<%=key %>" >
 
 <div class="row contents">
   <div class="sidebar">
@@ -65,9 +58,8 @@
               </div>
             </div>
             <div class="form-group">
-              <hr>
               <div class="col-lg-offset-2 col-lg-4">
-                <button id="save" type="submit" class="btn btn-default">保存</button>
+                <button id="save" type="button" class="btn btn-default">保存</button>
               </div>
             </div>
           </form>
@@ -94,15 +86,17 @@
     <div class="col-lg-5">
       <div class="input-group">
         <span class="input-group-addon">{{langName}}</span>
-        <input type="text" class="form-control" id="{{langCode}}Text" name="langText" langCode="{{langCode}}">
+        <input type="text" class="form-control" id="{{langCode}}Text" name="langText" langCode="{{langCode}}" value="{{langText}}">
         <div class="input-group-btn">
           <button tabindex="-1" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button">
             <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
+            <span class="sr-only"></span>
           </button>
           <ul role="menu" class="dropdown-menu pull-right">
             <li><a href="#" onclick="clearLang('{{langCode}}')">清空</a></li>
+            <% if(!key) { %> <!-- i18n模块暂时没有提供语言删除的方法，所以更新时不能删除语言 -->
             <li><a href="#" onclick="removeLang('{{langCode}}')">删除</a></li>
+            <% } %>
           </ul>
         </div>
       </div>
