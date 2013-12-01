@@ -10,6 +10,7 @@
   "js.i18n.check.search": "请输入分类或词条标识！",
   "js.i18n.check.translation.empty": "翻译不能为空！",
   "js.i18n.check.key.empty": "词条标识不能为空！",
+  "js.i18n.check.key.conflict": "翻译已存在，确定更新？",
   "html.label.common.operation": "操作",
   "js.common.dialog.ok":"确定",
   "js.common.dialog.cancel":"取消",
@@ -21,11 +22,13 @@
   "js.common.add.error": "新增失败",
   "js.common.update.error": "更新失败",
   "js.common.search.error": "查询失败",
+  "js.common.list.empty": "没有记录",
   "html.button.common.save": "保存",
   "html.button.common.close": "关闭",
   "html.button.common.edit": "编辑",
   "html.button.common.delete": "删除",
   "html.button.common.clear": "清空",
   "html.button.common.select": "选择",
-  "html.button.common.search": "搜索"
+  "html.button.common.search": "搜索",
+  "html.button.common.goonAdd": "继续添加"
 }

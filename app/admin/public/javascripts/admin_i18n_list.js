@@ -76,6 +76,12 @@ function search(start, limit) {
     if (err) {
       smart.error(err, i18n["js.common.search.error"], false);
     } else {
+
+      if(result.length === 0) {
+        $("#tableHead").html("<th class='text-warning'>" + i18n["js.common.list.empty"] + "</th>");
+        return;
+      }
+
       var tmpl = $("#tmpl_tablerow").html();
       if(lang) {
         $("#tableHead").html(_.template($("#tmpl_tablehead_detail").html(), {

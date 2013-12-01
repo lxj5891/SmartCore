@@ -107,15 +107,40 @@ function save() {
     , trans: trans
   };
 
+  if($("#key").val()) { // 更新
+    doSave(data)
+  } else { // 添加
+    smart.doget("/i18n/get.json?key=" + key, function(err, result) {
+      if (err) {
+        smart.error(err, i18n["js.common.search.error"], false);
+      } else {
+        if(result) { // 词条已存在
+          if(window.confirm(i18n["js.i18n.check.key.conflict"])) {
+            doSave(data);
+          }
+        } else {
+          doSave(data);
+        }
+      }
+    });
+  }
+
+}
+
+function doSave(data) {
   smart.dopost("/i18n/add.json" , data, function(err) {
     if (err) {
       smart.error(err, i18n["js.common.save.error"], false);
     } else {
 
-      alert(i18n["js.common.save.success"]);
+      $("#form").hide();
+      $("#successInfo").show();
+
+      if(!$("#key").val()) { // 添加
+        $("#goonAddBtn").show();
+      }
     }
   });
-
 }
 
 function selectCategory(category) {
