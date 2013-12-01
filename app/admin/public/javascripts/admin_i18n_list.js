@@ -52,7 +52,7 @@ function render() {
 function events() {
 
   $("#search").click(function() {
-    search(0, 10000);
+    search(0, Number.MAX_VALUE);
   });
 }
 
@@ -63,7 +63,7 @@ function search(start, limit) {
   var lang = $("#inputLang").val();
 
   if(category === "" && key === "") {
-    alert("请输入分类或词条key！");
+    alert(i18n["js.i18n.check.search"]);
     return;
   }
 
