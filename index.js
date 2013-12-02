@@ -19,7 +19,6 @@ module.exports = {
    */
   util: {
     underscore:         require("underscore")
-  , underscorestring:   require("underscore.string")
   , async:              require("async")
   , config:             require("config")
   , log4js:             require("log4js")
