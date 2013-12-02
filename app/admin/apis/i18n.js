@@ -9,6 +9,7 @@
 var smart       = require("../../../index")
   , ctrI18n     = smart.ctrl.i18n
   , context     = smart.framework.context
+  , constant     = smart.framework.constant
   , response    = smart.framework.response
   , async       = smart.util.async
   , config      = smart.util.config
@@ -50,7 +51,7 @@ exports.getLangs = function(req, res){
     , {langCode: "ja", langName: "日文"}
     ];
 
-  var defaultLang = config.app.i18n.lang; // 默认语言
+  var defaultLang = config.app.i18n.lang || constant.DEFAULT_I18N_LANG; // 默认语言
   _.each(langs, function(lang) {
     if(lang.langCode === defaultLang) {
       lang.isDefault = true;
@@ -155,7 +156,7 @@ exports.getList = function(req, res){
         _.each(result, function(item) {
           var tempLang = item.lang;
           item.lang = {};
-          item.lang[langCode] = tempLang[langCode];
+          item.lang[langCode] = tempLang[langCode] || "";
         });
       }
     }

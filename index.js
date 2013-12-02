@@ -50,7 +50,6 @@ module.exports = {
   , context:      require("./lib/context")
   , constant:     require("./lib/constant")
   , connection:   require("./lib/connection")
-  , command:      require("./lib/command")
   },
 
   /**
