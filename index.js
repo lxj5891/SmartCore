@@ -30,6 +30,8 @@ module.exports = {
   , sessionstore: require("connect-mongo")  // MongoDB session store for Connect
   , nodemailer:   require("nodemailer")
   , validator:    require("validator")
+  , commander:    require("commander")
+  , optimist:     require("optimist")
   },
 
   /**
