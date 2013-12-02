@@ -29,6 +29,8 @@ function render() {
     }
   });
 
+  var key = $("#key").val();
+
   // 2.获取语言
   smart.doget("/i18n/langs.json" , function(err, result) {
     if (err) {
@@ -51,7 +53,6 @@ function render() {
     }
   });
 
-  var key = $("#key").val();
   if(key) {
     // 3.加载词条
     // TODO 应该放到“2.获取语言”的回调函数中
@@ -83,7 +84,8 @@ function save() {
   var key = _.str.trim($("#inputKey").val());
 
   if(key === "") {
-    alert("词条key不能为空！");
+    alert(i18n["js.i18n.check.key.empty"]);
+    $("#inputKey").focus();
     return;
   }
 
@@ -95,7 +97,7 @@ function save() {
   });
 
   if(_.isEmpty(trans)) {
-    alert("翻译不能为空！");
+    alert(i18n["js.i18n.check.translation.empty"]);
     return;
   }
 
@@ -105,15 +107,40 @@ function save() {
     , trans: trans
   };
 
+  if($("#key").val()) { // 更新
+    doSave(data)
+  } else { // 添加
+    smart.doget("/i18n/get.json?key=" + key, function(err, result) {
+      if (err) {
+        smart.error(err, i18n["js.common.search.error"], false);
+      } else {
+        if(result) { // 词条已存在
+          if(window.confirm(i18n["js.i18n.check.key.conflict"])) {
+            doSave(data);
+          }
+        } else {
+          doSave(data);
+        }
+      }
+    });
+  }
+
+}
+
+function doSave(data) {
   smart.dopost("/i18n/add.json" , data, function(err) {
     if (err) {
-      smart.error(err, i18n["js.common.search.error"], false);
+      smart.error(err, i18n["js.common.save.error"], false);
     } else {
 
-      alert("更新成功");
+      $("#form").hide();
+      $("#successInfo").show();
+
+      if(!$("#key").val()) { // 添加
+        $("#goonAddBtn").show();
+      }
     }
   });
-
 }
 
 function selectCategory(category) {

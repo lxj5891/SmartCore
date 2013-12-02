@@ -52,7 +52,7 @@ function render() {
 function events() {
 
   $("#search").click(function() {
-    search(0, 10000);
+    search(0, Number.MAX_VALUE);
   });
 }
 
@@ -63,7 +63,7 @@ function search(start, limit) {
   var lang = $("#inputLang").val();
 
   if(category === "" && key === "") {
-    alert("请输入分类或词条key！");
+    alert(i18n["js.i18n.check.search"]);
     return;
   }
 
@@ -76,6 +76,12 @@ function search(start, limit) {
     if (err) {
       smart.error(err, i18n["js.common.search.error"], false);
     } else {
+
+      if(result.length === 0) {
+        $("#tableHead").html("<th class='text-warning'>" + i18n["js.common.list.empty"] + "</th>");
+        return;
+      }
+
       var tmpl = $("#tmpl_tablerow").html();
       if(lang) {
         $("#tableHead").html(_.template($("#tmpl_tablehead_detail").html(), {

@@ -17,14 +17,14 @@
 <div class="row contents">
   <div class="sidebar">
     <ul>
-      <li title="翻译一览">
+      <li title="<%=i('html.label.i18n.sidebar.list') %><!--翻译一览-->">
         <a href="/i18n/list">
-          <span>翻译一览</span>
+          <span><%=i('html.label.i18n.sidebar.list') %><!--翻译一览--></span>
         </a>
       </li>
-      <li class="active" title="添加翻译">
+      <li class="active" title="<%=i('html.label.i18n.sidebar.add') %>"><!--添加翻译-->
         <a href="/i18n/add">
-          <span>添加翻译</span>
+          <span><%=i('html.label.i18n.sidebar.add') %><!--添加翻译--></span>
         </a>
       </li>
     </ul>
@@ -33,29 +33,29 @@
   <div class="content" style="padding: 20px;">
     <div class="row">
       <div class="col-lg-12">
-        <form class="form-horizontal">
+        <form class="form-horizontal" id="form">
           <div class="form-group">
-            <label for="inputCategory" class="col-lg-2 control-label">分类</label>
+            <label for="inputCategory" class="col-lg-2 control-label"><%=i('html.label.i18n.category') %><!--分类--></label>
             <div class="col-lg-2">
               <input type="text" class="form-control" id="inputCategory">
             </div>
             <div class="btn-group">
-              <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">选择 <span class="caret"></span></button>
+              <button data-toggle="dropdown" class="btn btn-default dropdown-toggle"><%=i('html.button.common.select') %> <!--选择--><span class="caret"></span></button>
               <ul class="dropdown-menu" id="categoryUl">
               </ul>
             </div>
           </div>
           <div class="form-group">
-            <label for="inputKey" class="col-lg-2 control-label">词条key</label>
+            <label for="inputKey" class="col-lg-2 control-label"><%=i('html.label.i18n.key') %><!--词条标识--></label>
             <div class="col-lg-5">
               <input type="text" class="form-control" id="inputKey">
             </div>
           </div>
           <div class="form-group" id="langDiv">
-            <label class="col-lg-2 control-label">翻译</label>
+            <label class="col-lg-2 control-label"><%=i('html.label.i18n.translation') %><!--翻译--></label>
             <div class="col-lg-4">
               <div class="btn-group">
-                <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">追加语言 <span class="caret"></span></button>
+                <button data-toggle="dropdown" class="btn btn-default dropdown-toggle"><%=i('html.label.i18n.addLanguage') %> <!--追加语言--><span class="caret"></span></button>
                 <ul class="dropdown-menu" id="langUl">
                 </ul>
               </div>
@@ -63,10 +63,21 @@
           </div>
           <div class="form-group">
             <div class="col-lg-offset-2 col-lg-4">
-              <button id="save" type="button" class="btn btn-default">保存</button>
+              <button id="save" type="button" class="btn btn-default"><%=i('html.button.common.save')%><!--保存--></button>
             </div>
           </div>
         </form>
+
+        <div class="col-lg-12" id="successInfo" style="display: none;">
+          <span class="text-success">
+            <strong><%=i('js.common.save.success') %><!--保存成功--></strong>
+          </span>
+        </div>
+        <div class="col-lg-12" id="goonAddBtn" style="display: none;">
+          <hr>
+          <a href="/i18n/add" class="btn btn-default btn-sm"><%=i('html.button.common.goonAdd') %><!--继续添加--></a>
+        </div>
+
       </div>
     </div>
   </div><!-- content -->
@@ -95,9 +106,9 @@
             <span class="sr-only"></span>
           </button>
           <ul role="menu" class="dropdown-menu pull-right">
-            <li><a href="#" onclick="clearLang('{{langCode}}')">清空</a></li>
+            <li><a href="#" onclick="clearLang('{{langCode}}')"><%=i('html.button.common.clear') %><!--清空--></a></li>
             <% if(!key) { %> <!-- i18n模块暂时没有提供语言删除的方法，所以更新时不能删除语言 -->
-            <li><a href="#" onclick="removeLang('{{langCode}}')">删除</a></li>
+            <li><a href="#" onclick="removeLang('{{langCode}}')"><%=i('html.button.common.delete')%><!--删除--></a></li>
             <% } %>
           </ul>
         </div>
@@ -108,12 +119,12 @@
 
 <script>
   var i18n = {
-      "js.common.dialog.ok": "<%=i('js.common.dialog.ok') %>"
-    , "js.common.dialog.cancel": "<%=i('js.common.dialog.cancel') %>"
-    , "js.common.delete.confirm": "<%=i('js.common.delete.confirm') %>"
-    , "js.common.add.error": "<%=i('js.common.add.error') %>"
-    , "js.common.update.error": "<%=i('js.common.update.error') %>"
-    , "js.common.delete.error": "<%=i('js.common.delete.error') %>"
+      "js.common.search.error": "<%=i('js.common.search.error') %>"
+    , "js.common.save.success": "<%=i('js.common.save.success') %>"
+    , "js.common.save.error": "<%=i('js.common.save.error') %>"
+    , "js.i18n.check.key.empty": "<%=i('js.i18n.check.key.empty') %>"
+    , "js.i18n.check.translation.empty": "<%=i('js.i18n.check.translation.empty') %>"
+    , "js.i18n.check.key.conflict": "<%=i('js.i18n.check.key.conflict') %>"
   };
 
 </script>
