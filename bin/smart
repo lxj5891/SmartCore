@@ -95,12 +95,12 @@ function installAdmin(folder) {
   showHelp();
 
   if (argv.i) {
-    createApp(argv.i || ".");
-    installAdmin(argv.i || ".");
+    createApp(argv.i === true ? "." : argv.i);
+    installAdmin(argv.i === true ? "." : argv.i);
   }
 
   if (argv.a) {
-    installAdmin(argv.a || ".");
+    installAdmin(argv.a === true ? "." : argv.a);
   }
 
 })();
