@@ -34,7 +34,7 @@ app.use(middleware.timeout);      // 设定超时
 /**
  * 路由
  */
-require("./app/admin/routes").guidingApi(app);
+require("./app/admin/routes").guiding(app);
 
 /**
  * 启动服务

@@ -1,7 +1,8 @@
 
 "use strict";
 
-var i18n        = require("../apis/i18n");
+var i18n        = require("../apis/i18n")
+  , master     = require("../apis/master");
 
 exports.guiding = function(app){
 
@@ -68,5 +69,18 @@ exports.guiding = function(app){
   app.get("/admin/master/add", function (req, res) {
 
     res.render("smartadmin/admin_master_add", {"title": "title"});
+  });
+
+  app.get("/master/detail/:id", function (req, res) {
+
+    res.render("smartadmin/admin_master_detail", {"title": "title", user: req.session.user, masterId: req.params.id});
+  });
+
+  app.post("/master/add.json", function(req, res) {
+    master.add(req, res);
+  });
+
+  app.get("/master/get.json", function(req, res) {
+    master.get(req, res);
   });
 };
