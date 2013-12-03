@@ -15,6 +15,9 @@
     "platform"
   ],
   "author": "Dreamarts <r2space@gmail.com>",
+  "bin": {
+    "smart": "./bin/smartcore"
+  },
   "license": "MIT",
   "dependencies": {
     "log4js": "0.6.9",
@@ -33,7 +36,8 @@
     "commander": "2.0.0",
     "mkdirp": "0.3.5",
     "optimist": "0.6.0",
-    "csv": "0.3.6"
+    "csv": "0.3.6",
+    "fs-extra": "0.8.1"
   },
   "devDependencies": {
     "less": "*",
