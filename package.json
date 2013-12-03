@@ -16,7 +16,7 @@
   ],
   "author": "Dreamarts <r2space@gmail.com>",
   "bin": {
-    "smart": "./bin/smartcore"
+    "smart": "./bin/smart"
   },
   "license": "MIT",
   "dependencies": {

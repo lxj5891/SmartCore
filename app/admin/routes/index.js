@@ -3,7 +3,7 @@
 
 var i18n        = require("../apis/i18n");
 
-exports.guidingApi = function(app){
+exports.guiding = function(app){
 
   app.get("/admin", function (req, res) {
 
