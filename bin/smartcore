@@ -47,12 +47,10 @@ function installAdmin(path) {
 
   var src = p.resolve(__dirname , "..");
 
-  fsext.copySync(src + "/app/admin",              path + "/smartadmin");
-  fsext.copySync(src + "/app/admin/views",        path + "/views/smartadmin");
-  fsext.copySync(src + "/app/public/smart",       path + "/public/smart");
-  fsext.copySync(src + "/app/public/smartadmin",  path + "/public/smartadmin");
-
-  fsext.remove(path + "/smartadmin/views");
+  fsext.copySync(src + "/app/admin",                path + "/smartadmin");
+  fsext.copySync(src + "/app/views/smartadmin",     path + "/views/smartadmin");
+  fsext.copySync(src + "/app/public/smart",         path + "/public/smart");
+  fsext.copySync(src + "/app/public/smartadmin",    path + "/public/smartadmin");
 }
 
 /**
