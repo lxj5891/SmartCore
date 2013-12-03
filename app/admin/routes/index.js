@@ -59,4 +59,14 @@ exports.guidingApi = function(app){
 
     i18n.getList(req, res);
   });
+
+  app.get("/master/list", function (req, res) {
+
+    res.render("admin_master_list", {"title": "title"});
+  });
+
+  app.get("/master/add", function (req, res) {
+
+    res.render("admin_master_add", {"title": "title"});
+  });
 };
