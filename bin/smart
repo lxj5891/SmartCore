@@ -19,14 +19,13 @@ function showHelp() {
   // 定义帮助信息
   program
     .version(version)
-    .option("-i, --init", "init project")
-    .option("-g, --generate", "generate mvc set");
+    .option("-i, --init", "init project");
 
   // 定义帮助信息中的例子
   program.on("--help", function(){
     console.log("  Examples:");
     console.log("");
-    console.log("    $ smart -i test");
+    console.log("    $ smart -i myapp");
     console.log("");
   });
 
