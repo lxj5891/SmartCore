@@ -64,5 +64,5 @@
   "worker"        : false,//Web Worker环境
   "wsh"           : false,//Windows Script Host环境
   "yui"           : false,//yui环境
-  "globals"       : {"describe": false, "it": false, "__": false}
+  "globals"       : {"describe": false, "it": false, "__": false, "smart": false}
 }
