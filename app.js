@@ -11,8 +11,7 @@ var http        = smart.lang.http
   , express     = smart.util.express
   , middleware  = smart.framework.middleware
   , loader      = smart.framework.loader
-  , log         = smart.framework.log
-  , routes      = require("./app/admin/routes");
+  , log         = smart.framework.log;
 
 var app = express();
 
@@ -35,7 +34,7 @@ app.use(middleware.timeout);      // 设定超时
 /**
  * 路由
  */
-routes.guidingApi(app);
+require("./app/admin/routes").guidingApi(app);
 
 /**
  * 启动服务

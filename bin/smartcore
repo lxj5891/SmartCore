@@ -46,16 +46,18 @@ function createApplicationAt(path) {
 function installAdmin(path) {
 
   var src = p.resolve(__dirname , "..");
-  fsext.copySync(src + "/app/admin",        path + "/smartadmin");
-  fsext.copySync(src + "/app/admin/views",  path + "/views/smartadmin");
-  fsext.copySync(src + "/app/admin/public", path + "/public/smartadmin");
-  fsext.copySync(src + "/app/vendor",       path + "/public/smart");
+
+  fsext.copySync(src + "/app/admin",              path + "/smartadmin");
+  fsext.copySync(src + "/app/admin/views",        path + "/views/smartadmin");
+  fsext.copySync(src + "/app/public/smart",       path + "/public/smart");
+  fsext.copySync(src + "/app/public/smartadmin",  path + "/public/smartadmin");
 
   fsext.remove(path + "/smartadmin/views");
-  fsext.remove(path + "/smartadmin/public");
 }
 
-// Generate application
+/**
+ * Generate application
+ */
 (function createApplication(path) {
 
   createApplicationAt(path);
