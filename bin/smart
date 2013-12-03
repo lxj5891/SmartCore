@@ -19,7 +19,8 @@ function showHelp() {
   // 定义帮助信息
   program
     .version(version)
-    .option("-i, --init", "init project");
+    .option("-i, --init", "init project")
+    .option("-a, --admin", "add admin");
 
   // 定义帮助信息中的例子
   program.on("--help", function(){
@@ -36,9 +37,7 @@ function showHelp() {
 /**
  * Create application at the given directory `path`.
  */
-function createApp() {
-
-  var folder = argv.i || ".";
+function createApp(folder) {
 
   fsext.mkdirsSync(folder + "/apis");
   fsext.mkdirsSync(folder + "/controllers");
@@ -68,10 +67,9 @@ function createApp() {
 /**
  * 安装Admin功能
  */
-function installAdmin() {
+function installAdmin(folder) {
 
-  var src = path.resolve(__dirname , "..")
-    , folder = argv.i || ".";
+  var src = path.resolve(__dirname , "..");
 
   fsext.removeSync(folder + "/smartadmin");
   fsext.removeSync(folder + "/views/smartadmin");
@@ -97,7 +95,12 @@ function installAdmin() {
   showHelp();
 
   if (argv.i) {
-    createApp();
-    installAdmin();
+    createApp(argv.i || ".");
+    installAdmin(argv.i || ".");
   }
+
+  if (argv.a) {
+    installAdmin(argv.a || ".");
+  }
+
 })();
