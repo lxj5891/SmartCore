@@ -32,6 +32,7 @@ module.exports = {
   , validator:          require("validator")
   , commander:          require("commander")
   , optimist:           require("optimist")
+  , csv:                require("csv")
   },
 
   /**
