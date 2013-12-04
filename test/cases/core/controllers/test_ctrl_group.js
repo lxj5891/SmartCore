@@ -23,7 +23,7 @@ function newGroup() {
     , parent       : null
     , description  : "test group"
     , type         : constant.GROUP_TYPE_DEPARTMENT
-    , public       : constant.GROUP_PRIVATE
+    , visibility   : constant.GROUP_VISIBILITY_PRIVATE
     , owners       : []
     , extend       : {"QQ":"123456789", "birthday": "19850302"}
     };
@@ -80,7 +80,7 @@ describe("controllers/ctrl_group.js", function() {
           result.should.have.property("parent");
           result.should.have.property("description").and.equal("test group");
           result.should.have.property("type").and.equal(constant.GROUP_TYPE_DEPARTMENT);
-          result.should.have.property("public").and.equal(constant.GROUP_PRIVATE);
+          result.should.have.property("visibility").and.equal(constant.GROUP_VISIBILITY_PRIVATE);
           result.should.have.property("owners");
           result.owners.length.should.equal(1);
           result.owners[0].should.equal(resultUser._id.toString());
@@ -172,10 +172,10 @@ describe("controllers/ctrl_group.js", function() {
     });
 
     /*****************************************************************/
-    it("empty public", function(done) {
+    it("empty visibility", function(done) {
 
       var group = newGroup();
-      group.public = "";
+      group.visibility = "";
 
       ctrlGroup.add(newHandler("123", group), function(err, result) {
 
@@ -189,10 +189,10 @@ describe("controllers/ctrl_group.js", function() {
     });
 
     /*****************************************************************/
-    it("invalid public", function(done) {
+    it("invalid visibility", function(done) {
 
       var group = newGroup();
-      group.public = "9";
+      group.visibility = "9";
 
       ctrlGroup.add(newHandler("123", group), function(err, result) {
 
@@ -275,7 +275,7 @@ describe("controllers/ctrl_group.js", function() {
         , parent       : null
         , description  : "789"
         , type         : constant.GROUP_TYPE_GROUP
-        , public       : constant.GROUP_PUBLIC
+        , visibility       : constant.GROUP_VISIBILITY_PUBLIC
         , owners       : ["234"]
         , extend       : {"QQ":"54654", "birthday": "221321"}
         };
@@ -290,7 +290,7 @@ describe("controllers/ctrl_group.js", function() {
         result.should.have.property("parent");
         result.should.have.property("description").and.equal("789");
         result.should.have.property("type").and.equal(constant.GROUP_TYPE_DEPARTMENT);
-        result.should.have.property("public").and.equal(constant.GROUP_PUBLIC);
+        result.should.have.property("visibility").and.equal(constant.GROUP_VISIBILITY_PUBLIC);
         result.should.have.property("owners");
         result.owners.length.should.equal(1);
         result.owners[0].should.equal("234");
@@ -328,10 +328,10 @@ describe("controllers/ctrl_group.js", function() {
     });
 
     /*****************************************************************/
-    it("invalid public", function(done) {
+    it("invalid visibility", function(done) {
 
       var group = newGroup();
-      group.public = "9";
+      group.visibility = "9";
 
       ctrlGroup.update(newHandler("123", group), function(err, result) {
 

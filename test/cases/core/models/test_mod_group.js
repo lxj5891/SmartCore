@@ -21,7 +21,7 @@ describe("models/mod_group.js", function() {
     , parent       : "123456"
     , description  : "中名"
     , type         : "1"
-    , public       : "1"
+    , visibility   : "1"
     , owners       : ["0", "1"]
     , extend       : {"QQ":"123456789", "birthday": "19850302"}
     , valid        : 1
@@ -44,7 +44,7 @@ describe("models/mod_group.js", function() {
         result.should.have.property("parent").and.equal("123456");
         result.should.have.property("description").and.equal("中名");
         result.should.have.property("type").and.equal("1");
-        result.should.have.property("public").and.equal("1");
+        result.should.have.property("visibility").and.equal("1");
         result.should.have.property("owners");
         result.owners[0].should.equal("0");
         result.owners[1].should.equal("1");
@@ -77,7 +77,7 @@ describe("models/mod_group.js", function() {
         result.should.have.property("parent").and.equal("123456");
         result.should.have.property("description").and.equal("中名");
         result.should.have.property("type").and.equal("1");
-        result.should.have.property("public").and.equal("1");
+        result.should.have.property("visibility").and.equal("1");
         result.should.have.property("owners");
         result.owners[0].should.equal("0");
         result.owners[1].should.equal("1");
