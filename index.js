@@ -33,6 +33,7 @@ module.exports = {
   , commander:          require("commander")
   , optimist:           require("optimist")
   , csv:                require("csv")
+  , moment:             require("moment")
   },
 
   /**
