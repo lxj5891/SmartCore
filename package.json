@@ -1,6 +1,6 @@
 {
   "name": "smartcore",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "nodejs-based smart platform",
   "main": "index.js",
   "scripts": {
