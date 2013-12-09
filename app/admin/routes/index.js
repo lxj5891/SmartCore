@@ -68,12 +68,12 @@ exports.guiding = function(app){
 
   app.get("/admin/master/add", function (req, res) {
 
-    res.render("smartadmin/admin_master_add", {"title": "title", user: req.session.user, masterId: ""} );
+    res.render("smartadmin/admin_master_update", {"title": "title", user: req.session.user, masterId: ""} );
   });
 
   app.get("/admin/master/update/:id", function (req, res) {
 
-    res.render("smartadmin/admin_master_add", {"title": "title", user: req.session.user, masterId: req.params.id} );
+    res.render("smartadmin/admin_master_update", {"title": "title", user: req.session.user, masterId: req.params.id} );
   });
 
   app.get("/master/detail/:id", function (req, res) {
