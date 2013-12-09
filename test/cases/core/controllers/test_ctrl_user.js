@@ -6,14 +6,14 @@
 
 "use strict";
 
-require("../../../coverage/lib/test").befor();
+require("../../../../lib/test").befor();
 
 var _         = require("underscore")
   , should    = require("should")
-  , mock      = require("../../../coverage/lib/mock")
-  , context   = require("../../../coverage/lib/context")
-  , ctrlUser  = require("../../../coverage/lib/controllers/ctrl_user")
-  , modGroup  = require("../../../coverage/lib/models/mod_group");
+  , mock      = require("../../../../lib/mock")
+  , context   = require("../../../../lib/context")
+  , ctrlUser  = require("../../../../lib/controllers/ctrl_user")
+  , modGroup  = require("../../../../lib/models/mod_group");
 
 var userName = new Date().toLocaleString();
 
@@ -410,7 +410,7 @@ describe("controllers/ctrl_user.js", function() {
 
   });
 
-  describe("getListByKeywords()", function() {
+  describe("getList()", function() {
 
 //    var user1 = {
 //      userName    : "Fri Nov 15 2013 15:08:07 GMT+0800 (中国 (標準時))"
@@ -435,76 +435,31 @@ describe("controllers/ctrl_user.js", function() {
       });
 
     /*****************************************************************/
-    it("correctly get user list by intersect conditions", function(done) {
+    it("correctly get user list by condition", function(done) {
 
-      ctrlUser.add(handler2, function() {
+      ctrlUser.add(handler2, function(err, result) {
         var condition = {
-          "userName": "GMT",
-          "realName": "2中",
-          "email": "sina.cn",
-          "and": true
+          "userName": result.userName
         };
 
-        var handler = newHandler("44", condition);
+        var handler = newHandler("44", {});
+        handler.addParams("condition", condition);
 
-        ctrlUser.getListByKeywords(handler, function(err, result) {
+        ctrlUser.getList(handler, function(err, result) {
 
           should.not.exist(err);
           should.exist(result);
 
-          result.should.have.property("totalItems").and.above(0);
+          result.should.have.property("totalItems").and.equal(1);
 
           _.each(result.items, function(user) {
-            user.userName.indexOf("GMT").should.above(0);
-            user.middle.indexOf("2中").should.equal(0);
-            user.email.indexOf("sina").should.above(0);
+            user.should.have.property("userName").and.equal(condition.userName);
+            user.should.have.property("first").and.equal("2名");
             user.should.not.have.property("password");
           });
 
           done();
         });
-      });
-
-    });
-
-    /*****************************************************************/
-    it("correctly get user list by union conditions", function(done) {
-
-      var condition = {
-        "realName": "2姓2中",
-        "email": "ray",
-        "and": false
-      };
-
-      var handler = newHandler("44", condition);
-
-      ctrlUser.getListByKeywords(handler, function(err, result) {
-
-        should.not.exist(err);
-        should.exist(result);
-
-        result.should.have.property("totalItems").and.above(1);
-
-        done();
-      });
-
-    });
-
-    /*****************************************************************/
-    it("empty conditions", function(done) {
-
-      var condition = {};
-
-      var handler = newHandler("44", condition);
-
-      ctrlUser.getListByKeywords(handler, function(err, result) {
-
-        should.not.exist(err);
-        should.exist(result);
-
-        result.should.have.property("totalItems").and.above(0);
-
-        done();
       });
 
     });
