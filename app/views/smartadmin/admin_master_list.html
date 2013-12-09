@@ -42,7 +42,7 @@
             <div class="col-lg-12">
                 <div>
                     <ul class="breadcrumb">
-                        <li><a href="/">Home</a></li>
+                        <li><a href="/admin/">Home</a></li>
                         <li>
                             <a href="/admin/master/list">master</a>
                         </li>
@@ -56,8 +56,6 @@
                 <div class="widget_header">
                     <div class="btn-group">
                         <a href="/admin/master/add" class="btn btn-default">新規</a>
-                        <a href="/admin/master/edit" class="btn btn-default">編集</a>
-                        <a href="/admin/master/edit" class="btn btn-default">削除</a>
                     </div>
                 </div>
                 <div class="">
@@ -78,7 +76,11 @@
                                 <td>Row 0 Data 2</td>
                                 <td>etc</td>
                                 <td>etc</td>
-                                <td><button type="button" class="btn btn-default btn-xs">详细</button></td>
+                                <td>
+                                    <a href="/admin/master/detail" class="btn btn-default btn-xs">详细</a>
+                                    <a href="/admin/master/update" class="btn btn-default btn-xs">編集</a>
+                                    <a href="/admin/master/update" class="btn btn-default btn-xs">削除</a>
+                                </td>
                             </tr>
                         <% } %>
                         </tbody>
