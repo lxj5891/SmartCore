@@ -7,16 +7,8 @@
 <body>
 
 <% include admin_header.html %>
-<script>
-    $(document).ready(function(){
-        $('#table_id').dataTable({
-            "sSortAsc": "header headerSortDown",
-            "sSortDesc": "header headerSortUp",
-            "sSortable": "header",
-            "sPaginationType": "full_numbers"
-        });
-    });
-</script>
+<script type="text/javascript" src="/smartadmin/javascripts/admin_master_list.js"></script>
+
 <div class="row contents">
     <div class="sidebar">
         <ul>
@@ -42,7 +34,7 @@
             <div class="col-lg-12">
                 <div>
                     <ul class="breadcrumb">
-                        <li><a href="/">Home</a></li>
+                        <li><a href="/admin/">Home</a></li>
                         <li>
                             <a href="/admin/master/list">master</a>
                         </li>
@@ -56,32 +48,10 @@
                 <div class="widget_header">
                     <div class="btn-group">
                         <a href="/admin/master/add" class="btn btn-default">新規</a>
-                        <a href="/admin/master/edit" class="btn btn-default">編集</a>
-                        <a href="/admin/master/edit" class="btn btn-default">削除</a>
                     </div>
                 </div>
                 <div class="">
                     <table id="table_id" class="table table-condensed table-hover table-striped dataTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>タイプ</th>
-                                <th>コード</th>
-                                <th>描述</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <% for (i=0;i<10;i++) { %>
-                            <tr>
-                                <td>Row 0 Data 1</td>
-                                <td>Row 0 Data 2</td>
-                                <td>etc</td>
-                                <td>etc</td>
-                                <td><button type="button" class="btn btn-default btn-xs">详细</button></td>
-                            </tr>
-                        <% } %>
-                        </tbody>
                     </table>
                 </div>
             </div>
@@ -90,5 +60,6 @@
 </div>
 
 <% include admin_footer.html %>
+
 </body>
 </html>

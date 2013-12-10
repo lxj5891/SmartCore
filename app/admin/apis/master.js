@@ -48,5 +48,64 @@ exports.get = function(req, res) {
 
     return response.send(res, err, result);
   });
+};
 
+/**
+ * 更新Master
+ * @param req 请求对象
+ * @param res 响应对象
+ * @returns {*} 无
+ */
+exports.update = function(req, res) {
+
+  var handler = new context().bind(req, res);
+
+  ctrlMaster.update(handler, function(err, result) {
+
+    if (err) {
+      return response.send(res, err);
+    }
+
+    return response.send(res, err, result);
+  });
+};
+
+/**
+ * 删除Master
+ * @param req 请求对象
+ * @param res 响应对象
+ * @returns {*} 无
+ */
+exports.delete = function(req, res) {
+
+  var handler = new context().bind(req, res);
+
+  ctrlMaster.delete(handler, function(err, result) {
+
+    if (err) {
+      return response.send(res, err);
+    }
+
+    return response.send(res, err, result);
+  });
+};
+
+/**
+ * 获取Master一览
+ * @param req 请求对象
+ * @param res 响应对象
+ * @returns {*} 无
+ */
+exports.getList = function(req, res) {
+
+  var handler = new context().bind(req, res);
+
+  ctrlMaster.getList(handler, function(err, result) {
+
+    if (err) {
+      return response.send(res, err);
+    }
+
+    return response.send(res, err, result);
+  });
 };
