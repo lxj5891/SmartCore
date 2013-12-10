@@ -9,6 +9,8 @@
 <% include admin_header.html %>
 <script type="text/javascript" src="/smartadmin/javascripts/admin_master_update.js"></script>
 
+<input type="hidden" id="masId" value="<%= masterId %>">
+
 <div class="row contents">
     <div class="sidebar">
         <ul>
@@ -38,7 +40,7 @@
                         <li>
                             <a href="/admin/master/list">master</a>
                         </li>
-                        <li class="active">add</li>
+                        <li class="active"><%= operation %></li>
                     </ul>
                 </div>
             </div>
@@ -68,6 +70,12 @@
                             <label for="inputDesc" class="col-sm-2 control-label">描述</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" id="inputDesc" placeholder="描述">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDesc" class="col-sm-2 control-label">翻訳キー</label>
+                            <div class="col-sm-6">
+                                <input class="form-control" id="inputTrsKey" type="text">
                             </div>
                         </div>
                         <div class="form-group">

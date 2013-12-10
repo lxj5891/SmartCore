@@ -25,13 +25,14 @@ function mongoDataToDisplayData(fieldMongoData) {
 // マスタメインデータ取得
 function getMasterData(masterId) {
 
-  smart.doget("/master/get.json?masterId=" + masterId , function(err, result) {
+  smart.doget("/admin/master/get.json?masterId=" + masterId , function(err, result) {
     if (err) {
       smart.error(err, "js.common.search.error", false);
     } else {
       $("#inputType").val(result.masterType);
       $("#inputCode").val(result.masterCode);
       $("#inputDesc").val(result.masterDescription);
+      $("#inputTrsKey").val(result.masterTrsKey);
 
       var itemData = mongoDataToDisplayData(result.fieldSet);
 

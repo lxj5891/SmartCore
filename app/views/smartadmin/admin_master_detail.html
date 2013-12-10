@@ -10,7 +10,6 @@
 <script type="text/javascript" src="/smartadmin/javascripts/admin_master_detail.js"></script>
 
 <input type="hidden" id="masId" value="<%= masterId %>">
-<input type="hidden" id="operation" value="<%= operation %>">
 
 <div class="row contents">
     <div class="sidebar">
@@ -58,19 +57,25 @@
                             <div class="form-group">
                                 <label for="inputType" class="col-sm-2 control-label">タイプ</label>
                                 <div class="col-sm-6">
-                                    <input class="form-control" id="inputType" type="text">
+                                    <input class="form-control" id="inputType" type="text" disabled>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputCode" class="col-sm-2 control-label">コード</label>
                                 <div class="col-sm-6">
-                                    <input class="form-control" id="inputCode" type="text">
+                                    <input class="form-control" id="inputCode" type="text" disabled>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="inputDesc" class="col-sm-2 control-label">描述</label>
                                 <div class="col-sm-6">
-                                    <input class="form-control" id="inputDesc" type="text">
+                                    <input class="form-control" id="inputDesc" type="text" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputDesc" class="col-sm-2 control-label">翻訳キー</label>
+                                <div class="col-sm-6">
+                                    <input class="form-control" id="inputTrsKey" type="text" disabled>
                                 </div>
                             </div>
                             <div class="form-group">
