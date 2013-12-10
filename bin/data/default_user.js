@@ -10,7 +10,7 @@ process.env.NODE_CONFIG_DIR = __dirname + "/config";
 process.env.LOG4JS_CONFIG = __dirname + "/config/log4js.json";
 
 var program   = require("commander")
-  , cmd       = require("../lib/command")
+  , cmd       = require("../../lib/command")
   , argv      = require("optimist").argv;
 
 /**

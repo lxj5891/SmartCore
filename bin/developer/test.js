@@ -5,7 +5,7 @@ var fs        = require("fs")
   , os        = require("os")
   , path      = require("path")
   , exec      = require("child_process").exec
-  , test      = require("../lib/test")
+  , test      = require("../../lib/test")
   , home      = path.resolve(__dirname , "..");
 
 /**
