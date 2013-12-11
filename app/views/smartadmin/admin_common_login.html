@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <% include admin_common_required.html %>
+</head>
+<body>
+<script type="text/javascript" src="/smartadmin/javascripts/admin_common_login.js"></script>
+
+<div class="login">
+    <div class="row">
+        <div>
+            <div class="">
+                <div>
+                    <h4 class="rectangle">SmartCore Admin</h4>
+                    <div class="triangle-l"></div>
+                    <div class="triangle-r"></div>
+                </div>
+                <div style="padding: 50px 80px 20px 80px">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-unlock-alt"></i></span>
+                                <input type="password" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div id="signIn" class="btn btn-default pull-right" style="margin-top: 10px"><i class="fa fa-sign-in"></i></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include admin_common_footer.html %>
+</body>
+</html>

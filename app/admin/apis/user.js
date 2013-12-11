@@ -1,13 +1,12 @@
 /**
  * @file 存取用户信息的api
- * @author lizheng
+ * @author sl_say@hotmail.com
  * @copyright Dreamarts Corporation. All Rights Reserved.
  */
 
 "use strict";
 
-var smart       = require("../../../index")
-  , ctrlUser    = smart.ctrl.user
+var ctrlUser    = smart.ctrl.user
   , context     = smart.framework.context
   , response    = smart.framework.response;
 
