@@ -25,22 +25,24 @@ function showHelp() {
   // 定义帮助信息
   program
     .version(version)
-    .usage("[options]")
-    .option("--i18n", "export: output i18n data to csv file, import: load data from csv file.")
-    .option("--lang", "language, multiple separated by commas. ex.: ja,en")
+
+    // 数据导入导出
+    .option("-e, --export", "export data.")
+    .option("", "ex. smart --export i18ns --lang ja,en --file i18ns.csv")
+    .option("-i, --import", "import data.")
+    .option("", "ex. smart --import i18ns --lang ja,en --file i18ns.csv")
+    .option("--lang", "language, multiple separated by commas.")
     .option("--file", "target file name.")
 
-    .option("--init", "init project")
-    .option("--csv", "out")
-
-    .option("--output", "")
-    .option("--admin", "add admin");
+    // 创建Project用（default.js，log4js.js，app.js）
+    .option("-g, --generate", "generate application.")
+    .option("", "ex. smart --generate myapp");
 
   // 定义帮助信息中的例子
   program.on("--help", function(){
     console.log("  Examples:");
     console.log("");
-    console.log("    $ smart --i18n export --file i18ns.js --lang ja,zh,en");
+    console.log("    $ smart -g myapp");
     console.log("");
   });
 
@@ -54,19 +56,42 @@ function showHelp() {
 
   showHelp();
 
-  if (argv.i) {
-    app.create(argv.i === true ? "." : argv.i);
-    app.installAdmin(argv.i === true ? "." : argv.i);
+  // 导出数据
+  var expFile = argv.e || argv.export;
+  if (expFile) {
+
+    // 导出i18ns数据
+    if (expFile === "i18ns" && typeof argv.file !== "boolean" && typeof argv.lang !== "boolean") {
+      i18n.exp(argv.file, argv.lang);
+      return;
+    }
+
+    // TODO:导出master数据
+    // TODO:导出user数据
+    // TODO:导出group数据
   }
 
-  if (argv.a) {
-    app.installAdmin(argv.a === true ? "." : argv.a);
+  // 导入数据
+  var impFile = argv.i || argv.import;
+  if (impFile) {
+
+    i18n.imp(argv.file, argv.lang);
+    return;
   }
 
-  if (argv.i18n === "export") {
-    var file = (typeof argv.i18n === "boolean") ? undefined : argv.i18n
-      , lang = argv.lang ? argv.lang.split(",") : undefined;
-    i18n.export(file, lang);
+  // 生成应用
+  var appName = argv.g || argv.generate;
+  if (appName) {
+
+    if ((typeof appName !== "boolean")) {
+      app.create(appName);
+      app.installAdmin(appName);
+      return;
+    }
   }
+
+  program.help();
 
 })();
+
+
