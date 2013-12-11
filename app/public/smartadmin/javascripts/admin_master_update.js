@@ -4,7 +4,7 @@
 var itemData = [];
 
 // 画面上表示的item数据,转化成DB的存储结构
-function dispalyDataToMongoData(fieldDisplayData) {
+function displayDataToMongoData(fieldDisplayData) {
   var filedSetToDB = [];
   _.each(fieldDisplayData, function(data) {
 
@@ -75,7 +75,7 @@ function getMasterData() {
 
   // 数据转化
   var tempItemData = getMasterItemData();
-  var filedSetData =  dispalyDataToMongoData(tempItemData);
+  var filedSetData =  displayDataToMongoData(tempItemData);
 
   var masterData = {
       masterType: $("#inputType").val()

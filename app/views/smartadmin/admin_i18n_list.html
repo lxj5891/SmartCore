@@ -3,9 +3,9 @@
 <head>
   <title><%=title %></title>
 
-  <% include admin_required.html %>
+  <% include admin_common_required.html %>
 
-  <script type="text/javascript" src="/admin/public/javascripts/admin_i18n_list.js"></script>
+  <script type="text/javascript" src="/smartadmin/public/javascripts/admin_i18n_list.js"></script>
 
   <style>
     .untransed {
@@ -19,7 +19,7 @@
 </head>
 <body>
 
-<% include admin_header.html %>
+<% include admin_common_header.html %>
 
 <input type="hidden" id="key" value="<%=key %>" >
 
@@ -79,7 +79,7 @@
   </div><!-- content -->
 </div>
 
-<% include admin_footer.html %>
+<% include admin_common_footer.html %>
 
 <script type="text/template" id="tmpl_category_option">
   <option value="{{category}}">{{category}}</option>
