@@ -4,7 +4,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-less");
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-contrib-jshint");
+  grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-jsdoc");
+  grunt.loadNpmTasks("grunt-mocha-cli");
+  grunt.loadNpmTasks("grunt-mocha-cov");
+  grunt.loadNpmTasks("grunt-jscoverage");
 
   grunt.initConfig({
 
@@ -74,19 +78,53 @@ module.exports = function(grunt) {
       }
     },
 
+    /**
+     * Mocha单元测试
+     */
     mochacli: {
       options: {
-        require: ["should"],
-        files: "test/cases/core/models/*.js"
+        require: ["should"]
+      , reporter: "nyan"
+      , bail: true
       },
-      nyan: {
-        options: {
-          reporter: "nyan"
-        }
-      }
-    }
+      all: [
+        "test/cases/core/*.js"
+      ]
+    },
 
+    /**
+     * 生成coverage统计用代码
+     */
+    jscoverage: {
+      options: {
+        inputDirectory: "lib",
+        outputDirectory: "test/coverage/lib"
+      }
+    },
+
+    /**
+     * 生成coverage报告
+     */
+    mochacov: {
+      options: {
+        reporter: "html-cov"
+      , require: ["should"]
+      },
+      all: [
+        "test/cases/core/models/test_mod_company.js"
+      , "test/cases/core/models/test_mod_master.js"
+      ]
+    },
+
+    /**
+     * 清楚临时数据
+     */
+    clean: [
+      "test/coverage"
+    , "docs"
+    ]
 
   });
 
+  grunt.registerTask("test", ["jscoverage", "mochacov", "clean"]);
 };
