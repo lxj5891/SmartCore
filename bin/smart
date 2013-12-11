@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 
+/**
+ * @file 命令行工具启动器
+ * @author r2space@gmail.com
+ * @copyright Dreamarts Corporation. All Rights Reserved.
+ */
+
 "use strict";
 
 /**
  * Module dependencies.
  */
 var program   = require("commander")
-  , path      = require("path")
-  , fsext     = require("fs-extra")
   , argv      = require("optimist").argv
-  , version   = require("../package.json").version;
+  , version   = require("../package.json").version
+  , app       = require("./generator/app")
+  , i18n      = require("./data/i18n");
 
 /**
  * 显示帮助信息
@@ -19,72 +25,26 @@ function showHelp() {
   // 定义帮助信息
   program
     .version(version)
-    .option("-i, --init", "init project")
-    .option("-a, --admin", "add admin");
+    .usage("[options]")
+    .option("--i18n", "export: output i18n data to csv file, import: load data from csv file.")
+    .option("--lang", "language, multiple separated by commas. ex.: ja,en")
+    .option("--file", "target file name.")
+
+    .option("--init", "init project")
+    .option("--csv", "out")
+
+    .option("--output", "")
+    .option("--admin", "add admin");
 
   // 定义帮助信息中的例子
   program.on("--help", function(){
     console.log("  Examples:");
     console.log("");
-    console.log("    $ smart -i myapp");
+    console.log("    $ smart --i18n export --file i18ns.js --lang ja,zh,en");
     console.log("");
   });
 
   program.parse(process.argv);
-}
-
-
-/**
- * Create application at the given directory `path`.
- */
-function createApp(folder) {
-
-  fsext.mkdirsSync(folder + "/apis");
-  fsext.mkdirsSync(folder + "/controllers");
-  fsext.mkdirsSync(folder + "/logs");
-  fsext.mkdirsSync(folder + "/models");
-  fsext.mkdirsSync(folder + "/routes");
-
-  fsext.mkdirsSync(folder + "/views");
-  fsext.mkdirsSync(folder + "/public");
-  fsext.mkdirsSync(folder + "/public/javascripts");
-  fsext.mkdirsSync(folder + "/public/images");
-  fsext.mkdirsSync(folder + "/public/stylesheets");
-
-  console.log("    " + folder + "/apis");
-  console.log("    " + folder + "/controllers");
-  console.log("    " + folder + "/logs");
-  console.log("    " + folder + "/models");
-  console.log("    " + folder + "/routes");
-  console.log("    " + folder + "/views");
-  console.log("    " + folder + "/public");
-  console.log("    " + folder + "/public/javascripts");
-  console.log("    " + folder + "/public/images");
-  console.log("    " + folder + "/public/stylesheets");
-
-}
-
-/**
- * 安装Admin功能
- */
-function installAdmin(folder) {
-
-  var src = path.resolve(__dirname , "..");
-
-  fsext.removeSync(folder + "/smartadmin");
-  fsext.removeSync(folder + "/views/smartadmin");
-  fsext.removeSync(folder + "/public/smart");
-  fsext.removeSync(folder + "/public/smartadmin");
-
-  fsext.copySync(src + "/app/admin",              folder + "/smartadmin");
-  fsext.copySync(src + "/app/views/smartadmin",   folder + "/views/smartadmin");
-  fsext.copySync(src + "/app/public/smart",       folder + "/public/smart");
-  fsext.copySync(src + "/app/public/smartadmin",  folder + "/public/smartadmin");
-
-  console.log("    " + folder + "/smartadmin");
-  console.log("    " + folder + "/views/smartadmin");
-  console.log("    " + folder + "/public/smart");
-  console.log("    " + folder + "/public/smartadmin");
 }
 
 /**
@@ -95,12 +55,18 @@ function installAdmin(folder) {
   showHelp();
 
   if (argv.i) {
-    createApp(argv.i === true ? "." : argv.i);
-    installAdmin(argv.i === true ? "." : argv.i);
+    app.create(argv.i === true ? "." : argv.i);
+    app.installAdmin(argv.i === true ? "." : argv.i);
   }
 
   if (argv.a) {
-    installAdmin(argv.a === true ? "." : argv.a);
+    app.installAdmin(argv.a === true ? "." : argv.a);
+  }
+
+  if (argv.i18n === "export") {
+    var file = (typeof argv.i18n === "boolean") ? undefined : argv.i18n
+      , lang = argv.lang ? argv.lang.split(",") : undefined;
+    i18n.export(file, lang);
   }
 
 })();
