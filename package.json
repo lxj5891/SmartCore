@@ -4,7 +4,9 @@
   "description": "nodejs-based smart platform",
   "main": "index.js",
   "scripts": {
-    "start": "node app",
+    "start": "node app"
+  },
+  "scripts": {
     "blanket": {
       "pattern": [
         "src"
@@ -46,6 +48,7 @@
     "fs-extra": "0.8.1"
   },
   "devDependencies": {
+    "should": "~2.1.1",
     "grunt": "~0.4.2",
     "grunt-contrib-less": "~0.8.3",
     "grunt-contrib-watch": "~0.5.3",
