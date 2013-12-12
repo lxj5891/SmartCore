@@ -45,31 +45,6 @@ function mongoDataToDisplayData(fieldMongoData) {
   return filedSetToDisplay;
 }
 
-// マスタメインアイテムデータ取得
-function getUserItemData(fieldData) {
-  var userItemData = itemData;
-
-  // TODO check追加
-  if (fieldData && fieldData.length > 0) {
-    var searchObject = _.where(userItemData, {"fieldCode": fieldData[0].fieldCode});
-    if (searchObject && searchObject.length > 0) {
-      for(var i = 0,len = userItemData.length; i < len; i++) {
-        if (userItemData[i].fieldCode === fieldData[0].fieldCode) {
-          delete userItemData[i];
-        }
-      }
-      userItemData = _.compact(userItemData);
-    }
-    _.each(fieldData, function(data) {
-      userItemData.push(data);
-    });
-
-    itemData = userItemData;
-  }
-
-  return userItemData;
-}
-
 // 取得入力画面的用户数据
 function getUserData() {
 
@@ -96,11 +71,7 @@ function getUserData() {
 // 追加用户
 function addUserData(userData) {
 
-  var body = {
-    user: userData
-  };
-
-  smart.dopost("/admin/user/add.json", body, function(err, result) {
+  smart.dopost("/admin/user/add.json", userData, function(err, result) {
     if (err) {
       smart.error(err, "js.common.add.error", false);
     } else {
@@ -258,7 +229,7 @@ function events(userId) {
 //    itemData = [];
 
     if (userId && userId.length > 0) {
-      updateUserData(userData, userId);
+      // updateUserData(userData, userId);
     } else {
       addUserData(userData);
     }
