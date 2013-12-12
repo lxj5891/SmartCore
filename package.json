@@ -4,8 +4,12 @@
   "description": "nodejs-based smart platform",
   "main": "index.js",
   "scripts": {
-    "start": "node app"
-    , "blanket": { "pattern": ["src"] }
+    "start": "node app",
+    "blanket": {
+      "pattern": [
+        "src"
+      ]
+    }
   },
   "repository": {
     "type": "git",
@@ -51,6 +55,7 @@
     "grunt-mocha-cli": "~1.4.0",
     "grunt-mocha-cov": "~0.1.1",
     "grunt-jscoverage": "~0.0.3",
-    "grunt-contrib-clean": "~0.5.0"
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-plato": "~0.2.1"
   }
 }

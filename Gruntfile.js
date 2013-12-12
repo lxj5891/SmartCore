@@ -9,6 +9,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-mocha-cli");
   grunt.loadNpmTasks("grunt-mocha-cov");
   grunt.loadNpmTasks("grunt-jscoverage");
+  grunt.loadNpmTasks("grunt-plato");
 
   grunt.initConfig({
 
@@ -117,14 +118,30 @@ module.exports = function(grunt) {
     },
 
     /**
-     * 清楚临时数据
+     * 清除临时数据
      */
     clean: [
       "test/coverage"
     , "docs"
-    ]
+    ],
+
+    /**
+     * 静态分析代码（结果生成到工程的reports目录下）
+     */
+    plato: {
+      task: {
+        options : {
+          jshint : grunt.file.readJSON(".jshintrc")
+        },
+        files: {
+          "reports": ["lib/**/*.js"]
+        }
+      }
+    }
 
   });
 
-  grunt.registerTask("test", ["jscoverage", "mochacov", "clean"]);
+  grunt.registerTask("conv", ["jscoverage", "mochacov", "clean"]);
+  grunt.registerTask("test", ["mochacli"]);
+  grunt.registerTask("analyze", ["plato"]);
 };
