@@ -25,16 +25,17 @@ function showHelp() {
     .version(version)
 
     // 数据导入导出
-    .option("-e, --export", "export data.")
-    .option("", "ex. smart --export i18ns --lang ja,en --file i18ns.csv")
-    .option("-i, --import", "import data.")
-    .option("", "ex. smart --import i18ns --lang ja,en --file i18ns.csv")
-    .option("--lang", "language, multiple separated by commas.")
-    .option("--file", "target file name.")
+    .option("-e, --export",   "export data.")
+    .option("",               "ex. smart --export i18ns --lang ja,en --file i18ns.csv")
+    .option("-i, --import",   "import data.")
+    .option("",               "ex. smart --import i18ns --lang ja,en --file i18ns.csv")
+    .option("--lang",         "language, multiple separated by commas.")
+    .option("--file",         "target file name.")
 
     // 创建Project用（default.js，log4js.js，app.js）
     .option("-g, --generate", "generate application.")
-    .option("", "ex. smart --generate myapp");
+    .option("",               "ex. smart --generate myapp")
+    .option("-u, --author",   "project author");
 
   // 定义帮助信息中的例子
   program.on("--help", function(){
@@ -82,9 +83,10 @@ function showHelp() {
   if (appName) {
 
     if ((typeof appName !== "boolean")) {
-      var app = require("./generator/app");
-      app.create(appName);
-      app.installAdmin(appName);
+      var project = require("./generator/project");
+      project.create(appName);
+      project.installAdmin(appName);
+      project.installAppFiles(appName, argv.u);
       return;
     }
   }
