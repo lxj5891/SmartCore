@@ -1,14 +1,10 @@
 {
   "name": "smartcore",
-  "version": "0.1.21",
+  "version": "0.1.20",
   "description": "nodejs-based smart platform",
   "main": "index.js",
   "scripts": {
-    "blanket": {
-      "pattern": [
-        "src"
-      ]
-    }
+    "start": "node app"
   },
   "repository": {
     "type": "git",
