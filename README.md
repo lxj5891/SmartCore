@@ -1,27 +1,27 @@
-
 # SmartCore
 
-== Grunt ==
- * 安装Grunt命令
- {{{
+## Grunt
+ #### 安装Grunt命令
+ ```
  # npm install -g grunt-cli
- }}}
+ ```
 
- * 安装Grunt本地包
- {{{
+ #### 安装Grunt本地包
+ ```
  # npm install
- }}}
+ ```
 
- * 执行GruntTask例子（可以参考Gruntfile.js文件）
- {{{
+ #### 执行GruntTask例子（可以参考Gruntfile.js文件）
+ ```
  # grunt test
  # grunt --help 可以查看本地Task一览
- }}}
+ ```
 
+====
+## jshint说明
 
-== jshint说明 ==
-
-{{{
+```
+{
   // YUKARI
   // Enforcing,默认(false)不进行检查,true时检查
   "bitwise"       : false,      // 允许使用位运算符
@@ -86,4 +86,5 @@
   "wsh"           : false,      // Windows Script Host环境
   "yui"           : false,      // yui环境
   "globals"       : {"describe": false, "it": false, "__": false, "smart": false, "grunt": false}
-}}}
+}
+```
