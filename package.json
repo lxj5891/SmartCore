@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app"
+    , "blanket": { "pattern": ["src"] }
   },
   "repository": {
     "type": "git",
