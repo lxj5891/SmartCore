@@ -13,9 +13,7 @@
  */
 var program   = require("commander")
   , argv      = require("optimist").argv
-  , version   = require("../package.json").version
-  , app       = require("./generator/app")
-  , i18n      = require("./data/i18n");
+  , version   = require("../package.json").version;
 
 /**
  * 显示帮助信息
@@ -62,7 +60,7 @@ function showHelp() {
 
     // 导出i18ns数据
     if (expFile === "i18ns" && typeof argv.file !== "boolean" && typeof argv.lang !== "boolean") {
-      i18n.exp(argv.file, argv.lang);
+      require("./data/i18n").exp(argv.file, argv.lang);
       return;
     }
 
@@ -75,7 +73,7 @@ function showHelp() {
   var impFile = argv.i || argv.import;
   if (impFile) {
 
-    i18n.imp(argv.file, argv.lang);
+    require("./data/i18n").imp(argv.file, argv.lang);
     return;
   }
 
@@ -84,6 +82,7 @@ function showHelp() {
   if (appName) {
 
     if ((typeof appName !== "boolean")) {
+      var app = require("./generator/app");
       app.create(appName);
       app.installAdmin(appName);
       return;
