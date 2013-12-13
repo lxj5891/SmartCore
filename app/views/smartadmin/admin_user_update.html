@@ -124,22 +124,22 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <div id="addExtendData" class="btn btn-default" data-toggle="modal" data-target="#myModal">扩展属性</div>
+                                    <div id="addExtendData" class="btn btn-default" data-toggle="modal" data-target="#extendType">扩展属性</div>
                                     <div id="addMainData" class="btn btn-default">登録</div>
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div class="col-lg-6 col-lg-offset-2">
-                        <div id="itemTable">
+                        <div id="extendTable">
                             <table class="table table-bordered">
                                 <thead>
                                 <tr>
                                     <th>Key</th>
-                                    <th>Value</th>
+                                    <th>Value/Object/Array</th>
                                 </tr>
                                 </thead>
-                                <tbody id="item_list">
+                                <tbody id="item_extend">
                                 </tbody>
                             </table>
                         </div>
@@ -149,14 +149,44 @@
         </div>
     </div><!-- content -->
 </div>
-
-<script type="text/template" id="tmpl_item_list">
-    <tr fieldCode="{{fieldCode}}">
-        <td>{{fieldCode}}</td>
-        <td>{{fieldKey}}</td>
-        <td>{{fieldValue}}</td>
-    </tr>
-</script>
+<!-- Modal -->
+<div class="modal fade" id="extendType" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">扩展属性的类型</h4>
+            </div>
+            <div class="modal-body">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="keyValue" value="Key:Value" checked>
+                        Key:Value<br/>
+                        例：{"extend" : {"mobile" : "1234567890"} }
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="keyObject" value="Key:Object">
+                        Key:Object<br/>
+                        例：{"extend" : {"photo" : { "y" : "0", "width" : "640","fid" : "52a2b5a14076d2869a000001","x" : "0"} } }
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="keyValueArray" value="Key:Array[]">
+                        Key:Array[]<br/>
+                        例：{"extend" : {"following" : []} }
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn btn-default" data-dismiss="modal">閉める</div>
+                <div id="nextSelect" class="btn btn-default" data-toggle="modal" data-target="#myModal">次</div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -164,50 +194,133 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">アイテム情報</h4>
+                <h4 class="modal-title" id="myModalLabel">扩展属性</h4>
             </div>
             <div class="modal-body">
-                <table class="table table-striped">
-                    <tr>
-                        <td>
-                            <form class="form-horizontal" role="form">
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">属性コード</label>
-                                    <div class="col-sm-10 form-inline">
-                                        <div class="form-group">
-                                            <input type="text" class="form-control" id="fieldCode" placeholder="属性コード">
+                <div id="keyValuePop">
+                    <table class="table table-striped">
+                        <tr>
+                            <td>
+                                <form class="form-horizontal" role="form">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Key</label>
+                                        <div class="col-sm-10 form-inline">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="keyValue_Key" placeholder="Key">
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">属性対象</label>
-                                    <div class="col-sm-10 form-inline">
-                                        <div class="form-group">
-                                            <div id="itemobject" class="btn btn-default"><i class="fa fa-plus"></i></div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Value</label>
+                                        <div class="col-sm-10 form-inline">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="keyValue_Value" placeholder="Value">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div id="item_object"></div>
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                </table>
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="keyObjectPop">
+                    <table class="table table-striped">
+                        <tr>
+                            <td>
+                                <form class="form-horizontal" role="form">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Key</label>
+                                        <div class="col-sm-10 form-inline">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="keyObject_Key" placeholder="Key">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Object</label>
+                                        <div class="col-sm-10 form-inline">
+                                            <div class="form-group">
+                                                <div id="keyObject_Object" class="btn btn-default"><i class="fa fa-plus"></i></div>
+                                            </div>
+                                        </div>
+                                        <div id="item_object"></div>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="keyValueArryPop">
+                    <table class="table table-striped">
+                        <tr>
+                            <td>
+                                <form class="form-horizontal" role="form">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Key</label>
+                                        <div class="col-sm-10 form-inline">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="keyArray_Key" placeholder="属性コード">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Value</label>
+                                        <div class="col-sm-10 form-inline">
+                                            <div class="form-group">
+                                                <div id="keyArray_Value" class="btn btn-default"><i class="fa fa-plus"></i></div>
+                                            </div>
+                                        </div>
+                                        <div id="item_array"></div>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!--<div id="keyObjectArrayPop"></div>-->
             </div>
             <div class="modal-footer">
                 <div class="btn btn-default" data-dismiss="modal">閉める</div>
-                <div id="saveItemObject" class="btn btn-default">保存</div>
+                <div id="saveExtend" class="btn btn-default">保存</div>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<script type="text/template" id="tmpl_item_extend">
+    <tr>
+        <td>{{extendKey}}</td>
+        <td>
+            <table>
+                <$ if ("value" === extendType) { $>
+                <tr>
+                    <td>{{extendValue}}</td>
+                </tr>
+                <$ } else if ("object" === extendType) { $>
+                <$  _.each(extendObject, function(object) { $>
+                <tr>
+                    <td>{{object.key}}</td>
+                    <td>{{object.value}}</td>
+                </tr>
+                <$  }); $>
+                <$ } else { $>
+                <$  _.each(extendArray, function(value) { $>
+                <tr>
+                    <td>{{value}}</td>
+                </tr>
+                <$  }); $>
+                <$ } $>
+            </table>
+        </td>
+    </tr>
+</script>
 <script type="text/template" id="tmpl_item_object">
-    <div class="col-sm-10 col-sm-offset-2 form-inline" name="fields">
+    <div class="col-sm-10 col-sm-offset-2 form-inline" name="object">
         <div class="form-group">
-            <input type="text" class="form-control" name="fieldKey" placeholder="Key" value={{fieldKey}}>
+            <input type="text" class="form-control" name="objectKey" placeholder="Key" value={{objectKey}}>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" name="fieldValue" placeholder="Value" value={{fieldValue}}>
+            <input type="text" class="form-control" name="objectValue" placeholder="Value" value={{objectValue}}>
         </div>
         <div class="form-group">
             <a href="#" class="btn btn-default"><i class="fa fa-trash-o"></i></a>
@@ -215,6 +328,16 @@
     </div>
 </script>
 
+<script type="text/template" id="tmpl_item_array">
+    <div class="col-sm-10 col-sm-offset-2 form-inline" name="array">
+        <div class="form-group">
+            <input type="text" class="form-control" name="arrayValue" placeholder="Value" value={{arrayValue}}>
+        </div>
+        <div class="form-group">
+            <a href="#" class="btn btn-default"><i class="fa fa-trash-o"></i></a>
+        </div>
+    </div>
+</script>
 <% include admin_common_footer.html %>
 </body>
 </html>

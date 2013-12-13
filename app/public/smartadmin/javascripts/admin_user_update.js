@@ -1,7 +1,7 @@
 "use strict";
 
 // 分类user中的fieldSet数据
-var userData = [];
+var extendData = [];
 
 // 画面上表示的item数据,转化成DB的存储结构
 function displayDataToMongoData(fieldDisplayData) {
@@ -122,9 +122,9 @@ function displayUserData(userId) {
           }));
         });
 
-        $("#itemTable").css("display","block");
+        $("#extendTable").css("display","block");
       } else {
-        $("#itemTable").css("display","none");
+        $("#extendTable").css("display","none");
       }
     }
   });
@@ -133,9 +133,9 @@ function displayUserData(userId) {
 // 画面表示
 function render(userId) {
   if (userId && userId.length > 0) {
-    displayUserData(userId);
+    //displayUserData(userId);
   } else {
-    $("#itemTable").css("display","none");
+    $("#extendTable").css("display","block");
   }
 
 }
@@ -143,82 +143,119 @@ function render(userId) {
 // 注册事件
 function events(userId) {
 
-//  // 打开item的pop画面
-//  $("#item_list").on("click", "tr", function(event) {
-//
-//    var fieldCode = $(event.target).parent().attr("fieldcode");
-//    $("#fieldCode").val(fieldCode);
-//
-//    var fileSetData = _.where(itemData, { fieldCode: fieldCode });
-//
-//    var tmpItem = $("#tmpl_item_object").html();
-//    var itemObject = $("#item_object").html("");
-//
-//    _.each(fileSetData, function(item){
-//      itemObject.append(_.template(tmpItem, {
-//        "fieldKey": item.fieldKey
-//        , "fieldValue": item.fieldValue
-//      }));
-//    });
-//    $("#myModal").modal("show");
-//  });
-//
-//  // 在item的pop画面上追加item数据
-//  $("#itemobject").bind("click", function(event) {
-//    var tmpItem = $("#tmpl_item_object").html();
-//    $("#item_object").append(_.template(tmpItem, {
-//      "fieldKey": ""
-//      , "fieldValue": ""
-//    }));
-//  });
-//
-//  // 在item的pop画面上,删除item的key-value
-//  $("#item_object").on("click", "a", function(event) {
-//
-//    // TODO 点击周围区域时,有bug.
-//    $(event.target).parent().parent().parent().remove();
-//  });
-//
-//  // 在item的pop画面上的保存按钮,pop画面的数据显示在user登录画面.
-//  $("#saveItemObject").on("click", function(event) {
-//
-//    var fieldCode = $("#fieldCode").val();
-//
-//    // pop画面上的入力数据临时保存
-//    var fieldSet = [];
-//    $("[name=\"fields\"]").each(function () {
-//      var fieldData = {
-//        "fieldCode": fieldCode
-//        , "fieldKey": $(this).find("[name=\"fieldKey\"]").val()
-//        , "fieldValue": $(this).find("[name=\"fieldValue\"]").val()
-//      };
-//      fieldSet.push(fieldData);
-//    });
-//
-//    var itemData = getuserItemData(fieldSet);
-//
-//    // 在登录画面显示item数据.
-//    var tmpItemList = $("#tmpl_item_list").html();
-//    var itemList = $("#item_list").html("");
-//
-//    if (itemData.length > 0) {
-//      $("#itemTable").css("display","block");
-//    }
-//
-//    _.each(itemData, function(item){
-//      itemList.append(_.template(tmpItemList, {
-//        "fieldCode": item.fieldCode
-//        , "fieldKey": item.fieldKey
-//        , "fieldValue": item.fieldValue
-//      }));
-//    });
-//
-//    // 清除pop画面的数据,关闭pop画面.
+  // 扩展属性类型选择的pop画面
+  $("#nextSelect").on("click", function(event) {
+
+    var selectedType = $("input[name=\"optionsRadios\"]:checked").val();
+
+    if ("Key:Value" === selectedType) {
+      $("#keyValuePop").css("display","block");
+      $("#keyObjectPop").css("display","none");
+      $("#keyValueArryPop").css("display","none");
+    } else if ("Key:Object" === selectedType) {
+      $("#keyValuePop").css("display","none");
+      $("#keyObjectPop").css("display","block");
+      $("#keyValueArryPop").css("display","none");
+    } else if ("Key:Array[]" === selectedType) {
+      $("#keyValuePop").css("display","none");
+      $("#keyObjectPop").css("display","none");
+      $("#keyValueArryPop").css("display","block");
+    } else {
+      $("#keyValuePop").css("display","none");
+      $("#keyObjectPop").css("display","none");
+      $("#keyValueArryPop").css("display","none");
+    }
+
+    $("#extendType").modal("hide");
+  });
+
+  // 追加[Key:Object]的属性对象
+  $("#keyObject_Object").bind("click", function(event) {
+    var tmpItem = $("#tmpl_item_object").html();
+    $("#item_object").append(_.template(tmpItem, {
+        "objectKey": ""
+      , "objectValue": ""
+      }));
+  });
+
+  // 追加[Key:Array]的属性对象
+  $("#keyArray_Value").bind("click", function(event) {
+    var tmpItem = $("#tmpl_item_array").html();
+    $("#item_array").append(_.template(tmpItem, {
+      "arrayValue": ""
+    }));
+  });
+
+  // 删除[Key:Object]的属性[key-value]
+  $("#item_object").on("click", "a", function(event) {
+
+    // TODO 点击周围区域时,有bug.
+    $(event.target).parent().parent().parent().remove();
+  });
+
+  // 删除[Key:Array]的属性[value]
+  $("#item_array").on("click", "a", function(event) {
+
+    // TODO 点击周围区域时,有bug.
+    $(event.target).parent().parent().parent().remove();
+  });
+
+  // 扩张属性的值,在父画面表示
+  $("#saveExtend").on("click", function(event) {
+
+    var tmpItem = $("#tmpl_item_extend").html();
+
+    // Key:Value的场合
+    if ("block" === $("#keyValuePop").css("display")) {
+      $("#item_extend").append(_.template(tmpItem, {
+          "extendType": "value"
+        , "extendKey": $("#keyValue_Key").val()
+        , "extendValue": $("#keyValue_Value").val()
+        }));
+    // Key:Object的场合
+    } else if ("block" === $("#keyObjectPop").css("display")) {
+
+      // pop画面上的入力数据临时保存
+      var extendObject = [];
+      $("[name=\"object\"]").each(function () {
+        var objectData = {
+            "key": $(this).find("[name=\"objectKey\"]").val()
+          , "value": $(this).find("[name=\"objectValue\"]").val()
+          };
+        extendObject.push(objectData);
+      });
+
+      $("#item_extend").append(_.template(tmpItem, {
+          "extendType": "object"
+        , "extendKey": $("#keyObject_Key").val()
+        , "extendObject": extendObject
+        }));
+
+    // Key:Array的场合
+    } else {
+
+      // pop画面上的入力数据临时保存
+      var extendArray = [];
+      $("[name=\"array\"]").each(function () {
+        var  value = $(this).find("[name=\"arrayValue\"]").val();
+        extendArray.push(value);
+      });
+
+      $("#item_extend").append(_.template(tmpItem, {
+          "extendType": "array"
+        , "extendKey": $("#keyArray_Key").val()
+        , "extendArray": extendArray
+        }));
+    }
+
+    $("#extendTable").css("display","block");
+
+    // 清除pop画面的数据,关闭pop画面.
 //    $("#fieldCode").val("");
 //    $("#item_object").children().remove();
-//    $("#myModal").modal("hide");
-//
-//  });
+    $("#myModal").modal("hide");
+  });
+
 
   // user数据登录
   $("#addMainData").bind("click", function(event) {
