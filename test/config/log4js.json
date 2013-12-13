@@ -1,24 +1,21 @@
 {
   "appenders": [
     {
-      "type": "console"
-    },
-    {
       "category": "operation"
       , "type": "dateFile"
-      , "filename": "test/logs/operation.log"
+      , "filename": "logs/operation.log"
       , "pattern": "-yyyyMMdd"
     },
     {
       "category": "application"
       , "type": "dateFile"
-      , "filename": "test/logs/application.log"
+      , "filename": "logs/application.log"
       , "pattern": "-yyyyMMdd"
     },
     {
       "category": "audit"
       , "type": "dateFile"
-      , "filename": "test/logs/audit.log"
+      , "filename": "logs/audit.log"
       , "pattern": "-yyyyMMdd"
     }
   ],

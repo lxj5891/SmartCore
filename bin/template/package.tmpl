@@ -1,24 +1,14 @@
 {
-  "name": "smartcore",
-  "version": "0.1.24",
-  "description": "nodejs-based smart platform",
+  "name": "<%= appName %>",
+  "version": "0.0.1",
+  "description": "<%= appName %>",
   "main": "index.js",
   "scripts": {
     "start": "node app",
     "blanket": { "pattern": ["src"] }
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/r2space/SmartCore.git"
-  },
-  "keywords": [
-    "smart",
-    "platform"
-  ],
-  "author": "Dreamarts <r2space@gmail.com>",
-  "bin": {
-    "smart": "./bin/smart"
-  },
+  "keywords": ["<%= appName %>"],
+  "author": "<%= author %>",
   "license": "MIT",
   "dependencies": {
     "log4js": "0.6.9",
@@ -34,7 +24,7 @@
     "validator": "0.4.24",
     "underscore": "1.4.4",
     "underscore.string": "2.3.3",
-    "commander": "2.0.0",
+    "commander": "2.0.0"
     "optimist": "0.6.0",
     "csv": "0.3.6",
     "moment": "2.4.0",

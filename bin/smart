@@ -13,9 +13,7 @@
  */
 var program   = require("commander")
   , argv      = require("optimist").argv
-  , version   = require("../package.json").version
-  , app       = require("./generator/app")
-  , i18n      = require("./data/i18n");
+  , version   = require("../package.json").version;
 
 /**
  * 显示帮助信息
@@ -27,16 +25,17 @@ function showHelp() {
     .version(version)
 
     // 数据导入导出
-    .option("-e, --export", "export data.")
-    .option("", "ex. smart --export i18ns --lang ja,en --file i18ns.csv")
-    .option("-i, --import", "import data.")
-    .option("", "ex. smart --import i18ns --lang ja,en --file i18ns.csv")
-    .option("--lang", "language, multiple separated by commas.")
-    .option("--file", "target file name.")
+    .option("-e, --export",   "export data.")
+    .option("",               "ex. smart --export i18ns --lang ja,en --file i18ns.csv")
+    .option("-i, --import",   "import data.")
+    .option("",               "ex. smart --import i18ns --lang ja,en --file i18ns.csv")
+    .option("--lang",         "language, multiple separated by commas.")
+    .option("--file",         "target file name.")
 
     // 创建Project用（default.js，log4js.js，app.js）
     .option("-g, --generate", "generate application.")
-    .option("", "ex. smart --generate myapp");
+    .option("",               "ex. smart --generate myapp")
+    .option("-u, --author",   "project author");
 
   // 定义帮助信息中的例子
   program.on("--help", function(){
@@ -62,7 +61,7 @@ function showHelp() {
 
     // 导出i18ns数据
     if (expFile === "i18ns" && typeof argv.file !== "boolean" && typeof argv.lang !== "boolean") {
-      i18n.exp(argv.file, argv.lang);
+      require("./data/i18n").exp(argv.file, argv.lang);
       return;
     }
 
@@ -75,7 +74,7 @@ function showHelp() {
   var impFile = argv.i || argv.import;
   if (impFile) {
 
-    i18n.imp(argv.file, argv.lang);
+    require("./data/i18n").imp(argv.file, argv.lang);
     return;
   }
 
@@ -84,8 +83,10 @@ function showHelp() {
   if (appName) {
 
     if ((typeof appName !== "boolean")) {
-      app.create(appName);
-      app.installAdmin(appName);
+      var project = require("./generator/project");
+      project.create(appName);
+      project.installAdmin(appName);
+      project.installAppFiles(appName, argv.u);
       return;
     }
   }
