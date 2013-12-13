@@ -59,6 +59,7 @@ module.exports = {
     , "sessionTimeout": 720         /* Session超时时间，小时（24 * 30 即一个月） */
     , "tmp": "/tmp"                 /* 保存临时文件用路径（如上传文件等） */
     , "hmackey": "smartcore"        /* sha256加密用key字符串 */
+    , "timeout": 3                  /* 请求超时时间（秒） */
 
     /**
      * 多国语言相关设定
@@ -87,6 +88,10 @@ module.exports = {
       , "^\/simplelogout.*"
       , "^\/login.*"
       , "^\/register.*"
+      ]
+
+    , "ignoreTimeout": [
+        "/^\/file\/upload.*"
       ]
     }
 
