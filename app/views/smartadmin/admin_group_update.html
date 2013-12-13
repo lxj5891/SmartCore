@@ -1,9 +1,220 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>グループ追加</title>
+    <% include admin_common_required.html %>
 </head>
 <body>
 
+<% include admin_common_header.html %>
+<script type="text/javascript" src="/smartadmin/javascripts/admin_group_update.js"></script>
+
+<input type="hidden" id="gId" value="<%= groupId %>">
+
+<div class="row contents">
+    <div class="sidebar">
+        <ul>
+            <li>
+                <a href="#">
+                    <i class="fa fa-th-list fa-2x"></i><span>&nbsp;一覧</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="#">
+                    <span>詳細</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <span>インポート・</span>
+                </a>
+            </li>
+        </ul>
+    </div><!-- sidebar -->
+    <div class="content">
+        <div class="content-header">
+            <div class="col-lg-12">
+                <div>
+                    <ul class="breadcrumb">
+                        <li><a href="/admin">Home</a></li>
+                        <li>
+                            <a href="/admin/group/list">user</a>
+                        </li>
+                        <li class="active"><%= operation %></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="widget_wrapper">
+                <div class="widget_header">
+                    <div class="btn-group">
+                    </div>
+                </div>
+                <div class="row" style="margin: 15px">
+                    <div>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label for="inputUserName" class="col-sm-2 control-label">用户标识</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="inputUserName" placeholder="用户标识">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputFirst" class="col-sm-2 control-label">名</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="inputFirst" placeholder="名">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputMiddle" class="col-sm-2 control-label">中间名</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="inputMiddle" placeholder="中间名">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputLast" class="col-sm-2 control-label">姓</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="inputLast" placeholder="姓">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword" class="col-sm-2 control-label">密码</label>
+                                <div class="col-sm-6">
+                                    <input type="password" class="form-control" id="inputPassword" placeholder="密码">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputGroups" class="col-sm-2 control-label">所属组一览</label>
+                                <div class="col-sm-6">
+                                    <input type="password" class="form-control" id="inputGroups" placeholder="所属组一览">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputEmail" class="col-sm-2 control-label">电子邮件地址</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="inputEmail" placeholder="电子邮件地址">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputLang" class="col-sm-2 control-label">语言</label>
+                                <div class="col-sm-6">
+                                    <div class="btn-group" value="ja" id="inputLang">
+                                        <button type="button" class="btn btn-sm btn-info" value="ja">日本語</button>
+                                        <button type="button" class="btn btn-sm btn-default" value="en">English</button>
+                                        <button type="button" class="btn btn-sm btn-default" value="zh">中国语</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputTimezone" class="col-sm-2 control-label">时区</label>
+                                <div class="col-sm-6">
+                                    <div class="btn-group" value="GMT+08:00" id="inputTimezone">
+                                        <button type="button" class="btn btn-sm btn-default" value="GMT+09:00">日本(GMT+09)</button>
+                                        <button type="button" class="btn btn-sm btn-default" value="GMT-05:00">東部(GMT-05)</button>
+                                        <button type="button" class="btn btn-sm btn-info" value="GMT+08:00">中国(GMT+08)</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputStatus" class="col-sm-2 control-label">状态</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="inputStatus" placeholder="状态">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <div id="addExtendData" class="btn btn-default" data-toggle="modal" data-target="#myModal">扩展属性</div>
+                                    <div id="addMainData" class="btn btn-default">登録</div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-lg-6 col-lg-offset-2">
+                        <div id="itemTable">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Value</th>
+                                </tr>
+                                </thead>
+                                <tbody id="item_list">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- content -->
+</div>
+
+<script type="text/template" id="tmpl_item_list">
+    <tr fieldCode="{{fieldCode}}">
+        <td>{{fieldCode}}</td>
+        <td>{{fieldKey}}</td>
+        <td>{{fieldValue}}</td>
+    </tr>
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">アイテム情報</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <tr>
+                        <td>
+                            <form class="form-horizontal" role="form">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">属性コード</label>
+                                    <div class="col-sm-10 form-inline">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="fieldCode" placeholder="属性コード">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">属性対象</label>
+                                    <div class="col-sm-10 form-inline">
+                                        <div class="form-group">
+                                            <div id="itemobject" class="btn btn-default"><i class="fa fa-plus"></i></div>
+                                        </div>
+                                    </div>
+                                    <div id="item_object"></div>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="btn btn-default" data-dismiss="modal">閉める</div>
+                <div id="saveItemObject" class="btn btn-default">保存</div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script type="text/template" id="tmpl_item_object">
+    <div class="col-sm-10 col-sm-offset-2 form-inline" name="fields">
+        <div class="form-group">
+            <input type="text" class="form-control" name="fieldKey" placeholder="Key" value={{fieldKey}}>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" name="fieldValue" placeholder="Value" value={{fieldValue}}>
+        </div>
+        <div class="form-group">
+            <a href="#" class="btn btn-default"><i class="fa fa-trash-o"></i></a>
+        </div>
+    </div>
+</script>
+
+<% include admin_common_footer.html %>
 </body>
 </html>
