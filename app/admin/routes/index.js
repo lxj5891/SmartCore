@@ -3,6 +3,7 @@
 
 var i18n          = require("./i18n")
    , master       = require("./master")
+   , group        = require("./group")
    , user         = require("./user");
 
 exports.guiding = function(app){
@@ -14,17 +15,18 @@ exports.guiding = function(app){
 
   app.get("/login", function (req, res) {
 
-    res.render("smartadmin/admin_common_login", {"title": "title"});
+    res.render("smartadmin/admin_common_login", {"title": "login"});
   });
 
   app.get("/admin", function (req, res) {
 
-    res.render("smartadmin/admin_common_home", {"title": "title"});
+    res.render("smartadmin/admin_common_home", {"title": "home"});
   });
 
-//  i18n.guiding(app);
+  i18n.guiding(app);
   master.guiding(app);
   user.guiding(app);
+  group.guiding(app);
 
 //
 //  app.get("/admin/user/add", function (req, res) {

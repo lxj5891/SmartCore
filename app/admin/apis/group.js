@@ -6,8 +6,7 @@
 
 "use strict";
 
-var smart       = require("../../../index")
-  , ctrlGroup   = smart.ctrl.group
+var ctrlGroup   = smart.ctrl.group
   , context     = smart.framework.context
   , response    = smart.framework.response;
 
