@@ -13,11 +13,13 @@ var fs        = require("fs")
 exports.create = function(folder) {
 
   console.log("    " + folder + "/apis");
+  console.log("    " + folder + "/config");
   console.log("    " + folder + "/controllers");
   console.log("    " + folder + "/logs");
   console.log("    " + folder + "/models");
   console.log("    " + folder + "/routes");
   fsext.mkdirsSync(folder + "/apis");
+  fsext.mkdirsSync(folder + "/config");
   fsext.mkdirsSync(folder + "/controllers");
   fsext.mkdirsSync(folder + "/logs");
   fsext.mkdirsSync(folder + "/models");
@@ -68,7 +70,7 @@ exports.installAppFiles = function(appName, author) {
 
   var resultFiles = [
       "/app.js"
-    , "/config/config.js"
+    , "/config/default.js"
     , "/.gitignore"
     , "/Gruntfile.js"
     , "/.jshintrc"
