@@ -68,6 +68,17 @@ exports.installAdmin = function(folder) {
  */
 exports.installAppFiles = function(appName, author) {
 
+  var srcFiles = [
+    "/template/project_app.tmpl"
+    , "/template/project_config.tmpl"
+    , "/template/project_gitignore.tmpl"
+    , "/template/project_gruntfile.tmpl"
+    , "/template/project_jshintrc.tmpl"
+    , "/template/project_log4js.tmpl"
+    , "/template/project_package.tmpl"
+    , "/template/project_routes.tmpl"
+  ];
+
   var resultFiles = [
       "/app.js"
     , "/config/default.js"
@@ -77,17 +88,6 @@ exports.installAppFiles = function(appName, author) {
     , "/config/log4js.json"
     , "/package.json"
     , "/routes/index.js"
-    ];
-
-  var srcFiles = [
-      "/template/app.tmpl"
-    , "/template/config.tmpl"
-    , "/template/gitignore.tmpl"
-    , "/template/gruntfile.tmpl"
-    , "/template/jshintrc.tmpl"
-    , "/template/log4js.tmpl"
-    , "/template/package.tmpl"
-    , "/template/routes.tmpl"
     ];
 
   var params = { author: author, appName: appName || "Author" };

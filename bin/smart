@@ -26,16 +26,20 @@ function showHelp() {
 
     // 数据导入导出
     .option("-e, --export",   "export data.")
-    .option("",               "ex. smart --export i18ns --lang ja,en --file i18ns.csv")
     .option("-i, --import",   "import data.")
-    .option("",               "ex. smart --import i18ns --lang ja,en --file i18ns.csv")
     .option("--lang",         "language, multiple separated by commas.")
     .option("--file",         "target file name.")
+    .option("",               "ex. smart --export i18ns --lang ja,en --file i18ns.csv")
+    .option("",               "ex. smart --import i18ns --lang ja,en --file i18ns.csv")
 
     // 创建Project用（default.js，log4js.js，app.js）
     .option("-g, --generate", "generate application.")
-    .option("",               "ex. smart --generate myapp")
-    .option("-u, --author",   "project author");
+    .option("-u, --author",   "project author")
+    .option("",               "ex. smart --generate myapp --author dummy@dreamarts.co.jp")
+
+    .option("-a, --add",      "add mvc file set.")
+    .option("",               "ex. smart --add user --author dummy@dreamarts.co.jp")
+    ;
 
   // 定义帮助信息中的例子
   program.on("--help", function(){
@@ -49,20 +53,17 @@ function showHelp() {
 }
 
 /**
- * Generate application
+ * 导出数据
+ * @returns {boolean} 成功则返回ture
  */
-(function init() {
-
-  showHelp();
-
-  // 导出数据
+function exportData() {
   var expFile = argv.e || argv.export;
   if (expFile) {
 
     // 导出i18ns数据
     if (expFile === "i18ns" && typeof argv.file !== "boolean" && typeof argv.lang !== "boolean") {
       require("./data/i18n").exp(argv.file, argv.lang);
-      return;
+      return true;
     }
 
     // TODO:导出master数据
@@ -70,15 +71,29 @@ function showHelp() {
     // TODO:导出group数据
   }
 
-  // 导入数据
+  return false;
+}
+
+/**
+ * 导入数据
+ * @returns {boolean} 成功则返回ture
+ */
+function importData() {
   var impFile = argv.i || argv.import;
   if (impFile) {
 
     require("./data/i18n").imp(argv.file, argv.lang);
-    return;
+    return true;
   }
 
-  // 生成应用
+  return false;
+}
+
+/**
+ * 生成应用
+ * @returns {boolean} 成功则返回ture
+ */
+function createProject() {
   var appName = argv.g || argv.generate;
   if (appName) {
 
@@ -87,12 +102,55 @@ function showHelp() {
       project.create(appName);
       project.installAdmin(appName);
       project.installAppFiles(appName, argv.u);
-      return;
+      return true;
     }
   }
 
+  return false;
+}
+
+/**
+ * 生成mvc代码，包含controller，models的单体测试代码
+ * @returns {boolean} 成功则返回ture
+ */
+function addMvc() {
+
+  var objectName = argv.a || argv.add;
+  if (objectName) {
+
+    if ((typeof objectName !== "boolean")) {
+      require("./generator/mvc").create(objectName);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Generate application
+ */
+(function init() {
+
+  showHelp();
+
+  if (exportData()) {
+    return;
+  }
+
+  if (importData()) {
+    return;
+  }
+
+  if (createProject()) {
+    return;
+  }
+
+  if (addMvc()) {
+    return;
+  }
+
+  // 没有正常处理，则显示帮助信息
   program.help();
 
 })();
-
-
