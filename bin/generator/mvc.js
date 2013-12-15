@@ -3,7 +3,11 @@
 
 var readline  = require("readline")
   , fs        = require("fs")
+  , fsext     = require("fs-extra")
+  , path      = require("path")
   , util      = require("../../lib/util");
+
+var LINE_BREAK = "\r\n";
 
 /**
  * 生成API层代码
@@ -12,7 +16,7 @@ var readline  = require("readline")
  */
 function createApis(name, author) {
 
-  var tmplFile = __dirname + "/template/mvc_api.tmpl"
+  var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_api.tmpl"
     , codeFile = "api/" + name + ".js";
   util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
 }
@@ -24,11 +28,11 @@ function createApis(name, author) {
  */
 function createControllers(name, author) {
 
-  var tmplFile = __dirname + "/template/mvc_controller.tmpl"
+  var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_controller.tmpl"
     , codeFile = "controllers/ctrl_" + name + ".js";
   util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
 
-  tmplFile = __dirname + "/template/unit_controller.tmpl";
+  tmplFile = path.resolve(__dirname, "..") + "/template/unit_controller.tmpl";
   codeFile = "test/controllers/test_ctrl_" + name + ".js";
   util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
 }
@@ -40,11 +44,11 @@ function createControllers(name, author) {
  */
 function createModules(name, author) {
 
-  var tmplFile = __dirname + "/template/mvc_model.tmpl"
+  var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_model.tmpl"
     , codeFile = "models/mod_" + name + ".js";
   util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
 
-  tmplFile = __dirname + "/template/unit_controller.tmpl";
+  tmplFile = path.resolve(__dirname, "..") + "/template/unit_controller.tmpl";
   codeFile = "test/models/test_mod_" + name + ".js";
   util.ejsParser(tmplFile, { author: author
     , name: name
@@ -59,7 +63,7 @@ function createModules(name, author) {
  */
 function createViews(name, author) {
 
-  var tmplFile = __dirname + "/template/mvc_view.tmpl"
+  var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_view.tmpl"
     , codeFile = "views/" + name + ".html";
   util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
 }
@@ -70,16 +74,41 @@ function createViews(name, author) {
  * @param {String} author 作者
  */
 function appendRoutes(name) {
-  var rs = fs.createReadStream("app/admin/routes/index.js", { encoding: "utf8", autoClose: true })
-    , ws = fs.createWriteStream("index.js.new", { encoding: "utf8", autoClose: true })
+
+  var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_routes.tmpl"
+    , codeFile = "app/admin/routes/index.js"
+    , tempFile = codeFile + ".temp"
+    , rs = fs.createReadStream(codeFile, { encoding: "utf8", autoClose: true })
+    , ws = fs.createWriteStream(tempFile, { encoding: "utf8", autoClose: true })
     , rl = readline.createInterface({ "input": rs, "output": ws });
 
-  var tmplFile = __dirname + "/template/mvc_view.tmpl"
-    , routeString = util.ejsParser(tmplFile, { name: name });
-
+  // 读取每一行，并输出到新文件中
   rl.on("line", function(line) {
-    ws.write(routeString);
-    ws.write(line);
+
+    // 输出到新的临时文件中
+    ws.write(line + LINE_BREAK);
+
+    // 如果匹配exports行，则在其下面追加
+    if (line.match(/^exports\.guiding[ ]*=.*$/i)) {
+      ws.write(LINE_BREAK);
+      ws.write(util.ejsParser(tmplFile, { name: name }));
+    }
+  });
+
+  // 监视读取流的结束，用临时文件替换原始文件
+  // 注：感觉应该监视输出流的结束事件更为合适。但，在没有明确调用end方法是，close事件不被触发，所以使用了rs的close事件。
+  rs.on("close", function() {
+
+    // 用临时文件，替换原来文件
+    fsext.copy(tempFile, codeFile, function(err) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+
+      // 成功，则删除临时文件
+      fsext.removeSync(tempFile);
+    });
   });
 }
 
@@ -89,9 +118,9 @@ function appendRoutes(name) {
  * @param {String} author 作者
  */
 exports.create = function(name, author) {
-//  createApis(name, author);
-//  createControllers(name, author);
-//  createModules(name, author);
-//  createViews(name, author);
+  createApis(name, author);
+  createControllers(name, author);
+  createModules(name, author);
+  createViews(name, author);
   appendRoutes(name);
 };
