@@ -18,7 +18,11 @@ function createApis(name, author) {
 
   var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_api.tmpl"
     , codeFile = "api/" + name + ".js";
-  util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+
+  if (!fs.existsSync(codeFile)) {
+    util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+    console.log("    create : " + codeFile);
+  }
 }
 
 /**
@@ -30,11 +34,17 @@ function createControllers(name, author) {
 
   var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_controller.tmpl"
     , codeFile = "controllers/ctrl_" + name + ".js";
-  util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+  if (!fs.existsSync(codeFile)) {
+    util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+    console.log("    create : " + codeFile);
+  }
 
   tmplFile = path.resolve(__dirname, "..") + "/template/unit_controller.tmpl";
   codeFile = "test/controllers/test_ctrl_" + name + ".js";
-  util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+  if (!fs.existsSync(codeFile)) {
+    util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+    console.log("    create : " + codeFile);
+  }
 }
 
 /**
@@ -46,14 +56,20 @@ function createModules(name, author) {
 
   var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_model.tmpl"
     , codeFile = "models/mod_" + name + ".js";
-  util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+  if (!fs.existsSync(codeFile)) {
+    util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+    console.log("    create : " + codeFile);
+  }
 
   tmplFile = path.resolve(__dirname, "..") + "/template/unit_controller.tmpl";
   codeFile = "test/models/test_mod_" + name + ".js";
-  util.ejsParser(tmplFile, { author: author
-    , name: name
-    , objectName: name.charAt(0).toUpperCase() + name.substring(1)
-    }, codeFile);
+  if (!fs.existsSync(codeFile)) {
+    util.ejsParser(tmplFile, { author: author
+      , name: name
+      , objectName: name.charAt(0).toUpperCase() + name.substring(1)
+      }, codeFile);
+    console.log("    create : " + codeFile);
+  }
 }
 
 /**
@@ -65,7 +81,10 @@ function createViews(name, author) {
 
   var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_view.tmpl"
     , codeFile = "views/" + name + ".html";
-  util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+  if (!fs.existsSync(codeFile)) {
+    util.ejsParser(tmplFile, { author: author, name: name }, codeFile);
+    console.log("    create : " + codeFile);
+  }
 }
 
 /**
@@ -76,11 +95,16 @@ function createViews(name, author) {
 function appendRoutes(name) {
 
   var tmplFile = path.resolve(__dirname, "..") + "/template/mvc_routes.tmpl"
-    , codeFile = "app/admin/routes/index.js"
+    , codeFile = "routes/index.js"
     , tempFile = codeFile + ".temp"
     , rs = fs.createReadStream(codeFile, { encoding: "utf8", autoClose: true })
     , ws = fs.createWriteStream(tempFile, { encoding: "utf8", autoClose: true })
     , rl = readline.createInterface({ "input": rs, "output": ws });
+
+  // 如果路由文件不存在，则什么也不做
+  if (!fs.existsSync(codeFile)) {
+    return;
+  }
 
   // 读取每一行，并输出到新文件中
   rl.on("line", function(line) {
