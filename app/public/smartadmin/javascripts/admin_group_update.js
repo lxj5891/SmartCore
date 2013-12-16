@@ -1,126 +1,254 @@
 "use strict";
 
-// 分类user中的fieldSet数据
-var userData = [];
+// 保存用户的扩张属性数据{数据类型:"",数据:""}
+// 数据类型:KeyValue,KeyObject,KeyArray
+// 对应数据:Object
+var extendData = [];
 
-// 画面上表示的item数据,转化成DB的存储结构
-function displayDataToMongoData(fieldDisplayData) {
-  var filedSetToDB = [];
-  _.each(fieldDisplayData, function(data) {
+// 画面上表示的扩张属性,转化成DB的存储结构
+function displayDataToMongoData() {
+  var extendToDB = {};
+  _.each(extendData, function(data) {
+    for (var key in data.object) {
+      if (data.object.hasOwnProperty(key)) {
 
-    var searchObject = _.where(filedSetToDB, {"fieldCode": data.fieldCode});
-    var fieldObject = { };
-    var tempFiledSetToDB = { };
-
-    if (searchObject && searchObject.length > 0) {
-      searchObject[0].fieldObject[data.fieldKey] = data.fieldValue;
-    } else {
-      fieldObject[data.fieldKey] = data.fieldValue;
-      tempFiledSetToDB.fieldCode = data.fieldCode;
-      tempFiledSetToDB.fieldObject = fieldObject;
-      filedSetToDB.push(tempFiledSetToDB);
-    }
-  });
-  return filedSetToDB;
-}
-
-// 从DB中取得的item数据,转化成在画面表示的数据结构
-function mongoDataToDisplayData(fieldMongoData) {
-  var filedSetToDisplay = [];
-
-  _.each(fieldMongoData, function(fieldData) {
-    var fieldCode = fieldData.fieldCode;
-    if (fieldData.fieldObject) {
-      for(var key in fieldData.fieldObject) {
-        var tempObject = { };
-        tempObject.fieldCode = fieldCode;
-        if (fieldData.fieldObject.hasOwnProperty(key)) {
-          tempObject.fieldKey = key;
-          tempObject.fieldValue = fieldData.fieldObject[key];
+        if ("KeyValue" === data.type) {
+          extendToDB[key] = data.object[key];
+        } else if ("KeyObject" === data.type) {
+          var tempObject = {};
+          for (var i=0,len=data.object[key].length; i < len; i++) {
+            tempObject[data.object[key][i].key] = data.object[key][i].value;
+          }
+          extendToDB[key] = tempObject;
+        } else {
+          extendToDB[key] = data.object[key];
         }
-        filedSetToDisplay.push(tempObject);
       }
     }
   });
-  return filedSetToDisplay;
+  return extendToDB;
+}
+
+// 从DB中取得的扩张属性数据,转化成在画面表示的数据结构
+function mongoDataToDisplayData(dbExtendData) {
+  var extendToDisplay = [];
+
+  _.each(dbExtendData, function(data) {
+    var tmpExtendData = {};
+
+    for (var key in data) {
+      if (data.hasOwnProperty(key)) {
+        if (typeof data[key] === "string") {
+          var tmpData = {};
+          tmpData[key] = data[key];
+          tmpExtendData.type = "KeyValue";
+          tmpExtendData.object = tmpData;
+        } else if (typeof data[key] === "object") {
+          var tmpObjectAll = {};
+          var tmpObject = [];
+          for (var keyO in data[key]) {
+            if (data[key].hasOwnProperty(keyO)) {
+              var tmpDataObject = {
+                "key": keyO
+                , "value": data[key][keyO]
+              };
+              tmpObject.push(tmpDataObject);
+            }
+          }
+          tmpObjectAll[key] = tmpObject;
+          tmpExtendData.type = "KeyObject";
+          tmpExtendData.object = tmpObjectAll;
+        } else {
+          tmpExtendData.type = "KeyArray";
+          tmpExtendData.object = data[key];
+        }
+      }
+    }
+    extendToDisplay.push(tmpExtendData);
+  });
+  return extendToDisplay;
+}
+
+// 取得入力的扩张属性值
+function getPopExtendData() {
+  var rtnExtData = {};
+  var rtnExtType;
+
+  // Key:Value的场合
+  if ("block" === $("#keyValuePop").css("display")) {
+    var tempKey = $("#keyValue_Key").val();
+    var tempValue = $("#keyValue_Value").val();
+    rtnExtData[tempKey] = tempValue;
+    rtnExtType = "KeyValue";
+
+    // Key:Object的场合
+  } else if ("block" === $("#keyObjectPop").css("display")) {
+
+    // pop画面上的入力数据临时保存
+    var extendObject = [];
+    var tempObjectKey = $("#keyObject_Key").val();
+    $("[name=\"object\"]").each(function () {
+      var objectData = {
+          "key": $(this).find("[name=\"objectKey\"]").val()
+        , "value": $(this).find("[name=\"objectValue\"]").val()
+        };
+      extendObject.push(objectData);
+    });
+
+    rtnExtData[tempObjectKey] = extendObject;
+    rtnExtType = "KeyObject";
+
+    // Key:Array的场合
+  } else {
+
+    // pop画面上的入力数据临时保存
+    var extendArray = [];
+    var tempArrayKey = $("#keyArray_Key").val();
+
+    $("[name=\"array\"]").each(function () {
+      var  value = $(this).find("[name=\"arrayValue\"]").val();
+      extendArray.push(value);
+    });
+
+    rtnExtData[tempArrayKey] = extendArray;
+    rtnExtType = "KeyArray";
+  }
+
+  return {type:rtnExtType, object:rtnExtData};
+}
+
+// 数据检证,和已经入力的数据整合
+function checkExtendData(extData) {
+
+  var tmpExtendData = extendData;
+
+  // 如果扩张属性key重复时,删除
+  if (extData.object) {
+    for (var key in extData.object) {
+      for (var i = 0,len = extendData.length; i < len; i++) {
+        if (extData.object.hasOwnProperty(key) && extendData[i].object.hasOwnProperty(key)) {
+          delete tmpExtendData[i];
+        }
+      }
+    }
+  }
+  // 清除数组删除后的不连续断点.
+  tmpExtendData = _.compact(tmpExtendData);
+
+  // 追加新的扩张属性
+  tmpExtendData.push(extData);
+
+  extendData = tmpExtendData;
+  return extendData;
+}
+
+// 在追加画面表示入力的扩张属性值
+function displayExtendData(extendData) {
+  var tmpItem = $("#tmpl_item_extend").html();
+  $("#item_extend").html("");
+
+  _.each(extendData, function(extData) {
+    if (extData.object) {
+      for (var key in extData.object) {
+        if (extData.object.hasOwnProperty(key)) {
+
+          // Key:Value的场合
+          if ("KeyValue" === extData.type) {
+            $("#item_extend").append(_.template(tmpItem, {
+                "extendType": "value"
+              , "extendKey": key
+              , "extendValue":  extData.object[key]
+              }));
+
+            // Key:Object的场合
+          } else if ("KeyObject" === extData.type) {
+            $("#item_extend").append(_.template(tmpItem, {
+                "extendType": "object"
+              , "extendKey": key
+              , "extendObject":  extData.object[key]
+              }));
+
+            // Key:Array的场合
+          } else {
+            $("#item_extend").append(_.template(tmpItem, {
+                "extendType": "array"
+              , "extendKey": key
+              , "extendArray":  extData.object[key]
+              }));
+          }
+        }
+      }
+    }
+  });
+
 }
 
 // 取得入力画面的用户数据
-function getUserData() {
+function getGroupData() {
 
-  // 数据转化
-//  var tempItemData = getuserItemData();
-//  var filedSetData =  dispalyDataToMongoData(tempItemData);
+  var extendData =  displayDataToMongoData();
 
-  var userData = {
-      userName: $("#inputUserName").val()
-    , first: $("#inputFirst").val()
-    , middle: $("#inputMiddle").val()
-    , last: $("#inputLast").val()
-    , password: $("#inputPassword").val()
-//    , groups: $("#inputGroups").val()
-    , email: $("#inputEmail").val()
-    , lang: $("#inputLang").val()
-    , timezone: $("#inputTimezone").val()
-    , status: $("#inputStatus").val()
-//    , extend: filedSetData
+  var groupData = {
+      name: $("#inputName").val()
+    , parent: $("#inputParent").val()
+    , description: $("#inputDescription").val()
+    , type: $("#inputType").val()
+    , visibility: $("#inputVisibility").val()
+    , owners: $("#inputOwners").val()
+    , extend: extendData
     };
-  return userData;
+  return groupData;
 }
 
-// 追加用户
-function addUserData(userData) {
+// 追加组
+function addGroupData(groupData) {
 
-  smart.dopost("/admin/user/add.json", userData, function(err, result) {
+  smart.dopost("/admin/group/add.json", groupData, function(err, result) {
     if (err) {
       smart.error(err, "js.common.add.error", false);
     } else {
-      window.location = "/admin/user/detail/" + result.data._id;
+      window.location = "/admin/group/detail/" + result.data._id;
     }
   });
 }
 
-// 更新用户
-function updateUserData(userData, userId) {
+// 更新组
+function updateGroupData(groupData, groupId) {
 
   var body = {
-      userId: userId
-    , updateUser: userData
+      groupId: groupId
+    , updateGroup: groupData
     };
 
-  smart.doput("/admin/user/update.json", body, function(err, result) {
+  smart.doput("/admin/group/update.json", body, function(err, result) {
     if (err) {
       smart.error(err, "js.common.add.error", false);
     } else {
-      window.location = "/admin/user/detail/" + result.data._id;
+      window.location = "/admin/group/detail/" + result.data._id;
     }
   });
 }
 
-function displayUserData(userId) {
-  smart.doget("/admin/user/get.json?userId=" + userId , function(err, result) {
+// 编辑时的画面表示
+function displayGroupData(groupId) {
+  smart.doget("/admin/group/get.json?gid=" + groupId , function(err, result) {
     if (err) {
       smart.error(err, "js.common.search.error", false);
     } else {
-      $("#inputType").val(result.userType);
-      $("#inputCode").val(result.userCode);
-      $("#inputDesc").val(result.userDescription);
-      $("#inputTrsKey").val(result.userTrsKey);
+      $("#inputName").val(result.name);
+      $("#inputParent").val(result.parent);
+      $("#inputDescription").val(result.description);
+      $("#inputType").val(result.type);
+      $("#inputVisibility").val(result.visibility);
+      $("#inputOwners").val(result.owners);
 
-      itemData = mongoDataToDisplayData(result.fieldSet);
+      var dbData = [];
+      dbData.push(result.extend);
+      var extendData = mongoDataToDisplayData(dbData);
 
-      if (itemData.length > 0) {
-        // 在登录画面显示item数据.
-        var tmpItemList = $("#tmpl_item_list").html();
-        var itemList = $("#item_list").html("");
+      if (extendData.length > 0) {
 
-        _.each(itemData, function(item){
-          itemList.append(_.template(tmpItemList, {
-            "fieldCode": item.fieldCode
-            , "fieldKey": item.fieldKey
-            , "fieldValue": item.fieldValue
-          }));
-        });
+        displayExtendData(extendData);
 
         $("#itemTable").css("display","block");
       } else {
@@ -131,120 +259,123 @@ function displayUserData(userId) {
 }
 
 // 画面表示
-function render(userId) {
-  if (userId && userId.length > 0) {
-    displayUserData(userId);
+function render(groupId) {
+  if (groupId && groupId.length > 0) {
+    displayGroupData(groupId);
   } else {
-    $("#itemTable").css("display","none");
+    $("#extendTable").css("display","none");
   }
-
 }
 
 // 注册事件
-function events(userId) {
+function events(groupId) {
 
-//  // 打开item的pop画面
-//  $("#item_list").on("click", "tr", function(event) {
-//
-//    var fieldCode = $(event.target).parent().attr("fieldcode");
-//    $("#fieldCode").val(fieldCode);
-//
-//    var fileSetData = _.where(itemData, { fieldCode: fieldCode });
-//
-//    var tmpItem = $("#tmpl_item_object").html();
-//    var itemObject = $("#item_object").html("");
-//
-//    _.each(fileSetData, function(item){
-//      itemObject.append(_.template(tmpItem, {
-//        "fieldKey": item.fieldKey
-//        , "fieldValue": item.fieldValue
-//      }));
-//    });
-//    $("#myModal").modal("show");
-//  });
-//
-//  // 在item的pop画面上追加item数据
-//  $("#itemobject").bind("click", function(event) {
-//    var tmpItem = $("#tmpl_item_object").html();
-//    $("#item_object").append(_.template(tmpItem, {
-//      "fieldKey": ""
-//      , "fieldValue": ""
-//    }));
-//  });
-//
-//  // 在item的pop画面上,删除item的key-value
-//  $("#item_object").on("click", "a", function(event) {
-//
-//    // TODO 点击周围区域时,有bug.
-//    $(event.target).parent().parent().parent().remove();
-//  });
-//
-//  // 在item的pop画面上的保存按钮,pop画面的数据显示在user登录画面.
-//  $("#saveItemObject").on("click", function(event) {
-//
-//    var fieldCode = $("#fieldCode").val();
-//
-//    // pop画面上的入力数据临时保存
-//    var fieldSet = [];
-//    $("[name=\"fields\"]").each(function () {
-//      var fieldData = {
-//        "fieldCode": fieldCode
-//        , "fieldKey": $(this).find("[name=\"fieldKey\"]").val()
-//        , "fieldValue": $(this).find("[name=\"fieldValue\"]").val()
-//      };
-//      fieldSet.push(fieldData);
-//    });
-//
-//    var itemData = getuserItemData(fieldSet);
-//
-//    // 在登录画面显示item数据.
-//    var tmpItemList = $("#tmpl_item_list").html();
-//    var itemList = $("#item_list").html("");
-//
-//    if (itemData.length > 0) {
-//      $("#itemTable").css("display","block");
-//    }
-//
-//    _.each(itemData, function(item){
-//      itemList.append(_.template(tmpItemList, {
-//        "fieldCode": item.fieldCode
-//        , "fieldKey": item.fieldKey
-//        , "fieldValue": item.fieldValue
-//      }));
-//    });
-//
-//    // 清除pop画面的数据,关闭pop画面.
-//    $("#fieldCode").val("");
-//    $("#item_object").children().remove();
-//    $("#myModal").modal("hide");
-//
-//  });
+  // 扩展属性类型选择的pop画面
+  $("#nextSelect").on("click", function(event) {
 
-  // user数据登录
-  $("#addMainData").bind("click", function(event) {
+    var selectedType = $("input[name=\"optionsRadios\"]:checked").val();
 
-    var userData = getUserData();
-
-    // 清除画面上的item数据.
-//    itemData = [];
-
-    if (userId && userId.length > 0) {
-      // updateUserData(userData, userId);
+    if ("Key:Value" === selectedType) {
+      $("#keyValuePop").css("display","block");
+      $("#keyObjectPop").css("display","none");
+      $("#keyValueArryPop").css("display","none");
+    } else if ("Key:Object" === selectedType) {
+      $("#keyValuePop").css("display","none");
+      $("#keyObjectPop").css("display","block");
+      $("#keyValueArryPop").css("display","none");
+    } else if ("Key:Array[]" === selectedType) {
+      $("#keyValuePop").css("display","none");
+      $("#keyObjectPop").css("display","none");
+      $("#keyValueArryPop").css("display","block");
     } else {
-      addUserData(userData);
+      $("#keyValuePop").css("display","none");
+      $("#keyObjectPop").css("display","none");
+      $("#keyValueArryPop").css("display","none");
     }
 
-    return false;
+    $("#extendType").modal("hide");
   });
 
+  // 追加[Key:Object]的属性对象
+  $("#keyObject_Object").bind("click", function(event) {
+    var tmpItem = $("#tmpl_item_object").html();
+    $("#item_object").append(_.template(tmpItem, {
+        "objectKey": ""
+      , "objectValue": ""
+      }));
+  });
+
+  // 追加[Key:Array]的属性对象
+  $("#keyArray_Value").bind("click", function(event) {
+    var tmpItem = $("#tmpl_item_array").html();
+    $("#item_array").append(_.template(tmpItem, {
+      "arrayValue": ""
+    }));
+  });
+
+  // 删除[Key:Object]的属性[key-value]
+  $("#item_object").on("click", "a", function(event) {
+
+    // TODO 点击周围区域时,有bug.
+    $(event.target).parent().parent().parent().remove();
+  });
+
+  // 删除[Key:Array]的属性[value]
+  $("#item_array").on("click", "a", function(event) {
+
+    // TODO 点击周围区域时,有bug.
+    $(event.target).parent().parent().parent().remove();
+  });
+
+  // 保存入力的扩张属性值
+  $("#saveExtend").on("click", function(event) {
+
+    // 取得pop画面上入力的扩展属性值
+    var popData = getPopExtendData();
+
+    // 数据检证,和已经入力的数据整合.
+    var tmpExtendData = checkExtendData(popData);
+    // pop上入力值在父画面显示
+    displayExtendData(tmpExtendData);
+    $("#extendTable").css("display","block");
+
+    // 清除pop画面的数据,关闭pop画面.
+    // Key-Value
+    $("#keyValue_Key").val("");
+    $("#keyValue_Value").val("");
+    // Key-Object
+    $("#keyObject_Key").val("");
+    $("#item_object").children().remove();
+    // Key-Array
+    $("#keyArray_Key").val("");
+    $("#item_array").children().remove();
+
+    $("#myModal").modal("hide");
+  });
+
+  // group数据登录
+  $("#addMainData").bind("click", function(event) {
+
+    var groupData = getGroupData();
+
+    // 清除画面上的ext数据.
+    extendData = [];
+
+    if (groupId && groupId.length > 0) {
+      updateGroupData(groupData, groupId);
+    } else {
+      addGroupData(groupData);
+    }
+    return false;
+  });
   return false;
 }
 
 $(function () {
   // 取得URL参数
-  var uId = $("#uId").val();
+  var gId = $("#gId").val();
   // 画面表示
-  render(uId);
+  render(gId);
   // 注册事件
-  events(uId);
+  events(gId);
 });

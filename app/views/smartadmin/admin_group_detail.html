@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>グループ詳細</title>
+  <% include admin_common_required.html %>
+</head>
+<body>
+
+<% include admin_common_header.html %>
+<script type="text/javascript" src="/smartadmin/javascripts/admin_group_detail.js"></script>
+
+<input type="hidden" id="gId" value="<%= groupId %>">
+
+<div class="row contents">
+  <div class="sidebar">
+    <ul>
+      <li>
+        <a href="#">
+          <i class="fa fa-th-list fa-2x"></i><span>&nbsp;一覧</span>
+        </a>
+      </li>
+      <li class="active">
+        <a href="#">
+          <span>詳細</span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <span>インポート・</span>
+        </a>
+      </li>
+    </ul>
+  </div><!-- sidebar -->
+  <div class="content">
+    <div class="content-header">
+      <div class="col-lg-12">
+        <div>
+          <ul class="breadcrumb">
+            <li><a href="/admin">Home</a></li>
+            <li>
+              <a href="/admin/group/list">group</a>
+            </li>
+            <li class="active">detail</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content-wrapper">
+      <div class="widget_wrapper">
+        <div class="widget_header">
+          <div class="btn-group">
+          </div>
+        </div>
+        <div class="row" style="margin: 15px">
+          <div>
+            <form class="form-horizontal" role="form">
+              <div class="form-group">
+                <label for="inputName" class="col-sm-2 control-label">组名</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="inputName" placeholder="组名" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inputParent" class="col-sm-2 control-label">父组标识</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="inputParent" placeholder="父组标识" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inputDescription" class="col-sm-2 control-label">description</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="inputDescription" placeholder="description" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inputType" class="col-sm-2 control-label">类型</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="inputType" placeholder="类型" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inputVisibility" class="col-sm-2 control-label">可见性</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="inputVisibility" placeholder="可见性" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inputOwners" class="col-sm-2 control-label">经理一览</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="inputOwners" placeholder="经理一览" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <div id="editGroupData" class="btn btn-default">編集</div>
+                  <div id="deleteGroupData" class="btn btn-default">削除</div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col-lg-6 col-lg-offset-2">
+            <div id="extendTable">
+              <table class="table table-bordered">
+                <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>Value/Object/Array</th>
+                </tr>
+                </thead>
+                <tbody id="item_extend">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- content -->
+</div>
+
+<script type="text/template" id="tmpl_item_extend">
+  <tr>
+    <td>{{extendKey}}</td>
+    <td>
+      <table>
+        <$ if ("value" === extendType) { $>
+        <tr>
+          <td>{{extendValue}}</td>
+        </tr>
+        <$ } else if ("object" === extendType) { $>
+        <$  _.each(extendObject, function(object) { $>
+        <tr>
+          <td>{{object.key}}</td>
+          <td>{{object.value}}</td>
+        </tr>
+        <$  }); $>
+        <$ } else { $>
+        <$  _.each(extendArray, function(value) { $>
+        <tr>
+          <td>{{value}}</td>
+        </tr>
+        <$  }); $>
+        <$ } $>
+      </table>
+    </td>
+  </tr>
+</script>
+<% include admin_common_footer.html %>
+</body>
+</html>
