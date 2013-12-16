@@ -1,56 +1,188 @@
 "use strict";
 
-// 分类user中的fieldSet数据
+// 保存用户的扩张属性数据{数据类型:"",数据:""}
+// 数据类型:KeyValue,KeyObject,KeyArray
+// 对应数据:Object
 var extendData = [];
 
-// 画面上表示的item数据,转化成DB的存储结构
-function displayDataToMongoData(fieldDisplayData) {
-  var filedSetToDB = [];
-  _.each(fieldDisplayData, function(data) {
+// 画面上表示的扩张属性,转化成DB的存储结构
+function displayDataToMongoData() {
+  var extendToDB = {};
+  _.each(extendData, function(data) {
+    for (var key in data.object) {
+      if (data.object.hasOwnProperty(key)) {
 
-    var searchObject = _.where(filedSetToDB, {"fieldCode": data.fieldCode});
-    var fieldObject = { };
-    var tempFiledSetToDB = { };
-
-    if (searchObject && searchObject.length > 0) {
-      searchObject[0].fieldObject[data.fieldKey] = data.fieldValue;
-    } else {
-      fieldObject[data.fieldKey] = data.fieldValue;
-      tempFiledSetToDB.fieldCode = data.fieldCode;
-      tempFiledSetToDB.fieldObject = fieldObject;
-      filedSetToDB.push(tempFiledSetToDB);
-    }
-  });
-  return filedSetToDB;
-}
-
-// 从DB中取得的item数据,转化成在画面表示的数据结构
-function mongoDataToDisplayData(fieldMongoData) {
-  var filedSetToDisplay = [];
-
-  _.each(fieldMongoData, function(fieldData) {
-    var fieldCode = fieldData.fieldCode;
-    if (fieldData.fieldObject) {
-      for(var key in fieldData.fieldObject) {
-        var tempObject = { };
-        tempObject.fieldCode = fieldCode;
-        if (fieldData.fieldObject.hasOwnProperty(key)) {
-          tempObject.fieldKey = key;
-          tempObject.fieldValue = fieldData.fieldObject[key];
+        if ("KeyValue" === data.type) {
+          extendToDB[key] = data.object[key];
+        } else if ("KeyObject" === data.type) {
+          var tempObject = {};
+          for (var i=0,len=data.object[key].length; i< len; i++) {
+            tempObject[data.object[key][i].key] = data.object[key][i].value;
+          }
+          extendToDB[key] = tempObject;
+        } else {
+          extendToDB[key] = data.object[key];
         }
-        filedSetToDisplay.push(tempObject);
       }
     }
   });
-  return filedSetToDisplay;
+  return extendToDB;
+}
+
+// 从DB中取得的扩张属性数据,转化成在画面表示的数据结构
+function mongoDataToDisplayData(dbExtendData) {
+  var extendToDisplay = [];
+
+  _.each(dbExtendData, function(data) {
+    var tmpExtendData = {};
+
+    for (var key in data) {
+      if (data.hasOwnProperty(key)) {
+        if (typeof data[key] === "string") {
+          var tmpData = {};
+          tmpData[key] = data[key];
+          tmpExtendData.type = "KeyValue";
+          tmpExtendData.object = tmpData;
+        } else if (typeof data[key] === "object") {
+          var tmpObject = [];
+          for (var keyO in data[key]) {
+            if (data[key].hasOwnProperty(keyO)) {
+              var tmpDataObject = {
+                  "key": keyO
+                , "value": data[key][keyO]
+                };
+              tmpObject.push(tmpDataObject);
+            }
+          }
+          tmpExtendData.type = "KeyObject";
+          tmpExtendData.object = tmpObject;
+        } else {
+          tmpExtendData.type = "KeyArray";
+          tmpExtendData.object = data[key];
+        }
+      }
+    }
+  });
+  return extendToDisplay;
+}
+
+// 取得入力的扩张属性值
+function getPopExtendData() {
+  var rtnExtData = {};
+  var rtnExtType;
+
+  // Key:Value的场合
+  if ("block" === $("#keyValuePop").css("display")) {
+    var tempKey = $("#keyValue_Key").val();
+    var tempValue = $("#keyValue_Value").val();
+    rtnExtData[tempKey] = tempValue;
+    rtnExtType = "KeyValue";
+
+  // Key:Object的场合
+  } else if ("block" === $("#keyObjectPop").css("display")) {
+
+    // pop画面上的入力数据临时保存
+    var extendObject = [];
+    var tempObjectKey = $("#keyObject_Key").val();
+    $("[name=\"object\"]").each(function () {
+      var objectData = {
+          "key": $(this).find("[name=\"objectKey\"]").val()
+        , "value": $(this).find("[name=\"objectValue\"]").val()
+        };
+      extendObject.push(objectData);
+    });
+
+    rtnExtData[tempObjectKey] = extendObject;
+    rtnExtType = "KeyObject";
+
+  // Key:Array的场合
+  } else {
+
+    // pop画面上的入力数据临时保存
+    var extendArray = [];
+    var tempArrayKey = $("#keyArray_Key").val();
+
+    $("[name=\"array\"]").each(function () {
+      var  value = $(this).find("[name=\"arrayValue\"]").val();
+      extendArray.push(value);
+    });
+
+    rtnExtData[tempArrayKey] = extendArray;
+    rtnExtType = "KeyArray";
+  }
+
+  return {type:rtnExtType, object:rtnExtData};
+}
+
+// 数据检证,和已经入力的数据整合
+function checkExtendData(extData) {
+
+  var tmpExtendData = extendData;
+
+  // 如果扩张属性key重复时,删除
+  if (extData.object) {
+    for (var key in extData.object) {
+      for (var i = 0,len = extendData.length; i < len; i++) {
+        if (extData.object.hasOwnProperty(key) && extendData[i].object.hasOwnProperty(key)) {
+          delete tmpExtendData[i];
+        }
+      }
+    }
+  }
+  // 清除数组删除后的不连续断点.
+  tmpExtendData = _.compact(tmpExtendData);
+
+  // 追加新的扩张属性
+  tmpExtendData.push(extData);
+
+  extendData = tmpExtendData;
+}
+
+// 在追加画面表示入力的扩张属性值
+function displayExtendData() {
+  var tmpItem = $("#tmpl_item_extend").html();
+  $("#item_extend").html("");
+
+  _.each(extendData, function(extData) {
+    if (extData.object) {
+      for (var key in extData.object) {
+        if (extData.object.hasOwnProperty(key)) {
+
+          // Key:Value的场合
+          if ("KeyValue" === extData.type) {
+            $("#item_extend").append(_.template(tmpItem, {
+              "extendType": "value"
+              , "extendKey": key
+              , "extendValue":  extData.object[key]
+            }));
+
+            // Key:Object的场合
+          } else if ("KeyObject" === extData.type) {
+            $("#item_extend").append(_.template(tmpItem, {
+              "extendType": "object"
+              , "extendKey": key
+              , "extendObject":  extData.object[key]
+            }));
+
+            // Key:Array的场合
+          } else {
+            $("#item_extend").append(_.template(tmpItem, {
+              "extendType": "array"
+              , "extendKey": key
+              , "extendArray":  extData.object[key]
+            }));
+          }
+        }
+      }
+    }
+  });
+
 }
 
 // 取得入力画面的用户数据
 function getUserData() {
 
-  // 数据转化
-//  var tempItemData = getuserItemData();
-//  var filedSetData =  dispalyDataToMongoData(tempItemData);
+  var extendData =  displayDataToMongoData();
 
   var userData = {
       userName: $("#inputUserName").val()
@@ -58,12 +190,15 @@ function getUserData() {
     , middle: $("#inputMiddle").val()
     , last: $("#inputLast").val()
     , password: $("#inputPassword").val()
-//    , groups: $("#inputGroups").val()
+//    , groups: $("#inputGroups").val() //TODO group []
     , email: $("#inputEmail").val()
-    , lang: $("#inputLang").val()
-    , timezone: $("#inputTimezone").val()
+//    , lang: $("#inputLang").val()
+//    , timezone: $("#inputTimezone").val()
+//    , status: $("#inputStatus").val()
+    , lang: "ja"
+    , timezone: "GMT+08:00"
     , status: $("#inputStatus").val()
-//    , extend: filedSetData
+    , extend: extendData
     };
   return userData;
 }
@@ -97,6 +232,7 @@ function updateUserData(userData, userId) {
   });
 }
 
+// 编辑时的画面表示
 function displayUserData(userId) {
   smart.doget("/admin/user/get.json?userId=" + userId , function(err, result) {
     if (err) {
@@ -133,11 +269,10 @@ function displayUserData(userId) {
 // 画面表示
 function render(userId) {
   if (userId && userId.length > 0) {
-    //displayUserData(userId);
+    displayUserData(userId);
   } else {
-    $("#extendTable").css("display","block");
+    $("#extendTable").css("display","none");
   }
-
 }
 
 // 注册事件
@@ -200,80 +335,47 @@ function events(userId) {
     $(event.target).parent().parent().parent().remove();
   });
 
-  // 扩张属性的值,在父画面表示
+  // 保存入力的扩张属性值
   $("#saveExtend").on("click", function(event) {
 
-    var tmpItem = $("#tmpl_item_extend").html();
+    // 取得pop画面上入力的扩展属性值
+    var popData = getPopExtendData();
 
-    // Key:Value的场合
-    if ("block" === $("#keyValuePop").css("display")) {
-      $("#item_extend").append(_.template(tmpItem, {
-          "extendType": "value"
-        , "extendKey": $("#keyValue_Key").val()
-        , "extendValue": $("#keyValue_Value").val()
-        }));
-    // Key:Object的场合
-    } else if ("block" === $("#keyObjectPop").css("display")) {
-
-      // pop画面上的入力数据临时保存
-      var extendObject = [];
-      $("[name=\"object\"]").each(function () {
-        var objectData = {
-            "key": $(this).find("[name=\"objectKey\"]").val()
-          , "value": $(this).find("[name=\"objectValue\"]").val()
-          };
-        extendObject.push(objectData);
-      });
-
-      $("#item_extend").append(_.template(tmpItem, {
-          "extendType": "object"
-        , "extendKey": $("#keyObject_Key").val()
-        , "extendObject": extendObject
-        }));
-
-    // Key:Array的场合
-    } else {
-
-      // pop画面上的入力数据临时保存
-      var extendArray = [];
-      $("[name=\"array\"]").each(function () {
-        var  value = $(this).find("[name=\"arrayValue\"]").val();
-        extendArray.push(value);
-      });
-
-      $("#item_extend").append(_.template(tmpItem, {
-          "extendType": "array"
-        , "extendKey": $("#keyArray_Key").val()
-        , "extendArray": extendArray
-        }));
-    }
-
+    // 数据检证,和已经入力的数据整合.
+    checkExtendData(popData);
+    // pop上入力值在父画面显示
+    displayExtendData();
     $("#extendTable").css("display","block");
 
     // 清除pop画面的数据,关闭pop画面.
-//    $("#fieldCode").val("");
-//    $("#item_object").children().remove();
+    // Key-Value
+    $("#keyValue_Key").val("");
+    $("#keyValue_Value").val("");
+    // Key-Object
+    $("#keyObject_Key").val("");
+    $("#item_object").children().remove();
+    // Key-Array
+    $("#keyArray_Key").val("");
+    $("#item_array").children().remove();
+
     $("#myModal").modal("hide");
   });
-
 
   // user数据登录
   $("#addMainData").bind("click", function(event) {
 
     var userData = getUserData();
 
-    // 清除画面上的item数据.
-//    itemData = [];
+    // 清除画面上的ext数据.
+    extendData = [];
 
     if (userId && userId.length > 0) {
-      // updateUserData(userData, userId);
+      updateUserData(userData, userId);
     } else {
       addUserData(userData);
     }
-
     return false;
   });
-
   return false;
 }
 
