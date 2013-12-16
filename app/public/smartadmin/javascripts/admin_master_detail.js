@@ -99,6 +99,6 @@ $(function () {
   var masterId = $("#masId").val();
   // 画面表示
   render(masterId);
-  // 注册时间
+  // 注册事件
   events(masterId);
 });
