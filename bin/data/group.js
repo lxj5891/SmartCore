@@ -10,10 +10,14 @@ var csv       = require("csv")
 
 
 exports.define = function() {
-  common.define("UserMapping.json", "UserSample.csv", __dirname + "/user.json");
+  common.define("GroupMapping.json", "GroupSample.csv", __dirname + "/group.json");
 };
 
 exports.imp = function(mapping, file) {
+
+  console.log("start import.");
+  console.log("  input mapping file : " + mapping);
+  console.log("  input csv file : " + file);
 
   var counter = 0
     , columns = {}
@@ -34,13 +38,13 @@ exports.imp = function(mapping, file) {
       }
 
       // CSV行转换成JSON对象
-      var user = JSON.parse(mappingString);
+      var group = JSON.parse(mappingString);
       _.each(columns, function(val, key) {
-        common.setJsonValue(user, common.lookupPath(user, key), row[val]);
+        common.setJsonValue(group, common.lookupPath(group, key), row[val]);
       });
 
       // 写入数据库
-      cmd.insertData(conf.dbname, "users", user, function(err) {
+      cmd.insertData(conf.dbname, "groups", group, function(err) {
         if (err) {
           console.log(err);
           return callback(err);
@@ -60,6 +64,34 @@ exports.imp = function(mapping, file) {
 
 };
 
-exports.exp = function() {
+exports.exp = function(file) {
+  console.log("start export.");
+
+  // 获取数据库数据
+  cmd.loadData(conf.dbname, "groups", function(err, data) {
+
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    file = file || "groups.csv";
+    console.log("  output csv file : " + file);
+
+    csv().from.array(data)
+      .to.path(file, common.csvFormat())
+      .transform(function(row) {
+
+        // TODO: 按照Mapping的定义输出内容
+        return JSON.stringify(row);
+      })
+      .on("error", function(error) {
+        console.log(error);
+      })
+      .on("end", function() {
+        console.log("  recored count : " + data.length);
+        console.log("ok!");
+      });
+  });
 
 };
