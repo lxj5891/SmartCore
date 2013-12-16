@@ -151,26 +151,26 @@ function displayExtendData() {
           // Key:Value的场合
           if ("KeyValue" === extData.type) {
             $("#item_extend").append(_.template(tmpItem, {
-              "extendType": "value"
+                "extendType": "value"
               , "extendKey": key
               , "extendValue":  extData.object[key]
-            }));
+              }));
 
             // Key:Object的场合
           } else if ("KeyObject" === extData.type) {
             $("#item_extend").append(_.template(tmpItem, {
-              "extendType": "object"
+                "extendType": "object"
               , "extendKey": key
               , "extendObject":  extData.object[key]
-            }));
+              }));
 
             // Key:Array的场合
           } else {
             $("#item_extend").append(_.template(tmpItem, {
-              "extendType": "array"
+                "extendType": "array"
               , "extendKey": key
               , "extendArray":  extData.object[key]
-            }));
+              }));
           }
         }
       }
@@ -184,6 +184,7 @@ function getUserData() {
 
   var extendData =  displayDataToMongoData();
 
+  // TODO lang timezone
   var userData = {
       userName: $("#inputUserName").val()
     , first: $("#inputFirst").val()
