@@ -25,12 +25,14 @@ function showHelp() {
     .version(version)
 
     // 数据导入导出
-    .option("-e, --export",   "export data.")
-    .option("-i, --import",   "import data.")
+    .option("-e, --export",   "export data. support: i18ns")
+    .option("-i, --import",   "import data. support: users, groups, i18ns")
+    .option("-d, --define",   "export define and sample.")
     .option("--lang",         "language, multiple separated by commas.")
     .option("--file",         "target file name.")
     .option("",               "ex. smart --export i18ns --lang ja,en --file i18ns.csv")
     .option("",               "ex. smart --import i18ns --lang ja,en --file i18ns.csv")
+    .option("",               "ex. smart --import users --mapping UserMapping.json --file UserSample.csv")
 
     // 创建Project用（default.js，log4js.js，app.js）
     .option("-g, --generate", "generate application.")
@@ -66,9 +68,35 @@ function exportData() {
       return true;
     }
 
+    if (expFile === "users" && typeof argv.file !== "boolean") {
+      require("./data/users").exp(argv.file);
+      return true;
+    }
+
+    if (expFile === "groups" && typeof argv.file !== "boolean") {
+      require("./data/group").exp(argv.file);
+      return true;
+    }
+
     // TODO:导出master数据
-    // TODO:导出user数据
-    // TODO:导出group数据
+  }
+
+  return false;
+}
+
+function exportDefinition() {
+  var expFile = argv.d || argv.define;
+  if (expFile) {
+
+    if (expFile === "users") {
+      require("./data/user").define();
+      return true;
+    }
+
+    if (expFile === "groups") {
+      require("./data/group").define();
+      return true;
+    }
   }
 
   return false;
@@ -82,8 +110,23 @@ function importData() {
   var impFile = argv.i || argv.import;
   if (impFile) {
 
-    require("./data/i18n").imp(argv.file, argv.lang);
-    return true;
+    // 导入i18ns数据
+    if (impFile === "i18ns" && typeof argv.file !== "boolean" && typeof argv.lang !== "boolean") {
+      require("./data/i18n").imp(argv.file, argv.lang);
+      return true;
+    }
+
+    // 导入用户数据
+    if (impFile === "users" && typeof argv.mapping !== "boolean" && typeof argv.file !== "boolean") {
+      require("./data/user").imp(argv.mapping, argv.file);
+      return true;
+    }
+
+    // 导入组数据
+    if (impFile === "groups" && typeof argv.mapping !== "boolean" && typeof argv.file !== "boolean") {
+      require("./data/group").imp(argv.mapping, argv.file);
+      return true;
+    }
   }
 
   return false;
@@ -135,6 +178,10 @@ function addMvc() {
   showHelp();
 
   if (exportData()) {
+    return;
+  }
+
+  if (exportDefinition()) {
     return;
   }
 

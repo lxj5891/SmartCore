@@ -1,0 +1,57 @@
+{
+  "mapping": {
+      "userName"    : { "type": "String", "column": "UserID" }
+    , "first"       : { "type": "String", "column": "FirstName" }
+    , "middle"      : { "type": "String", "column": "MiddleName" }
+    , "last"        : { "type": "String", "column": "LastName" }
+    , "password"    : { "type": "Password", "column": "Password" }
+    , "groups"      : { "type": "Array",  "column": "GroupList" }
+    , "email"       : { "type": "String", "column": "Email" }
+    , "lang"        : { "type": "String", "column": "Language" }
+    , "timezone"    : { "type": "String", "column": "Timezone" }
+    , "status"      : { "type": "String", "column": "Status" }
+    , "extend"      : {
+        "name_zh"   : { "type": "String", "column": "UserName" }
+      , "letter_zh" : { "type": "String", "column": "UserNameLetter" }
+      , "following" : { "type": "Array",  "column": "Following" }
+      , "mobile"    : { "type": "String", "column": "Mobile" }
+      , "memo"      : { "type": "String", "column": "Memo" }
+      , "photo"     : {
+          "big"     : { "type": "String", "column": "BigPhoto" }
+        , "small"   : { "type": "String", "column": "SmallPhoto" }
+        , "middle"  : { "type": "String", "column": "MiddlePhoto" }
+      }
+    }
+    , "valid"       : { "type": "Number", "column": "Valid" }
+    , "createAt"    : { "type": "Date",   "column": "CreateAt" }
+    , "createBy"    : { "type": "String", "column": "CreateBy" }
+    , "updateAt"    : { "type": "Date",   "column": "UpdateAt" }
+    , "updateBy"    : { "type": "String", "column": "UpdateBy" }
+  },
+
+  "sample": {
+      "UserID"          : "lincoln"
+    , "FirstName"       : "Abraham"
+    , "MiddleName"      : ""
+    , "LastName"        : "Lincoln"
+    , "Password"        : "lincoln"
+    , "GroupList"       : "52a00348ef06529ccb000031, 52a0057e8cedaf9ecb000003"
+    , "Email"           : "lincoln@us.com"
+    , "Language"        : "en"
+    , "Timezone"        : "GMT+08:00"
+    , "Status"          : "1"
+    , "UserName"        : "abraham lincoln"
+    , "UserNameLetter"  : "l"
+    , "Following"       : "52a00348ef06529ccb000009, 52a00348ef06529ccb000802, 52a00348ef06529ccb000085"
+    , "Mobile"          : "13610965250"
+    , "Memo"            : "comment"
+    , "BigPhoto"        : "52a01d7b5b2a7b64df000001"
+    , "MiddlePhoto"     : "52a01d7b5b2a7b64df000003"
+    , "SmallPhoto"      : "52a01d7b5b2a7b64df000005"
+    , "Valid"           : "1"
+    , "CreateAt"        : "2013-12-05T05:59:55Z"
+    , "CreateBy"        : "52a00348ef06529ccb000009"
+    , "UpdateAt"        : "2013-12-05T05:59:55Z"
+    , "UpdateBy"        : "52a00348ef06529ccb000009"
+  }
+}

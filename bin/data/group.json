@@ -1,0 +1,47 @@
+{
+  "mapping": {
+      "name"        : { "type": "String", "column": "Name" }
+    , "parent"      : { "type": "String", "column": "Parent" }
+    , "description" : { "type": "String", "column": "Description" }
+    , "type"        : { "type": "String", "column": "Type" }
+    , "visibility"  : { "type": "String", "column": "Visibility" }
+    , "owners"      : { "type": "Array",  "column": "Owners" }
+    , "extend"      : {
+        "name_zh"   : { "type": "String", "column": "GroupName" }
+      , "letter_zh" : { "type": "String", "column": "GroupNameLetter" }
+      , "following" : { "type": "Array",  "column": "Following" }
+      , "mobile"    : { "type": "String", "column": "Mobile" }
+      , "photo"     : {
+          "big"     : { "type": "String", "column": "BigPhoto" }
+        , "middle"  : { "type": "String", "column": "MiddlePhoto" }
+        , "small"   : { "type": "String", "column": "SmallPhoto" }
+      }
+    }
+    , "valid"       : { "type": "Number", "column": "Valid" }
+    , "createAt"    : { "type": "Date",   "column": "CreateAt" }
+    , "createBy"    : { "type": "String", "column": "CreateBy" }
+    , "updateAt"    : { "type": "Date",   "column": "UpdateAt" }
+    , "updateBy"    : { "type": "String", "column": "UpdateBy" }
+  },
+
+  "sample": {
+      "Name"            : "group"
+    , "Parent"          : "52a00348ef06529ccb000031"
+    , "Description"     : "my group"
+    , "Type"            : "1"
+    , "Visibility"      : "2"
+    , "Owners"          : "52a00348ef06529ccb000031, 52a0057e8cedaf9ecb000003"
+    , "GroupName"       : "MyGroup"
+    , "GroupNameLetter" : ""
+    , "Following"       : "52a00348ef06529ccb000009, 52a00348ef06529ccb000802, 52a00348ef06529ccb000085"
+    , "Mobile"          : "13610965250"
+    , "BigPhoto"        : "52a01d7b5b2a7b64df000001"
+    , "MiddlePhoto"     : "52a01d7b5b2a7b64df000003"
+    , "SmallPhoto"      : "52a01d7b5b2a7b64df000005"
+    , "Valid"           : "1"
+    , "CreateAt"        : "2013-12-05T05:59:55Z"
+    , "CreateBy"        : "52a00348ef06529ccb000009"
+    , "UpdateAt"        : "2013-12-05T05:59:55Z"
+    , "UpdateBy"        : "52a00348ef06529ccb000009"
+  }
+}
