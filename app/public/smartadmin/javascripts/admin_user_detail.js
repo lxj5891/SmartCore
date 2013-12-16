@@ -111,18 +111,17 @@ function getUserData(userId) {
       } else {
         $("#itemTable").css("display","none");
       }
-
     }
   });
 }
 
 //
-function editMasterData(masterId) {
-  window.location = "/admin/master/edit/" + masterId;
+function editMasterData(userId) {
+  window.location = "/admin/user/edit/" + userId;
 }
 
 //
-function deleteMasterData(masterId) {
+function deleteMasterData(userId) {
 
 //  smart.dopost("/master/add.json", body, function(err, result) {
 //    if (err) {

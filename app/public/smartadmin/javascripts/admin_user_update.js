@@ -16,7 +16,7 @@ function displayDataToMongoData() {
           extendToDB[key] = data.object[key];
         } else if ("KeyObject" === data.type) {
           var tempObject = {};
-          for (var i=0,len=data.object[key].length; i< len; i++) {
+          for (var i=0,len=data.object[key].length; i < len; i++) {
             tempObject[data.object[key][i].key] = data.object[key][i].value;
           }
           extendToDB[key] = tempObject;
@@ -44,6 +44,7 @@ function mongoDataToDisplayData(dbExtendData) {
           tmpExtendData.type = "KeyValue";
           tmpExtendData.object = tmpData;
         } else if (typeof data[key] === "object") {
+          var tmpObjectAll = {};
           var tmpObject = [];
           for (var keyO in data[key]) {
             if (data[key].hasOwnProperty(keyO)) {
@@ -54,14 +55,16 @@ function mongoDataToDisplayData(dbExtendData) {
               tmpObject.push(tmpDataObject);
             }
           }
+          tmpObjectAll[key] = tmpObject;
           tmpExtendData.type = "KeyObject";
-          tmpExtendData.object = tmpObject;
+          tmpExtendData.object = tmpObjectAll;
         } else {
           tmpExtendData.type = "KeyArray";
           tmpExtendData.object = data[key];
         }
       }
     }
+    extendToDisplay.push(tmpExtendData);
   });
   return extendToDisplay;
 }
@@ -136,10 +139,11 @@ function checkExtendData(extData) {
   tmpExtendData.push(extData);
 
   extendData = tmpExtendData;
+  return extendData;
 }
 
 // 在追加画面表示入力的扩张属性值
-function displayExtendData() {
+function displayExtendData(extendData) {
   var tmpItem = $("#tmpl_item_extend").html();
   $("#item_extend").html("");
 
@@ -235,33 +239,32 @@ function updateUserData(userData, userId) {
 
 // 编辑时的画面表示
 function displayUserData(userId) {
-  smart.doget("/admin/user/get.json?userId=" + userId , function(err, result) {
+  smart.doget("/admin/user/get.json?uid=" + userId , function(err, result) {
     if (err) {
       smart.error(err, "js.common.search.error", false);
     } else {
-      $("#inputType").val(result.userType);
-      $("#inputCode").val(result.userCode);
-      $("#inputDesc").val(result.userDescription);
-      $("#inputTrsKey").val(result.userTrsKey);
+      $("#inputUserName").val(result.userName);
+      $("#inputFirst").val(result.first);
+      $("#inputMiddle").val(result.middle);
+      $("#inputLast").val(result.last);
+      $("#inputPassword").val(result.password);
+      $("#inputGroups").val(result.groups);
+      $("#inputEmail").val(result.email);
+      $("#inputLang").val(result.lang);
+      $("#inputTimezone").val(result.timezone);
+      $("#inputStatus").val(result.status);
 
-      itemData = mongoDataToDisplayData(result.fieldSet);
+      var dbData = [];
+      dbData.push(result.extend);
+      var extendData = mongoDataToDisplayData(dbData);
 
-      if (itemData.length > 0) {
-        // 在登录画面显示item数据.
-        var tmpItemList = $("#tmpl_item_list").html();
-        var itemList = $("#item_list").html("");
+      if (extendData.length > 0) {
 
-        _.each(itemData, function(item){
-          itemList.append(_.template(tmpItemList, {
-            "fieldCode": item.fieldCode
-            , "fieldKey": item.fieldKey
-            , "fieldValue": item.fieldValue
-          }));
-        });
+        displayExtendData(extendData);
 
-        $("#extendTable").css("display","block");
+        $("#itemTable").css("display","block");
       } else {
-        $("#extendTable").css("display","none");
+        $("#itemTable").css("display","none");
       }
     }
   });
@@ -343,9 +346,9 @@ function events(userId) {
     var popData = getPopExtendData();
 
     // 数据检证,和已经入力的数据整合.
-    checkExtendData(popData);
+    var tmpExtendData = checkExtendData(popData);
     // pop上入力值在父画面显示
-    displayExtendData();
+    displayExtendData(tmpExtendData);
     $("#extendTable").css("display","block");
 
     // 清除pop画面的数据,关闭pop画面.
