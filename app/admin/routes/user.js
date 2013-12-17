@@ -6,6 +6,10 @@ var user     = require("../apis/user");
 exports.guiding = function(app){
 
   // json
+  app.get("/login/user.json", function(req, res) {
+    user.login(req, res);
+  });
+
   app.get("/admin/user/get.json", function(req, res) {
     user.get(req, res);
   });

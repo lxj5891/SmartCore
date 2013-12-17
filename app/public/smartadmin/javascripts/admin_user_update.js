@@ -223,16 +223,13 @@ function addUserData(userData) {
 // 更新用户
 function updateUserData(userData, userId) {
 
-  var body = {
-      userId: userId
-    , updateUser: userData
-    };
+  userData.uid = userId;
 
-  smart.doput("/admin/user/update.json", body, function(err, result) {
+  smart.doput("/admin/user/update.json", userData, function(err, result) {
     if (err) {
       smart.error(err, "js.common.add.error", false);
     } else {
-      window.location = "/admin/user/detail/" + result.data._id;
+      window.location = "/admin/user/detail/" + result._id;
     }
   });
 }
