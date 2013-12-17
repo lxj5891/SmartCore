@@ -17,7 +17,8 @@
       , "mobile"    : { "type": "String", "column": "Mobile" }
       , "memo"      : { "type": "String", "column": "Memo" }
       , "photo"     : {
-          "big"     : { "type": "String", "column": "BigPhoto" }
+          "fid"     : { "type": "String", "column": "Fid" }
+        , "big"     : { "type": "String", "column": "BigPhoto" }
         , "small"   : { "type": "String", "column": "SmallPhoto" }
         , "middle"  : { "type": "String", "column": "MiddlePhoto" }
       }

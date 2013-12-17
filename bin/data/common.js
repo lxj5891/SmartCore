@@ -8,6 +8,10 @@ var csv       = require("csv")
   , auth      = require("../../lib/auth")
   , util      = require("../../lib/util");
 
+/**
+ * CSV格式定义
+ * @returns {{quoted: boolean, encoding: string}}
+ */
 exports.csvFormat = function() {
   return {
     quoted: true
@@ -15,6 +19,12 @@ exports.csvFormat = function() {
   };
 };
 
+/**
+ * 输出Mapping信息，CSV例子文件
+ * @param {String} mapping
+ * @param {String} sample
+ * @param {String} template
+ */
 exports.define = function(mapping, sample, template) {
 
   console.log("export mapping and sample file.");
@@ -44,11 +54,16 @@ exports.define = function(mapping, sample, template) {
     });
 };
 
-// 如果有多个相同的名字，则只能返回一个
-// 只对应一层嵌套
+/**
+ * 限制：如果有多个相同的名字，则只能返回一个
+ * @param {String} json
+ * @param {String} key
+ * @param {String} base
+ * @returns {*}
+ */
 exports.lookupPath = function(json, key, base) {
 
-  var result;
+  var result = null;
 
   _.each(json, function(jsonVal, jsonKey) {
 
@@ -68,6 +83,8 @@ exports.lookupPath = function(json, key, base) {
       result = exports.lookupPath(jsonVal, key, base ? base + "." + jsonKey : jsonKey);
       return undefined;
     }
+
+    return undefined;
   });
 
   return result;
@@ -75,9 +92,9 @@ exports.lookupPath = function(json, key, base) {
 
 /**
  * 给JSON对象赋值，深层嵌套时，path
- * @param json
- * @param path
- * @param val
+ * @param {String} json
+ * @param {String} path
+ * @param {String} val
  */
 exports.setJsonValue = function(json, path, val) {
 
@@ -93,7 +110,7 @@ exports.setJsonValue = function(json, path, val) {
       val = val || "";
 
       if (nest[key].type.toLowerCase() === "array") {
-        nest[key] = val.split(",");
+        nest[key] = _.isEmpty(val) ? [] : val.split(",");
       } else if (nest[key].type.toLowerCase() === "date") {
         nest[key] = moment(val).toDate();
       } else if (nest[key].type.toLowerCase() === "number") {
