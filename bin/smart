@@ -69,7 +69,7 @@ function exportData() {
     }
 
     if (expFile === "users" && typeof argv.file !== "boolean") {
-      require("./data/users").exp(argv.file);
+      require("./data/user").exp(argv.file);
       return true;
     }
 

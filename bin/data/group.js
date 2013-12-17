@@ -8,11 +8,18 @@ var csv       = require("csv")
   , cmd       = require("../../lib/command")
   , common    = require("./common");
 
-
+/**
+ * 输出CSV与数据库映射额定义文件，CSV例子文件
+ */
 exports.define = function() {
   common.define("GroupMapping.json", "GroupSample.csv", __dirname + "/group.json");
 };
 
+/**
+ * 导入数据
+ * @param {String} mapping 映射关系文件
+ * @param {String} file CSV数据文件
+ */
 exports.imp = function(mapping, file) {
 
   console.log("start import.");
@@ -64,6 +71,10 @@ exports.imp = function(mapping, file) {
 
 };
 
+/**
+ * 数据导出
+ * @param {String} file CSV文件
+ */
 exports.exp = function(file) {
   console.log("start export.");
 
@@ -83,7 +94,7 @@ exports.exp = function(file) {
       .transform(function(row) {
 
         // TODO: 按照Mapping的定义输出内容
-        return JSON.stringify(row);
+        return JSON.stringify(row) + "\r\n";
       })
       .on("error", function(error) {
         console.log(error);
@@ -93,5 +104,4 @@ exports.exp = function(file) {
         console.log("ok!");
       });
   });
-
 };

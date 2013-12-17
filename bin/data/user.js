@@ -8,11 +8,18 @@ var csv       = require("csv")
   , cmd       = require("../../lib/command")
   , common    = require("./common");
 
-
+/**
+ * 输出CSV与数据库映射额定义文件，CSV例子文件
+ */
 exports.define = function() {
   common.define("UserMapping.json", "UserSample.csv", __dirname + "/user.json");
 };
 
+/**
+ * 导入数据
+ * @param {String} mapping 映射关系文件
+ * @param {String} file CSV数据文件
+ */
 exports.imp = function(mapping, file) {
 
   var counter = 0
@@ -60,6 +67,37 @@ exports.imp = function(mapping, file) {
 
 };
 
-exports.exp = function() {
+/**
+ * 数据导出
+ * @param {String} file CSV文件
+ */
+exports.exp = function(file) {
+  console.log("start export.");
 
+  // 获取数据库数据
+  cmd.loadData(conf.dbname, "users", function(err, data) {
+
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    file = file || "users.csv";
+    console.log("  output csv file : " + file);
+
+    csv().from.array(data)
+      .to.path(file, common.csvFormat())
+      .transform(function(row) {
+
+        // TODO: 按照Mapping的定义输出内容
+        return JSON.stringify(row) + "\r\n";
+      })
+      .on("error", function(error) {
+        console.log(error);
+      })
+      .on("end", function() {
+        console.log("  recored count : " + data.length);
+        console.log("ok!");
+      });
+  });
 };
