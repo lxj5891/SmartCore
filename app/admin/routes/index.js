@@ -8,6 +8,7 @@ var i18n          = require("./i18n")
 
 exports.guiding = function(app){
 
+  // html
   app.get("/", function (req, res) {
 
     res.render("smartadmin/admin_common_login", {"title": "title"});

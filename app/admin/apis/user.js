@@ -10,6 +10,29 @@ var ctrlUser    = smart.ctrl.user
   , context     = smart.framework.context
   , response    = smart.framework.response;
 
+
+/**
+ * Login
+ * @param req 请求对象
+ * @param res 响应对象
+ * @returns {*} 无
+ */
+exports.login = function(req, res) {
+
+  var handler = new context().bind(req, res);
+
+  ctrlUser.isPasswordRight(handler, function(err, result) {
+
+    if (err) {
+      return response.send(res, err);
+    }
+    // 用户信息保存到session中
+    req.session.user = result;
+    return response.send(res, err, result);
+  });
+
+};
+
 /**
  * 添加用户
  * @param req 请求对象
