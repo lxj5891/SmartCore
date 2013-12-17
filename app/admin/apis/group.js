@@ -136,5 +136,26 @@ exports.getSubGroups = function(req, res) {
 
 };
 
+/**
+ * 查询组列表
+ * @param req 请求对象
+ * @param res 响应对象
+ * @returns {*} 无
+ */
+exports.getList = function(req, res) {
+
+  var handler = new context().bind(req, res);
+
+  ctrlGroup.getList(handler, function(err, result) {
+
+    if (err) {
+      return response.send(res, err);
+    }
+
+    return response.send(res, err, result);
+  });
+
+};
+
 
 

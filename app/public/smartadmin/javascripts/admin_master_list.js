@@ -8,7 +8,7 @@ function render() {
       smart.error(err,"js.common.search.error", false);
     } else {
       var index = 1;
-      // TODO bug
+      // TODO bug index 不正确
       $("#table_id").dataTable( {
         "bSort": false,
         "sSortAsc": "header headerSortDown",
