@@ -1,6 +1,6 @@
 {
   "name": "smartcore",
-  "version": "0.1.28",
+  "version": "0.1.29",
   "description": "nodejs-based smart platform",
   "main": "index.js",
   "scripts": {
@@ -42,7 +42,8 @@
     "optimist": "0.6.0",
     "csv": "0.3.6",
     "moment": "2.4.0",
-    "fs-extra": "0.8.1"
+    "fs-extra": "0.8.1",
+    "gm": "1.14.1"
   },
   "devDependencies": {
     "should": "~2.1.1",
