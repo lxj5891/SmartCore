@@ -6,7 +6,7 @@
 
 "use strict";
 
-var ctrI18n     = smart.ctrl.i18n
+var ctrI18n     = require("../controllers/ctrl_i18n")
   , context     = smart.framework.context
   , constant     = smart.framework.constant
   , response    = smart.framework.response
@@ -125,6 +125,46 @@ exports.get = function(req, res){
 
 };
 
+///**
+// * 获取词条一览
+// * @param {Object} req 请求对象
+// * @param {Object} res 响应对象
+// * @returns {*} 无
+// */
+//exports.getList = function(req, res){
+//
+//  var handler = new context().bind(req, res);
+//  var params = handler.params;
+//
+//  var condition = {"valid": 1};
+//  if(params.category) {
+//    condition.category = params.category;
+//  }
+//  if(params.key) {
+//    condition.key = { $regex : params.key, $options: "i" };
+//  }
+//
+//  handler.addParams("condition", condition);
+//  handler.addParams("order", "category key");
+//
+//  ctrI18n.getList(handler, function(err, result) {
+//
+//    if(result) {
+//      var langCode = params.lang;
+//      if(langCode) { // 擦除多余的语言
+//        _.each(result, function(item) {
+//          var tempLang = item.lang;
+//          item.lang = {};
+//          item.lang[langCode] = tempLang[langCode] || "";
+//        });
+//      }
+//    }
+//
+//    return response.send(res, err, result);
+//  });
+//
+//};
+
 /**
  * 获取词条一览
  * @param {Object} req 请求对象
@@ -134,30 +174,11 @@ exports.get = function(req, res){
 exports.getList = function(req, res){
 
   var handler = new context().bind(req, res);
-  var params = handler.params;
-
-  var condition = {"valid": 1};
-  if(params.category) {
-    condition.category = params.category;
-  }
-  if(params.key) {
-    condition.key = { $regex : params.key, $options: "i" };
-  }
-
-  handler.addParams("condition", condition);
-  handler.addParams("order", "category key");
 
   ctrI18n.getList(handler, function(err, result) {
 
-    if(result) {
-      var langCode = params.lang;
-      if(langCode) { // 擦除多余的语言
-        _.each(result, function(item) {
-          var tempLang = item.lang;
-          item.lang = {};
-          item.lang[langCode] = tempLang[langCode] || "";
-        });
-      }
+    if (err) {
+      return response.send(res, err);
     }
 
     return response.send(res, err, result);
@@ -165,6 +186,25 @@ exports.getList = function(req, res){
 
 };
 
+/**
+ * 获取词条一览
+ * @param {Object} handler 上下文对象
+ * @param {Function} callback 回调函数，返回翻译结果一览
+ */
+exports.update = function(req, res) {
+
+  var handler = new context().bind(req, res);
+
+  ctrI18n.update(handler, function(err, result) {
+    if (err) {
+//      log.error(err, uid);
+//      return callback(new errors.InternalServer(err));
+      return false;
+    }
+
+    return response.send(res, err, result);
+  });
+};
 
 
 

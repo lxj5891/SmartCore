@@ -1,134 +1,91 @@
-$(function () {
-  'use strict';
+"use strict";
 
-  //画面表示
-  render();
-
-  //事件追加
-  events();
-
-});
-
-var langCache = {};
+// 追加单元格可编辑属性
+function editableCol(oTable) {
+  var csrf = $("#_csrf").val();
+  oTable.$("td").editable("/admin/i18n/update.json?_csrf="+ csrf, {
+    "callback": function( sValue, y ) {
+      var aPos = oTable.fnGetPosition( this );
+      oTable.fnUpdate( sValue, aPos[0], aPos[1] );
+    },
+    "submitdata": function ( value, settings ) {
+      // oTable.fnGetPosition( this )
+      // [row index, column index (visible), column index (all)]
+      return {
+        "id": oTable.fnGetPosition( this )[1],
+        "key": oTable.fnGetData(oTable.fnGetPosition( this )[0]).key,
+        "col": _.keys(oTable.fnGetData(oTable.fnGetPosition( this )[0]))[oTable.fnGetPosition( this )[1]]
+      };
+    }
+  } );
+}
 
 function render() {
 
-  // 1.获取分类
-  smart.doget("/i18n/categorys.json" , function(err, result) {
+  smart.doget("/admin/i18n/list.json", function(err, result) {
+
     if (err) {
-      smart.error(err, i18n["js.common.search.error"], false);
+      smart.error(err,"js.common.search.error", false);
     } else {
 
-      var tmpl = $('#tmpl_category_option').html();
-
-      _.each(result, function(category) {
-        $("#inputCategory").append(_.template(tmpl, {
-          "category": category
-        }));
+      var oTable = $("#table_id").dataTable( {
+        "aaData": result,
+        "aoColumns": [
+          { "sTitle": "分类","mData": "category","sClass": "left","sName":"category"},
+          { "sTitle": "词条key", "mData": "key" ,"sClass": "left"},
+          { "sTitle": "zh", "mData": "zh" ,"sClass": "left"},
+          { "sTitle": "ja", "mData": "ja" ,"sClass": "left"},
+          { "sTitle": "en", "mData": "en" ,"sClass": "left"}
+        ]
       });
+
+      editableCol(oTable);
     }
   });
-
-  // 2.获取语言
-  smart.doget("/i18n/langs.json" , function(err, result) {
-    if (err) {
-      smart.error(err, i18n["js.common.search.error"], false);
-    } else {
-
-      var tmpl = $('#tmpl_lang_option').html();
-
-      _.each(result, function(lang) {
-        langCache[lang.langCode] = lang.langName;
-        $("#inputLang").append(_.template(tmpl, {
-            "langCode": lang.langCode
-          , "langName": lang.langName
-          }));
-      });
-    }
-  });
-
 }
 
 function events() {
 
-  $("#search").click(function() {
-    search(0, Number.MAX_VALUE);
+  // i18n追加数据
+  $("#addI18nRow").bind("click", function(event) {
+
+    var oTable = $("#table_id").dataTable();
+
+    //TODO 动态
+    oTable.fnAddData([{"category":"","key":"","zh":"","ja":"","en":""}]);
+
+    editableCol(oTable);
+
+    return false;
   });
-}
 
-function search(start, limit) {
+  // i18n追加语言
+  $("#addI18nCol").bind("click", function(event) {
 
-  var category = $("#inputCategory").val();
-  var key = _.str.trim($("#inputKey").val());
-  var lang = $("#inputLang").val();
+    var th = window.prompt("タイトルを入力してください。");
 
-  if(category === "" && key === "") {
-    alert(i18n["js.i18n.check.search"]);
-    return;
-  }
+    $("#table_id thead tr").append("<th class=\"sorting_disabled left\" tabindex=\"0\" rowspan=\"1\""+
+                                   "colspan=\"1\" style=\"width: 354px;\">" + th+ "</th>");
 
-  var container = $("#tableRows");
-  container.html("");
-
-  var query = "category=" + category + "&key=" + key + "&lang=" + lang + "&start=" + start + "&limit=" + limit;
-
-  smart.doget("/i18n/list.json?" + query , function(err, result) {
-    if (err) {
-      smart.error(err, i18n["js.common.search.error"], false);
-    } else {
-
-      if(result.length === 0) {
-        $("#tableHead").html("<th class='text-warning'>" + i18n["js.common.list.empty"] + "</th>");
-        return;
-      }
-
-      var tmpl = $("#tmpl_tablerow").html();
-      if(lang) {
-        $("#tableHead").html(_.template($("#tmpl_tablehead_detail").html(), {
-          "langName": langCache[lang]
-        }));
-
-        _.each(result, function(item) {
-          container.append(_.template(tmpl, {
-              "category": item.category
-            , "key": item.key
-            , "value": item.lang[lang]
-            , "_id": item._id.toString()
-          }));
-        });
-      } else {
-        $("#tableHead").html($("#tmpl_tablehead_status").html());
-
-        _.each(result, function(item) {
-          container.append(_.template(tmpl, {
-              "category": item.category
-            , "key": item.key
-            , "value": ""
-            , "_id": item._id.toString()
-          }));
-
-          var transStatus = "";
-          _.each(_.keys(langCache), function(langCode) {
-            var langValue = item.lang[langCode];
-            var clazz = langValue ? "transed" : "untransed";
-            transStatus += "<span class='" + clazz + "'>" + langCache[langCode] + "</span>, ";
-          });
-
-          if(transStatus !== "") {
-            transStatus = transStatus.substring(0, transStatus.length - 2);
-          }
-
-          $("#" + item._id.toString()).html(transStatus);
-        });
-      }
+    var rows = $("#table_id tbody tr");
+    for (var i = 0; i < rows.length; i++) {
+      $(rows[i]).append("<td class=\"left\"></td>");
     }
-  });
 
+    var oTable = $("#table_id").dataTable();
+
+    editableCol(oTable);
+
+    return false;
+  });
 }
 
 
+$(function () {
 
+  // 画面表示
+  render();
 
-
-
-
+  // 注册事件
+  events();
+});

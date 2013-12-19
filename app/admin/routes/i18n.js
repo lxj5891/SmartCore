@@ -26,6 +26,11 @@ exports.guiding = function(app) {
     i18n.add(req, res);
   });
 
+  app.post("/admin/i18n/update.json", function (req, res) {
+
+    i18n.update(req, res);
+  });
+
   app.get("/admin/i18n/list.json", function (req, res) {
 
     i18n.getList(req, res);

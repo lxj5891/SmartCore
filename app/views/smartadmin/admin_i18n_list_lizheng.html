@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%=title %></title>
+
+  <% include admin_common_required.html %>
+
+  <script type="text/javascript" src="/smartadmin/public/javascripts/admin_i18n_list.js"></script>
+
+  <style>
+    .untransed {
+      color: red;
+    }
+    .transed {
+      color: green;
+    }
+  </style>
+
+</head>
+<body>
+
+<% include admin_common_header.html %>
+
+<input type="hidden" id="key" value="<%=key %>" >
+
+<div class="row contents">
+  <div class="sidebar">
+    <ul>
+      <li class="active" title="<%=i('html.label.i18n.sidebar.list') %><!--翻译一览-->">
+        <a href="/admin/i18n/list">
+          <span><%=i('html.label.i18n.sidebar.list') %><!--翻译一览--></span>
+        </a>
+      </li>
+      <li title="<%=i('html.label.i18n.sidebar.add') %>"><!--添加翻译-->
+        <a href="/admin/i18n/add">
+          <span><%=i('html.label.i18n.sidebar.add') %><!--添加翻译--></span>
+        </a>
+      </li>
+    </ul>
+  </div><!-- sidebar -->
+
+  <div class="content" style="padding: 20px;">
+    <div class="row">
+      <div class="form-group">
+        <div class="col-lg-2">
+          <select class="form-control" id="inputCategory">
+            <option value="">&lt; <%=i('html.label.i18n.category') %><!--分类--> &gt;</option>
+          </select>
+        </div>
+        <div class="col-lg-4">
+          <input type="text" class="form-control" id="inputKey" placeholder="<%=i('html.label.i18n.key') %>"><!--词条标识-->
+        </div>
+        <div class="col-lg-2">
+          <select class="form-control" id="inputLang">
+            <option value="">&lt; <%=i('html.label.i18n.language') %><!--语言--> &gt;</option>
+          </select>
+        </div>
+        <div class="col-lg-1">
+          <button id="search" type="button" class="btn btn-default"><i class="fa fa-search"></i>&nbsp;&nbsp;<%=i('html.button.common.search') %><!--搜索--></button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;"></div>
+
+    <div class="row">
+      <div class="col-lg-12">
+          <div class="row">
+            <div class="col-lg-12">
+              <table class="table table-condensed table-hover table-striped">
+                <thead id="tableHead">
+                </thead>
+                <tbody id="tableRows"></tbody>
+              </table>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div><!-- content -->
+</div>
+
+<% include admin_common_footer.html %>
+
+<script type="text/template" id="tmpl_category_option">
+  <option value="{{category}}">{{category}}</option>
+</script>
+
+<script type="text/template" id="tmpl_lang_option">
+  <option value="{{langCode}}">{{langName}}</option>
+</script>
+
+<script type="text/template" id="tmpl_tablehead_detail">
+  <tr>
+    <th><%=i('html.label.i18n.category') %><!--分类--></th>
+    <th><%=i('html.label.i18n.key') %><!--词条标识--></th>
+    <th>{{langName}}<%=i('html.label.i18n.translation') %></th>
+    <th><%=i('html.label.common.operation') %><!--操作--></th>
+  </tr>
+</script>
+
+<script type="text/template" id="tmpl_tablehead_status">
+  <tr>
+    <th><%=i('html.label.i18n.category') %><!--分类--></th>
+    <th><%=i('html.label.i18n.key') %><!--词条标识--></th>
+    <th><%=i('html.label.i18n.status') %><!--翻译状态--></th>
+    <th><%=i('html.label.common.operation') %><!--操作--></th>
+  </tr>
+</script>
+
+<script type="text/template" id="tmpl_tablerow">
+  <tr>
+    <td>{{category}}</td>
+    <td>{{key}}</td>
+    <td id="{{_id}}">{{value}}</td>
+    <td><a href="/i18n/edit/{{key}}" class="btn btn-default btn-sm"><%=i('html.button.common.edit') %><!--編集--></a></td>
+  </tr>
+</script>
+
+<script>
+  var i18n = {
+      "js.common.search.error": "<%=i('js.common.search.error') %>"
+    , "js.i18n.check.search": "<%=i('js.i18n.check.search') %>"
+    , "js.common.list.empty": "<%=i('js.common.list.empty') %>"
+  };
+
+</script>
+
+</body>
+</html>
