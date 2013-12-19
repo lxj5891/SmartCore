@@ -14,7 +14,7 @@ module.exports = {
     , "port": 27017                 /* 数据库服务器端口 */
     , "dbname": "smartcore"         /* 数据库名称 */
     , "pool": 5                     /* 连接池个数 */
-    , "prefix": "sc"                /* collection名的前缀 */
+    , "prefix": ""                /* collection名的前缀 */
 
     /**
      * 默认的collection名称前面会自动添加prefix
@@ -93,23 +93,6 @@ module.exports = {
     , "ignoreTimeout": [
         "/^\/file\/upload.*"
       ]
-    }
-
-  /**
-   * 日志
-   */
-  , "log": {
-
-      /**
-       * 将应用程序日志输出到fluent的设定信息
-       */
-      "fluent": {
-        "enable": "false"           /* 是否允许fluent日志，目前fluent还不支持windows环境，所以在windows环境下要设成false */
-      , "tag": "node"               /* log的种类 */
-      , "host": "127.0.0.1"         /* fluent的服务器 */
-      , "port": 24224               /* fluent的端口 */
-      , "timeout": 3.0              /* fluent的超时设定 */
-      }
     }
 
   /**

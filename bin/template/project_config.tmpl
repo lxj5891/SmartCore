@@ -99,23 +99,6 @@ module.exports = {
     }
 
   /**
-   * 日志
-   */
-  , "log": {
-
-      /**
-       * 将应用程序日志输出到fluent的设定信息
-       */
-      "fluent": {
-        "enable": "false"           /* 是否允许fluent日志，目前fluent还不支持windows环境，所以在windows环境下要设成false */
-      , "tag": "node"               /* log的种类 */
-      , "host": "127.0.0.1"         /* fluent的服务器 */
-      , "port": 24224               /* fluent的端口 */
-      , "timeout": 3.0              /* fluent的超时设定 */
-      }
-    }
-
-  /**
    * RabbitMQ连接信息
    */
   , "mq": {

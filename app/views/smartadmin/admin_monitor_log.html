@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+
+  <% include admin_common_required.html %>
+
+  <script type="text/javascript" src="/smartadmin/javascripts/admin_monitor_log.js"></script>
+  <style></style>
+
+</head>
+<body>
+
+  <% include admin_common_header.html %>
+
+  <input type="hidden" id="lang" name="lang" value="<\%= user.lang %>" />
+  <input type="hidden" id="serverTime" name="serverTime" value="<\%= serverTime %>" />
+
+  <div class="row contents">
+    <div class="sidebar">
+      <ul>
+        <li>
+          <a href="#">
+            <i class="fa fa-th-list fa-2x"></i><span>构成</span>
+          </a>
+        </li>
+        <li class="active">
+          <a href="#">
+            <i class="fa fa-align-justify fa-2x"></i><span>日志</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fa fa-truck fa-2x"></i><span>状态</span>
+          </a>
+        </li>
+      </ul>
+    </div><!-- sidebar -->
+
+    <div class="content">
+      <div class="content-header">
+        <div class="col-lg-12">
+          <div>
+            <ul class="breadcrumb">
+              <li><a href="/admin">Home</a></li>
+              <li>
+                <a href="/admin/monitor/log">monitor</a>
+              </li>
+              <li class="active">log</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-wrapper">
+        <div class="widget_wrapper">
+          <div class="widget_header">
+            <div class="btn-group"></div>
+          </div>
+          <div class="row" style="margin: 15px">
+
+            <!-- condition start -->
+            <form id="conditionForm" class="form-horizontal" role="form">
+
+              <div class="form-group">
+                <label class="col-lg-2 control-label"><%= i('html.label.log.time') %><!-- 時間 --></label>
+                <div class="col-lg-8">
+                  <div class="btn-group" value="range" id="timeDiv">
+                    <button type="button" class="btn btn-sm btn-info" value="range"><%=i('html.label.log.time.range') %></button>
+                    <button type="button" class="btn btn-sm btn-default" value="realtime"><%=i('html.label.log.time.realtime') %></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group" id="timeRangeDiv">
+                <label class="col-lg-2 control-label"></label>
+                <div class="col-lg-8">
+                  <div class="input-prepend">
+                    <input type="text" style="width: 300px" name="timeRange" id="timeRange" placeholder="<%= i('html.label.log.time.range.desc') %>" class="form-control"/>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="user" class="col-lg-2 control-label"><%= i('html.label.log.user') %><!-- ユーザ --></label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="user" placeholder="<%= i('html.label.log.user.desc') %>">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="host" class="col-lg-2 control-label"><%= i('html.label.log.host') %><!-- host --></label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="host" placeholder="<%= i('html.label.log.host.desc') %>">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="sourceDiv" class="col-lg-2 control-label"><%= i('html.label.log.source') %><!-- ソース --></label>
+                <div class="col-lg-8">
+                  <div class="btn-group" id="sourceDiv">
+                    <button type="button" class="btn btn-sm btn-info" value="node">node</button>
+                    <button type="button" class="btn btn-sm btn-default" value="mongo">mongo</button>
+                    <button type="button" class="btn btn-sm btn-default" value="java">java</button>
+                    <button type="button" class="btn btn-sm btn-default" value="nigix">nigix</button>
+                    <button type="button" class="btn btn-sm btn-default" value="lb">lb</button>
+                    <button type="button" class="btn btn-sm btn-default" value="rabbitmq">rabbitmq</button>
+                    <button type="button" class="btn btn-sm btn-default" value="os">os</button>
+                    <button type="button" class="btn btn-sm btn-default" value="fluent">fluent</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="typeDiv" class="col-lg-2 control-label"><%= i('html.label.log.type') %><!-- タイプ --></label>
+                <div class="col-lg-8">
+                  <div class="btn-group" id="typeDiv">
+                    <button type="button" class="btn btn-sm btn-default" value="audit">audit</button>
+                    <button type="button" class="btn btn-sm btn-default" value="operation">operation</button>
+                    <button type="button" class="btn btn-sm btn-info" value="application">application</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="levelDiv" class="col-lg-2 control-label"><%= i('html.label.log.level') %><!-- レベル --></label>
+                <div class="col-lg-8">
+                  <div class="btn-group" id="levelDiv">
+                    <button type="button" class="btn btn-sm btn-default" value="debug">debug</button>
+                    <button type="button" class="btn btn-sm btn-info" value="info">info</button>
+                    <button type="button" class="btn btn-sm btn-default" value="warn">warn</button>
+                    <button type="button" class="btn btn-sm btn-default" value="error">error</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="message" class="col-lg-2 control-label"><%= i('html.label.log.message') %><!-- メッセージ --></label>
+                <div class="col-lg-8">
+                  <input type="text" class="form-control" id="message" placeholder="<%=i('html.label.log.message.desc') %>">
+                </div>
+              </div>
+            </form>
+            <!-- condition end -->
+
+            <hr />
+
+            <div class="">
+              <table id="table_id" class="table table-condensed table-hover table-striped dataTable">
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <footer></footer>
+
+</body>
+</html>
