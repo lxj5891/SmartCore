@@ -1,20 +1,26 @@
 "use strict";
 
-// 追加单元格可编辑属性
-function editableCol(oTable) {
+
+// TODO bug list
+// TODO 1.画面变形 2.在画面输入重复key时，没有删除行的操作
+// 追加单元格可编辑属性，单元格数值修改时出发更新操作。
+function editableCol(oTable, col) {
   var csrf = $("#_csrf").val();
   oTable.$("td").editable("/admin/i18n/update.json?_csrf="+ csrf, {
     "callback": function( sValue, y ) {
       var aPos = oTable.fnGetPosition( this );
-      oTable.fnUpdate( sValue, aPos[0], aPos[1] );
+      //TODO bug 错误处理没有弹出画面
+      var value = JSON.parse(sValue).data;
+      oTable.fnUpdate( value, aPos[0], aPos[1] );
     },
     "submitdata": function ( value, settings ) {
-      // oTable.fnGetPosition( this )
+      // oTable.fnGetPosition( this )的返回值：row的index，col的index
       // [row index, column index (visible), column index (all)]
+      var lang =_.keys(oTable.fnGetData(oTable.fnGetPosition( this )[0]))[oTable.fnGetPosition( this )[1]] || col;
       return {
         "id": oTable.fnGetPosition( this )[1],
         "key": oTable.fnGetData(oTable.fnGetPosition( this )[0]).key,
-        "col": _.keys(oTable.fnGetData(oTable.fnGetPosition( this )[0]))[oTable.fnGetPosition( this )[1]]
+        "lang": lang
       };
     }
   } );
@@ -28,15 +34,39 @@ function render() {
       smart.error(err,"js.common.search.error", false);
     } else {
 
+      var columnsArray = [];
+
+      // 有词条时，动态生成列.每条词条的语种数不同，生成语种数最多的列
+      // TODO bug 词条的语种数不等的时候，一览画面表示时，有dataTables的提示。
+      if (result.length > 0) {
+        _.each(result, function(data) {
+          _.each(data, function(val, key) {
+            var where = _.where(columnsArray, {"mData": key});
+            if ( where.length === 0) {
+              columnsArray.push({ "sTitle": key, "mData": key ,"sClass": "left" });
+            }
+          });
+        });
+      // 没有词条时，默认列
+      } else {
+        columnsArray.push({ "sTitle": "category","mData": "category","sClass": "left" });
+        columnsArray.push({ "sTitle": "key", "mData": "key" ,"sClass": "left" });
+        columnsArray.push({ "sTitle": "zh", "mData": "zh" ,"sClass": "left" });
+        columnsArray.push({ "sTitle": "ja", "mData": "ja" ,"sClass": "left" });
+        columnsArray.push({ "sTitle": "en", "mData": "en" ,"sClass": "left" });
+      }
+
       var oTable = $("#table_id").dataTable( {
+//        "bSort": false,
+        "sSortAsc": "header headerSortDown",
+        "sSortDesc": "header headerSortUp",
+        "sSortable": "header",
+        "sPaginationType": "full_numbers",
+        "sEcho": 3,
+        "iTotalRecords": result.length,
+        "iTotalDisplayRecords": result.length,
         "aaData": result,
-        "aoColumns": [
-          { "sTitle": "分类","mData": "category","sClass": "left","sName":"category"},
-          { "sTitle": "词条key", "mData": "key" ,"sClass": "left"},
-          { "sTitle": "zh", "mData": "zh" ,"sClass": "left"},
-          { "sTitle": "ja", "mData": "ja" ,"sClass": "left"},
-          { "sTitle": "en", "mData": "en" ,"sClass": "left"}
-        ]
+        "aoColumns": columnsArray
       });
 
       editableCol(oTable);
@@ -46,20 +76,25 @@ function render() {
 
 function events() {
 
-  // i18n追加数据
+  // i18n追加词条
   $("#addI18nRow").bind("click", function(event) {
 
     var oTable = $("#table_id").dataTable();
 
-    //TODO 动态
-    oTable.fnAddData([{"category":"","key":"","zh":"","ja":"","en":""}]);
+    // 生成row的对象，列不固定。
+    var row = {};
+    _.each(oTable.fnSettings().aoColumns, function(data) {
+      row[data.mData] = "";
+    });
+
+    oTable.fnAddData([row]);
 
     editableCol(oTable);
 
     return false;
   });
 
-  // i18n追加语言
+  // i18n追加语种
   $("#addI18nCol").bind("click", function(event) {
 
     var th = window.prompt("タイトルを入力してください。");
@@ -74,7 +109,7 @@ function events() {
 
     var oTable = $("#table_id").dataTable();
 
-    editableCol(oTable);
+    editableCol(oTable, th);
 
     return false;
   });

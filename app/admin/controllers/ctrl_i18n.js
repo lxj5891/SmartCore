@@ -65,6 +65,20 @@ exports.update = function(handler ,callback) {
 
   log.debug("begin: update keyword", uid);
 
+  // 请求的参数 key，修改后的值，语种lang
+  var paramLang = handler.params.lang;
+
+  // 追加词条时，特殊处理（在画面只输入key，或者分类时）
+  if ("key" === paramLang) {
+    handler.params.key = handler.params.value;
+    handler.params.lang = "";
+  }
+
+  if ("category" === paramLang) {
+    handler.params.category = handler.params.value;
+    handler.params.lang = "";
+  }
+
   i18n.add(handler, function(err, result) {
 
     if (err) {
@@ -72,8 +86,22 @@ exports.update = function(handler ,callback) {
       return callback(err);
     }
 
+    // 返回唯一的语种值
+    var rtnResult = "";
+    if ("key" === paramLang) {
+      rtnResult = result.key;
+    } else if ("category" === paramLang) {
+      rtnResult = result.category;
+    } else {
+      _.each(result.lang, function(val, key) {
+        if (key === paramLang) {
+          rtnResult = val;
+        }
+      });
+    }
+
     log.debug("finished: update keyword", uid);
 
-    return callback(err, result);
+    return callback(err, rtnResult);
   });
 };

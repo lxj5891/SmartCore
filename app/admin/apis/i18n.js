@@ -42,6 +42,7 @@ exports.update = function(req, res) {
   var handler = new context().bind(req, res);
 
   ctrI18n.update(handler, function(err, result) {
+
     if (err) {
       return response.send(res, err);
     }
